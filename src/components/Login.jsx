@@ -22,11 +22,12 @@ const Login = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="text" name="username" placeholder="Username" onChange={handleChange} />
-      <input type="password" name="password" placeholder="Password" onChange={handleChange} />
+      Username :<input type="text" name="Username" placeholder="Username" onChange={handleChange} />
+      Password: <input type="password" name="Password" placeholder="Password" onChange={handleChange} />
       <button type="submit">Login</button>
       {error && <p>{error}</p>}
     </form>
+    
   );
 };
 
