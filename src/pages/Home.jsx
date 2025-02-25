@@ -9,7 +9,7 @@ import CTASection from './CTASection';
 import StaffSection from './StaffSection';
 import FeedbackSection from './FeedbackSection';
 import Footer from './Footer';
-
+import ContactUS from './ContactUs';
 const Home = () => {
     const { user } = useContext(UserContext);
 
@@ -24,6 +24,7 @@ const Home = () => {
                 <CTASection />
                 <StaffSection />
                 <FeedbackSection />
+                <ContactUS />
                 {user && (
                     <div className="text-center mt-4">
                         <h2 className="text-2xl font-bold">Welcome, {user.displayName}!</h2>

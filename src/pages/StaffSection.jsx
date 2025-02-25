@@ -1,5 +1,7 @@
 import React from 'react';
-
+import avt1 from '../images/avatar/avt1.jpg';
+import avt2 from '../images/avatar/avt2.jpg';
+import avt3 from '../images/avatar/avt3.jpg';
 const StaffSection = () => {
     return (
         <section id="staff" className="bg-[#E8EAE6] py-16 px-4 animate__animated animate__fadeInUp animate__delay-2s">
@@ -10,7 +12,7 @@ const StaffSection = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="bg-white rounded-lg p-6 shadow animate__animated animate__zoomIn">
                         <img
-                            src="https://via.placeholder.com/150"
+                            src={avt2}
                             alt="Nguyễn Anh Hùng"
                             className="w-32 h-32 mx-auto rounded-full object-cover mb-4"
                         />
@@ -26,7 +28,7 @@ const StaffSection = () => {
                     </div>
                     <div className="bg-white rounded-lg p-6 shadow animate__animated animate__zoomIn animate__delay-1s">
                         <img
-                            src="https://via.placeholder.com/150"
+                            src={avt1}
                             alt="Trần Việt Anh"
                             className="w-32 h-32 mx-auto rounded-full object-cover mb-4"
                         />
@@ -42,7 +44,7 @@ const StaffSection = () => {
                     </div>
                     <div className="bg-white rounded-lg p-6 shadow animate__animated animate__zoomIn animate__delay-2s">
                         <img
-                            src="https://via.placeholder.com/150"
+                            src={avt3}
                             alt="Dưa Hấu Miếng"
                             className="w-32 h-32 mx-auto rounded-full object-cover mb-4"
                         />

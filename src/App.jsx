@@ -5,7 +5,7 @@ import './App.css';
 import Login from './components/login';
 import Register from './components/Register';
 import Home from './pages/Home';
-
+import ForgottenPW from './components/ForgottenPW';
 function App() {
     return (
         <UserProvider>
@@ -14,6 +14,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot" element={<ForgottenPW />} />
                 </Routes>
             </Router>
         </UserProvider>

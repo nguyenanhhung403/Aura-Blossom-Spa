@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import spaImage from "../images/LoginImage/AnhTemplate.jpg";
+import spaImage from "../images/LoginImage/AnhTemplate2.jpg";
 import spaImage2 from "../images/logoSpa.png";
 
 const Register = () => {

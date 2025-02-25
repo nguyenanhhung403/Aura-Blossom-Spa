@@ -122,7 +122,7 @@ const Login = () => {
                 </label>
               </div>
               <Link
-                to="/forgot-password"
+                to="/forgot"
                 className="text-blue-500 hover:underline"
               >
                 Quên mật khẩu?

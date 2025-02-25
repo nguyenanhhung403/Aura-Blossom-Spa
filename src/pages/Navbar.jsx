@@ -18,11 +18,15 @@ const Navbar = () => {
         }
     };
 
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <header className="fixed top-0 w-full z-50 bg-white shadow-sm animate__animated animate__fadeInDown">
             <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                    <Link to="/home">
+                    <Link to="/home" onClick={scrollToTop}>
                         <img
                             src={logoSpa}
                             alt="Aura Blossom Logo"
@@ -56,13 +60,13 @@ const Navbar = () => {
             </div>
             <div className="flex justify-center mt-4">
                 <nav className="hidden md:flex items-center space-x-3 text-sm font-medium text-[#2F4F4F] whitespace-nowrap">
-                    <a href="#home" className="hover:text-[#446E6A] transition">Trang chủ</a>
+                    <a href="#home" onClick={scrollToTop} className="hover:text-[#446E6A] transition">Trang chủ</a>
                     <a href="#about" className="hover:text-[#446E6A] transition">Giới thiệu</a>
                     <a href="#services" className="hover:text-[#446E6A] transition">Dịch vụ</a>
+                    <a href="#quiz" className="hover:text-[#446E6A] transition">Trắc nghiệm</a>
                     <a href="#staff" className="hover:text-[#446E6A] transition">Chuyên viên</a>
                     <a href="#feedback" className="hover:text-[#446E6A] transition">Feedback</a>
                     <a href="#blog" className="hover:text-[#446E6A] transition">Blog</a>
-                    <a href="#quiz" className="hover:text-[#446E6A] transition">Trắc nghiệm</a>
                     <a href="#reviews" className="hover:text-[#446E6A] transition">Nhận xét</a>
                     <a href="#contact" className="hover:text-[#446E6A] transition">Liên hệ</a>
                     <a href="#cart" className="hover:text-[#446E6A] transition">Giỏ hàng</a>

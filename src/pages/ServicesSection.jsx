@@ -1,9 +1,12 @@
 import React from 'react';
-import heroImage from '../images/AnhSuMenh/SuMenh.jpg';
+import detox from '../images/SevivceImg/Detox.png';
+import ChuyenSau from '../images/SevivceImg/ChuyenSau.jpg';
+import Body from '../images/SevivceImg/Body.png';
+import TrietLong from '../images/SevivceImg/TrietLong.jpg';
 
 const ServicesSection = () => {
     return (
-        <section id="services" className="bg-[#E8EAE6] py-16 px-4 animate__animated animate__fadeInUp animate__delay-1s">
+        <section id="services" className="bg-[#E8EAE6] py-16 px-4 animate__animated animate__fadeInUp animate__delay-0.5s text-center">
             <div className="max-w-7xl mx-auto text-center mb-10">
                 <h2 className="text-3xl font-bold text-[#2F4F4F] mb-4">
                     Dịch vụ của chúng tôi
@@ -16,7 +19,7 @@ const ServicesSection = () => {
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="bg-white rounded-lg p-6 shadow hover:shadow-xl transition animate__animated animate__zoomIn">
                     <img
-                        src={heroImage}
+                        src={detox}
                         alt="Detox Lăn Da"
                         className="rounded mb-4 w-full h-40 object-cover"
                     />
@@ -29,7 +32,7 @@ const ServicesSection = () => {
                 </div>
                 <div className="bg-white rounded-lg p-6 shadow hover:shadow-xl transition animate__animated animate__zoomIn animate__delay-1s">
                     <img
-                        src=""
+                        src={ChuyenSau}
                         alt="Chăm sóc da chuyên sâu"
                         className="rounded mb-4 w-full h-40 object-cover"
                     />
@@ -42,7 +45,7 @@ const ServicesSection = () => {
                 </div>
                 <div className="bg-white rounded-lg p-6 shadow hover:shadow-xl transition animate__animated animate__zoomIn animate__delay-2s">
                     <img
-                        src=""
+                        src={Body}
                         alt="Chăm sóc body"
                         className="rounded mb-4 w-full h-40 object-cover"
                     />
@@ -55,7 +58,7 @@ const ServicesSection = () => {
                 </div>
                 <div className="bg-white rounded-lg p-6 shadow hover:shadow-xl transition animate__animated animate__zoomIn animate__delay-3s">
                     <img
-                        src=""
+                        src={TrietLong}
                         alt="Triệt lông vĩnh viễn"
                         className="rounded mb-4 w-full h-40 object-cover"
                     />
@@ -67,6 +70,12 @@ const ServicesSection = () => {
                     </p>
                 </div>
             </div>
+            <button className="mt-4 px-5 py-2 bg-white text-[#2F4F4F] border border-[#2F4F4F] font-semibold rounded-full mr-4 hover:bg-[#2F4F4F] hover:text-white transition">
+                Bảng giá
+            </button>
+            <button className="px-5 py-2 bg-white text-[#2F4F4F] border border-[#2F4F4F] font-semibold rounded-full hover:bg-[#2F4F4F] hover:text-white transition">
+                Đặt lịch
+            </button>
         </section>
     );
 };
