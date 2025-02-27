@@ -1,11 +1,11 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, provider } from "../config/firebase";
+import { auth, provider } from "../../config/firebase";
 import { signInWithPopup } from "firebase/auth";
-import { UserContext } from "../context/UserContext";
-import spaImage from "../images/LoginImage/AnhTemplate.jpg";
+import { UserContext } from "../../context/UserContext";
+import spaImage from "../../images/LoginImage/AnhTemplate.jpg";
 import { motion } from "framer-motion";
-import spaImage2 from "../images/logoSpa.png";
+import spaImage2 from "../../images/logoSpa.png";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -122,7 +122,7 @@ const Login = () => {
                 </label>
               </div>
               <Link
-                to="/forgot"
+                to="/email-check"
                 className="text-blue-500 hover:underline"
               >
                 Quên mật khẩu?

@@ -1,7 +1,7 @@
 import React from 'react';
-import avt1 from '../images/avatar/avt1.jpg';
-import avt2 from '../images/avatar/avt2.jpg';
-import avt3 from '../images/avatar/avt3.jpg';
+import avt1 from '../../images/avatar/avt1.jpg';
+import avt2 from '../../images/avatar/avt2.jpg';
+import avt3 from '../../images/avatar/avt3.jpg';
 const StaffSection = () => {
     return (
         <section id="staff" className="bg-[#E8EAE6] py-16 px-4 animate__animated animate__fadeInUp animate__delay-2s">

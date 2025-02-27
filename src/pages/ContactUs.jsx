@@ -124,7 +124,7 @@ const ContactSection = () => {
             <p className="mb-2">9h - 22h hằng ngày</p>
             <p className="mb-2">
               <a
-                href="https://aurablossomspa.com"
+                href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:text-[#375955]"

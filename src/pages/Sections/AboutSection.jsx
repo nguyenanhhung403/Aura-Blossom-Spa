@@ -1,5 +1,5 @@
 import React from 'react';
-import spaAbout from '../images/spa-about.png';
+import spaAbout from '../../images/spa-about.png';
 
 const AboutSection = () => {
     return (

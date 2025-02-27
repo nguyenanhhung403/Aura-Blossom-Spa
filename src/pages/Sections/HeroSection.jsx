@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import heroImage from '../images/AnhSuMenh/SuMenh.jpg';
-import heroImage1 from '../images/AnhSuMenh/SuMenh2.jpg';
-import heroImage2 from '../images/AnhSuMenh/SuMenh3.jpg';
+import heroImage from '../../images/AnhSuMenh/SuMenh.jpg';
+import heroImage1 from '../../images/AnhSuMenh/SuMenh2.jpg';
+import heroImage2 from '../../images/AnhSuMenh/SuMenh3.jpg';
 
 const images = [heroImage, heroImage1, heroImage2];
 const HeroSection = () => {

@@ -1,8 +1,8 @@
 import React from 'react';
-import detox from '../images/SevivceImg/Detox.png';
-import ChuyenSau from '../images/SevivceImg/ChuyenSau.jpg';
-import Body from '../images/SevivceImg/Body.png';
-import TrietLong from '../images/SevivceImg/TrietLong.jpg';
+import detox from '../../images/SevivceImg/Detox.png';
+import ChuyenSau from '../../images/SevivceImg/ChuyenSau.jpg';
+import Body from '../../images/SevivceImg/Body.png';
+import TrietLong from '../../images/SevivceImg/TrietLong.jpg';
 
 const ServicesSection = () => {
     return (

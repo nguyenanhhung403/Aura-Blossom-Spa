@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import FPW from '../images/template/FPW.png';
-import spaImage2 from '../images/logoSpa.png';
+import FPW from '../../images/template/FPW.png';
+import spaImage2 from '../../images/logoSpa.png';
 
 const ResetPassword = () => {
 return (
@@ -37,6 +37,7 @@ return (
             >
                 <h2 className="text-2xl font-bold mb-6 text-center">Tạo mật khẩu mới</h2>
                 <form>
+                    
                     <motion.div
                         className="mb-4"
                         initial={{ opacity: 0, y: 20 }}
