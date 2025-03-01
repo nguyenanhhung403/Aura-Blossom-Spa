@@ -9,7 +9,7 @@ const CustomerFavorites = () => {
           "Hàng trăm khách hàng đã chọn và yêu thích!"
         </h2>
         <p className="mt-6 text-lg md:text-xl text-gray-700 leading-relaxed">
-          Dùng bộ lọc cơ hội trải nghiệm dịch vụ tốt nhất tại spa của chúng tôi – nơi mang đến cho bạn
+          Trải nghiệm dịch vụ tốt nhất tại spa của chúng tôi – nơi mang đến cho bạn
           làn da khỏe mạnh, căng bóng và tràn đầy sức sống. Đặt lịch ngay hôm nay để sẵn sàng khác biệt
           và tận hưởng phút giây tuyệt vời!
         </p>
