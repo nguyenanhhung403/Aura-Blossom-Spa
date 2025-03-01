@@ -13,7 +13,7 @@ const EmailCheck = () => {
   const handleSendCode = () => {
     setIsCodeSent(true);
   };
-
+// xử lý mã xác nhận 
   const handleVerifyCode = () => {
     if (verificationCode === '123456') { 
       setIsCodeVerified(true);
@@ -22,7 +22,7 @@ const EmailCheck = () => {
       alert('Mã xác nhận không đúng');
     }
   };
-
+// setup lại các đối tượng nhận zô
   return (
     <div className="flex min-h-screen h-screen">
       <div className="w-1/2 relative">

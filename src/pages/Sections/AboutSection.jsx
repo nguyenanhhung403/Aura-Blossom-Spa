@@ -1,6 +1,6 @@
 import React from 'react';
 import spaAbout from '../../images/spa-about.png';
-
+import HeroVideo from '../../images/AnhSuMenh/HeroVideo.mp4'
 const AboutSection = () => {
     return (
         <section
@@ -8,10 +8,12 @@ const AboutSection = () => {
             className="max-w-7xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-2 gap-8 animate__animated animate__fadeInUp animate__delay-1s"
         >
             <div className="flex items-center justify-center">
-                <img
-                    src={spaAbout}
-                    alt="Spa about"
-                    className="rounded-lg shadow-lg w-full object-cover"
+                <video
+                    src={HeroVideo}
+                    className="rounded-lg shadow-lg w-3/4 object-cover"
+                    autoPlay
+                    loop
+                    muted
                 />
             </div>
             <div className="flex flex-col justify-center">
