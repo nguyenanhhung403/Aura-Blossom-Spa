@@ -1,0 +1,102 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+nav a {
+  position: relative;
+  display: inline-block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: rgb(20, 84, 78);
+  transition: color 0.3s ease-in-out;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: rgb(20, 84, 78);
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+
+nav a:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Great Vibes', cursive;
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-left {
+  animation: slideInFromLeft 1.5s ease-out;
+}
+
+:root {
+--primary-color: rgb(20, 84, 78);
+--secondary-color: rgb(20, 84, 78);
+--accent-color: rgb(20, 84, 78);
+--text-dark: rgb(20, 84, 78);
+--text-light: #f8fafc;
+}
+
+body {
+@apply bg-white text-[var(--text-dark)] antialiased;
+font-feature-settings: 'kern' 1;
+}
+
+.hero-section {
+background-position: center;
+background-repeat: no-repeat;
+background-size: cover;
+perspective: 1000px;
+}
+
+.gradient-overlay {
+background: linear-gradient(
+  45deg,
+  rgba(0, 0, 0, 0.6) 0%,
+  rgba(0, 0, 0, 0.4) 100%
+);
+}
+
+.button-hover-effect {
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.button-hover-effect:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 24px rgba(20, 84, 78, 0.3);
+}

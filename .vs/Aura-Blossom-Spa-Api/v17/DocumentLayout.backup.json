@@ -1,0 +1,153 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\components\\Login.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\components\\Login.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\components\\Register.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\components\\Register.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\components\\ForgottenPW.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\components\\ForgottenPW.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\main.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\main.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\userApi.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\service\\userApi.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\roleApi.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\service\\roleApi.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\authApi.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\service\\authApi.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\api.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\service\\api.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "main.jsx",
+              "DocumentMoniker": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\main.jsx",
+              "RelativeDocumentMoniker": "src\\main.jsx",
+              "ToolTip": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\main.jsx",
+              "RelativeToolTip": "src\\main.jsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2025-03-01T06:22:49.091Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "userApi.js",
+              "DocumentMoniker": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\userApi.js",
+              "RelativeDocumentMoniker": "src\\service\\userApi.js",
+              "ToolTip": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\userApi.js",
+              "RelativeToolTip": "src\\service\\userApi.js",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAUwD0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-03-01T06:19:11.293Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "api.js",
+              "DocumentMoniker": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\api.js",
+              "RelativeDocumentMoniker": "src\\service\\api.js",
+              "ToolTip": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\api.js",
+              "RelativeToolTip": "src\\service\\api.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-03-01T06:17:44.028Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Register.jsx",
+              "DocumentMoniker": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\components\\Register.jsx",
+              "RelativeDocumentMoniker": "src\\components\\Register.jsx",
+              "ToolTip": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\components\\Register.jsx",
+              "RelativeToolTip": "src\\components\\Register.jsx",
+              "ViewState": "AgIAAKMAAAAAAAAAAAAcwMYAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2025-03-01T06:15:41.035Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ForgottenPW.jsx",
+              "DocumentMoniker": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\components\\ForgottenPW.jsx",
+              "RelativeDocumentMoniker": "src\\components\\ForgottenPW.jsx",
+              "ToolTip": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\components\\ForgottenPW.jsx",
+              "RelativeToolTip": "src\\components\\ForgottenPW.jsx",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2025-03-01T06:00:44.147Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Login.jsx",
+              "DocumentMoniker": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\components\\Login.jsx",
+              "RelativeDocumentMoniker": "src\\components\\Login.jsx",
+              "ToolTip": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\components\\Login.jsx",
+              "RelativeToolTip": "src\\components\\Login.jsx",
+              "ViewState": "AgIAACoAAAAAAAAAAAAAAF8AAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2025-03-01T06:00:57.391Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "authApi.js",
+              "DocumentMoniker": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\authApi.js",
+              "RelativeDocumentMoniker": "src\\service\\authApi.js",
+              "ToolTip": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\authApi.js",
+              "RelativeToolTip": "src\\service\\authApi.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-03-01T06:18:23.409Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "roleApi.js",
+              "DocumentMoniker": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\roleApi.js",
+              "RelativeDocumentMoniker": "src\\service\\roleApi.js",
+              "ToolTip": "C:\\Users\\Thanh Huyen\\Downloads\\Aura-Blossom-Spa-Api\\src\\service\\roleApi.js",
+              "RelativeToolTip": "src\\service\\roleApi.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-03-01T06:18:56.784Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
