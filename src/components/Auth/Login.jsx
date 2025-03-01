@@ -1,24 +1,24 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, provider } from "../../config/firebase";
+import { auth, provider } from "../../components/config/firebase";
 import { signInWithPopup } from "firebase/auth";
-import { UserContext } from "../../context/UserContext";
-import spaImage from "../../images/LoginImage/AnhTemplate.jpg";
+import { UserContext } from "../../components/context/UserContext";
+import Background from "../../components/images/LoginImage/LoginBackground.jpg";
+import spaImage2 from "../../components/images/logoSpa.png";
 import { motion } from "framer-motion";
-import spaImage2 from "../../images/logoSpa.png";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [registerSuccess] = useState(false);
 
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Xử lý đăng nhập ở đây (gọi API, kiểm tra, v.v.)
-    // ...
+    // Xử lý đăng nhập
+    console.log("Username:", username);
+    console.log("Password:", password);
   };
 
   const handleGoogleLogin = async () => {
@@ -32,152 +32,113 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen h-screen">
-      <motion.div
-        className="hidden md:flex md:w-1/2 relative h-screen"
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <img src={spaImage} alt="Spa" className="h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <img
-            src={spaImage2}
-            style={{ width: "33.33%", height: "auto" }}
-            alt="Logo"
-          />
-        </div>
-      </motion.div>
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      style={{ backgroundImage: `url(${Background})` }}
+    >
+      <div className="absolute inset-0 bg-black bg-opacity-30"></div>
 
       <motion.div
-        className="w-full md:w-1/2 bg-[#1B4033] flex items-center justify-center p-6 h-screen"
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="bg-white bg-opacity-90 backdrop-blur-sm p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10"
       >
         <motion.div
-          className="bg-white p-8 rounded shadow-md w-full max-w-md"
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.5 }}
+          whileHover={{ scale: 1.05 }}
+          className="flex justify-center mb-8"
         >
-          <h2 className="text-2xl font-bold mb-6 text-center">Đăng nhập</h2>
+          <img
+            src={spaImage2}
+            alt="Spa Logo"
+            className="w-28 h-28 drop-shadow-lg"
+          />
+        </motion.div>
 
-          {/* Thông báo "Đăng kí thành công!" */}
-          {registerSuccess && (
-            <p className="text-red-500 text-center mb-4">Đăng kí thành công!</p>
-          )}
+        <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
+          Đăng nhập
+        </h2>
 
-          <form onSubmit={handleSubmit}>
-            <motion.div
-              className="mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <label className="block text-gray-700 mb-2" htmlFor="username">
-                Họ và tên
-              </label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
-                placeholder="Nhập họ và tên"
-                required
-              />
-            </motion.div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tên đăng nhập
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+              placeholder="Nhập tên đăng nhập"
+            />
+          </div>
 
-            <motion.div
-              className="mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <label className="block text-gray-700 mb-2" htmlFor="password">
-                Mật khẩu
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
-                placeholder="Nhập mật khẩu"
-                required
-              />
-            </motion.div>
-
-            <motion.div
-              className="flex items-center justify-between mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              <div className="flex items-center">
-                <input type="checkbox" id="rememberMe" className="mr-2" />
-                <label htmlFor="rememberMe" className="text-gray-700">
-                  Lưu mật khẩu
-                </label>
-              </div>
-              <Link
-                to="/email-check"
-                className="text-blue-500 hover:underline"
-              >
-                Quên mật khẩu?
-              </Link>
-            </motion.div>
-
-            <motion.button
-              type="submit"
-              className="w-full bg-[#446E6A] text-white py-2 rounded hover:bg-[#375955] transition"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-            >
-              Đăng nhập
-            </motion.button>
-          </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Mật khẩu
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+              placeholder="••••••••"
+            />
+          </div>
 
           <motion.button
-            onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center bg-white text-black py-2 rounded border border-gray-300 hover:bg-gray-100 transition mt-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
           >
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/archive/c/c1/20190923152039%21Google_%22G%22_logo.svg"
-              alt="Google Logo"
-              className="w-5 h-5 mr-2"
-            />
-            Đăng nhập với Google
+            Đăng nhập
           </motion.button>
+        </form>
 
-          <motion.p
-            className="mt-4 text-center text-gray-700"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.2 }}
+        <div className="my-6 flex items-center justify-between text-sm">
+          <Link
+            to="/email-check"
+            className="text-blue-600 hover:text-blue-800 font-medium"
           >
-            Chưa có tài khoản?{" "}
-            <Link to="/register" className="text-[#446E6A] hover:underline">
-              Đăng ký
-            </Link>
-          </motion.p>
-          <motion.p
-            className="mt-4 text-center text-gray-700"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.2 }}
+            Quên mật khẩu?
+          </Link>
+          <Link
+            to="/register"
+            className="text-blue-600 hover:text-blue-800 font-medium"
           >
-            Trở về trang chủ{" "}
-            <Link to="/" className="text-[#446E6A] hover:underline">
-              Home
-            </Link>
-          </motion.p>
-        </motion.div>
+            Tạo tài khoản mới
+          </Link>
+        </div>
+
+        <div className="my-8 flex items-center">
+          <div className="flex-1 border-t border-gray-300"></div>
+          <span className="px-4 text-sm text-gray-500">hoặc</span>
+          <div className="flex-1 border-t border-gray-300"></div>
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleGoogleLogin}
+          className="w-full bg-white border border-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-300 flex items-center justify-center"
+        >
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google Logo"
+            className="w-5 h-5 mr-3"
+          />
+          Đăng nhập với Google
+        </motion.button>
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/"
+            className="text-sm text-gray-600 hover:text-gray-800 hover:underline"
+          >
+            ← Trở về trang chủ
+          </Link>
+        </div>
       </motion.div>
     </div>
   );

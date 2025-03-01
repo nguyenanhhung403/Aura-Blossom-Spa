@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import spaImage from "../../images/LoginImage/AnhTemplate2.jpg";
-import spaImage2 from "../../images/logoSpa.png";
+import Background from "../../components/images/LoginImage/LoginBackground.jpg";
+import spaImage2 from "../../components/images/logoSpa.png";
 
 const Register = () => {
   const [name, setName] = useState("");
+  const [username, setUsername] = useState(""); // state cho tên đăng nhập
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -13,159 +14,127 @@ const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Xử lý đăng ký ở đây (gọi API, kiểm tra, v.v.)
+    console.log(
+      "Tên:", name,
+      "Tên đăng nhập:", username,
+      "Email:", email,
+      "Mật khẩu:", password,
+      "Xác nhận:", confirmPassword
+    );
   };
 
   return (
-    <div className="flex min-h-screen h-screen">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      style={{ backgroundImage: `url(${Background})` }}
+    >
+      {/* Overlay đen mờ */}
+      <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+
       <motion.div
-        className="hidden md:flex md:w-1/2 relative h-screen"
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="bg-white bg-opacity-90 backdrop-blur-sm p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10"
       >
-        <img src={spaImage} alt="Spa" className="h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <h1 className="text-2xl font-bold text-white flex items-center justify-center">
-            <img
-              src={spaImage2}
-              style={{ width: "33.33%", height: "auto" }}
-              alt="Logo"
+        <motion.div whileHover={{ scale: 1.05 }} className="flex justify-center mb-8">
+          <img src={spaImage2} alt="Logo Spa" className="w-28 h-28 drop-shadow-lg" />
+        </motion.div>
+
+        <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">Đăng ký</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tên</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Nhập tên của bạn"
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
             />
-          </h1>
-        </div>
-      </motion.div>
+          </div>
 
-      <motion.div
-        className="w-full md:w-1/2 bg-[#1B4033] flex items-center justify-center p-6 h-screen"
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.div
-          className="bg-white p-8 rounded shadow-md w-full max-w-md"
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-2xl font-bold mb-6 text-center">Đăng ký</h2>
-          <form onSubmit={handleSubmit}>
-            <motion.div
-              className="mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <label className="block text-gray-700 mb-2" htmlFor="name">
-                Tên
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
-                placeholder="Nhập tên của bạn"
-                required
-              />
-            </motion.div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Nhập email của bạn"
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            />
+          </div>
 
-            <motion.div
-              className="mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <label className="block text-gray-700 mb-2" htmlFor="email">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
-                placeholder="Nhập email của bạn"
-                required
-              />
-            </motion.div>
+          {/* Trường Tên đăng nhập */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tên đăng nhập</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Nhập tên đăng nhập của bạn"
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            />
+          </div>
 
-            <motion.div
-              className="mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              <label className="block text-gray-700 mb-2" htmlFor="password">
-                Mật khẩu
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
-                placeholder="Nhập mật khẩu"
-                required
-              />
-            </motion.div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Nhập mật khẩu"
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            />
+          </div>
 
-            <motion.div
-              className="mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-            >
-              <label
-                className="block text-gray-700 mb-2"
-                htmlFor="confirmPassword"
-              >
-                Xác nhận mật khẩu
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
-                placeholder="Xác nhận mật khẩu"
-                required
-              />
-            </motion.div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Xác nhận mật khẩu"
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            />
+          </div>
 
-            <motion.button
-              type="submit"
-              className="w-full bg-[#446E6A] text-white py-2 rounded hover:bg-[#375955] transition"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1 }}
-            >
-              Đăng ký
-            </motion.button>
-          </form>
-
-          <motion.p
-            className="mt-4 text-center text-gray-700"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.2 }}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 
+                       rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
           >
+            Đăng ký
+          </motion.button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
             Đã có tài khoản?{" "}
-            <Link to="/login" className="text-[#446E6A] hover:underline">
+            <Link to="/login" className="text-blue-600 hover:text-blue-800 font-medium">
               Đăng nhập
             </Link>
-          </motion.p>
-          <motion.p
-                      className="mt-4 text-center text-gray-700"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 1.2 }}
-                    >
-                      Trở về trang chủ{" "}
-                      <Link to="/" className="text-[#446E6A] hover:underline">
-                        Home
-                      </Link>
-                    </motion.p>
-        </motion.div>
+          </p>
+        </div>
+
+        <div className="mt-4 text-center">
+          <Link to="/" className="text-sm text-gray-600 hover:text-gray-800 hover:underline">
+            ← Trở về trang chủ
+          </Link>
+        </div>
       </motion.div>
     </div>
   );
