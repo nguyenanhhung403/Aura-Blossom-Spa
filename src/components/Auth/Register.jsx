@@ -6,22 +6,51 @@ import spaImage2 from "../../components/images/logoSpa.png";
 
 const Register = () => {
   const [name, setName] = useState("");
-  const [username, setUsername] = useState(""); // state cho tên đăng nhập
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUserName] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const { user } = useContext(UserContext);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Xử lý đăng ký ở đây (gọi API, kiểm tra, v.v.)
-    console.log(
-      "Tên:", name,
-      "Tên đăng nhập:", username,
-      "Email:", email,
-      "Mật khẩu:", password,
-      "Xác nhận:", confirmPassword
-    );
+    if (loading) return;
+    setLoading(true);
+    try { 
+    console.log  = {
+      "Tên": name,
+      "Email": email,
+      "Tên đăng nhập": username,
+      "Mật khẩu": password,
+      "Xác nhận": confirmPassword
+    }
+
+      const registerResult = await registerUser(log);
+      const hasEmail = registerResult?.result?.email;
+      if (!registerResult || !hasEmail) {
+        throw new Error("Đăng ký thất bại");
+      }
+
+      alert("Đăng ký thành công. Vui lòng đăng nhập để tiếp tục");
+      navigate("/login");
+    }catch (error) {
+      console.error(error);
+      alert(error.message || "Có lỗi xảy ra khi đăng ký");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user]);
 
   return (
     <div

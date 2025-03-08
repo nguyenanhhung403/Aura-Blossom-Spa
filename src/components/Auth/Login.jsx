@@ -10,14 +10,38 @@ import { motion } from "framer-motion";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Xử lý đăng nhập
-   
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      const loginObj = {
+        username,
+        password,
+      }
+
+      const loginResult = await loginUser(loginObj);
+      const isAuthenticated = loginResult?.result?.authenticated;
+      if (!loginResult || !isAuthenticated) {
+        throw new Error("Đăng nhập thất bại");
+      }
+
+      const accessToken = loginResult.result.token;
+      localStorage.setItem(ACCESS_TOKEN, accessToken);
+      navigate("/");
+    }catch (error) {
+      console.error(error);
+      const message = error.message ? 'Mật khẩu hoặc tên đăng nhập không đúng' : 'Có lỗi xảy ra khi đăng nhập';
+      alert(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -29,6 +53,12 @@ const Login = () => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user]);
 
   return (
     <div
