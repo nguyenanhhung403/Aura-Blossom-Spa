@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, {useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Background from "../../components/images/LoginImage/LoginBackground.jpg";
 import spaImage2 from "../../components/images/logoSpa.png";
+import { registerUser } from "../../services/authApi.js";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../components/context/UserContext.jsx";
 
 const Register = () => {
   const [name, setName] = useState("");

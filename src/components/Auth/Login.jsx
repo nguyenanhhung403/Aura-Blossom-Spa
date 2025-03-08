@@ -1,11 +1,13 @@
-import React, { useState, useContext } from "react";
+import React, { useState,useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, provider } from "../../components/config/firebase";
 import { signInWithPopup } from "firebase/auth";
-import { UserContext } from "../../components/context/UserContext";
+import { UserContext } from "../../components/context/UserContext.jsx";
 import Background from "../../components/images/LoginImage/LoginBackground.jpg";
 import spaImage2 from "../../components/images/logoSpa.png";
 import { motion } from "framer-motion";
+import { loginUser } from "../../services/authApi.js";
+import { ACCESS_TOKEN } from "../../services/api.js";
 
 const Login = () => {
   const [username, setUsername] = useState("");
