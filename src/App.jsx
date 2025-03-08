@@ -21,11 +21,11 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/forgot" element={<ForgottenPW />} />             <Route path="/blog" element={<Blog />} />
+                    <Route path="/forgot" element={<ForgottenPW />} />
+                    <Route path="/blog" element={<Blog />} />
                 </Routes>
             </UserProvider>
         </Router>
     );
 }
-
 export default App;
