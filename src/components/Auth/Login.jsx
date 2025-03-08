@@ -17,8 +17,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Xử lý đăng nhập
-    console.log("Username:", username);
-    console.log("Password:", password);
+   
   };
 
   const handleGoogleLogin = async () => {
