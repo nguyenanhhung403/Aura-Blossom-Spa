@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useEffect, useState} from "react";
+import { Link, useNavigate} from "react-router-dom";
 import { motion } from "framer-motion";
 import Background from "../../components/images/LoginImage/LoginBackground.jpg";
 import spaImage2 from "../../components/images/logoSpa.png";
+import { registerUser } from "../service/authApi.js";
+import { UserContext } from "../context/UserContext.jsx";
+
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -10,10 +13,15 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Xử lý đăng ký ở đây (gọi API, kiểm tra, v.v.)
+    if (loading) return;
+
     console.log(
       "Tên:", name,
       "Tên đăng nhập:", username,
@@ -21,7 +29,39 @@ const Register = () => {
       "Mật khẩu:", password,
       "Xác nhận:", confirmPassword
     );
-  };
+
+    setLoading(true);
+    try {
+      const registerObj = {
+        fullname: name,
+        email,
+        password,
+        username,
+        confirmPassword
+      };
+
+      const registerResult = await registerUser(registerObj);
+      const hasEmail = registerResult?.result?.email;
+
+      if (!registerResult || !hasEmail) {
+        throw new Error("Đăng ký thất bại");
+      }
+
+      alert("Đăng ký thành công. Vui lòng đăng nhập để tiếp tục");
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Có lỗi xảy ra khi đăng ký");
+    } finally {
+      setLoading(false);
+    }
+};
+
+useEffect(() => {
+  if (user) {
+    navigate("/");
+  }
+}, [user]);
 
   return (
     <div
