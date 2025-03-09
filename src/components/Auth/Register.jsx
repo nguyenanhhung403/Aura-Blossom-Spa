@@ -1,59 +1,27 @@
-import React, {useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Background from "../../components/images/LoginImage/LoginBackground.jpg";
 import spaImage2 from "../../components/images/logoSpa.png";
-import { registerUser } from "../../services/authApi.js";
-import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../components/context/UserContext.jsx";
 
 const Register = () => {
   const [name, setName] = useState("");
+  const [username, setUsername] = useState(""); // state cho tên đăng nhập
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [username, setUserName] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
-
-  const { user } = useContext(UserContext);
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     // Xử lý đăng ký ở đây (gọi API, kiểm tra, v.v.)
-    if (loading) return;
-    setLoading(true);
-    try { 
-    console.log  = {
-      "Tên": name,
-      "Email": email,
-      "Tên đăng nhập": username,
-      "Mật khẩu": password,
-      "Xác nhận": confirmPassword
-    }
-
-      const registerResult = await registerUser(log);
-      const hasEmail = registerResult?.result?.email;
-      if (!registerResult || !hasEmail) {
-        throw new Error("Đăng ký thất bại");
-      }
-
-      alert("Đăng ký thành công. Vui lòng đăng nhập để tiếp tục");
-      navigate("/login");
-    }catch (error) {
-      console.error(error);
-      alert(error.message || "Có lỗi xảy ra khi đăng ký");
-    } finally {
-      setLoading(false);
-    }
+    console.log(
+      "Tên:", name,
+      "Tên đăng nhập:", username,
+      "Email:", email,
+      "Mật khẩu:", password,
+      "Xác nhận:", confirmPassword
+    );
   };
-
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user]);
 
   return (
     <div

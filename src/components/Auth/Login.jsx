@@ -1,49 +1,24 @@
-import React, { useState,useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, provider } from "../../components/config/firebase";
 import { signInWithPopup } from "firebase/auth";
-import { UserContext } from "../../components/context/UserContext.jsx";
+import { UserContext } from "../../components/context/UserContext";
 import Background from "../../components/images/LoginImage/LoginBackground.jpg";
 import spaImage2 from "../../components/images/logoSpa.png";
 import { motion } from "framer-motion";
-import { loginUser } from "../../services/authApi.js";
-import { ACCESS_TOKEN } from "../../services/api.js";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const { user, setUser } = useContext(UserContext);
+  const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (loading) return;
-
-    setLoading(true);
-    try {
-      const loginObj = {
-        username,
-        password,
-      }
-
-      const loginResult = await loginUser(loginObj);
-      const isAuthenticated = loginResult?.result?.authenticated;
-      if (!loginResult || !isAuthenticated) {
-        throw new Error("Đăng nhập thất bại");
-      }
-
-      const accessToken = loginResult.result.token;
-      localStorage.setItem(ACCESS_TOKEN, accessToken);
-      navigate("/");
-    }catch (error) {
-      console.error(error);
-      const message = error.message ? 'Mật khẩu hoặc tên đăng nhập không đúng' : 'Có lỗi xảy ra khi đăng nhập';
-      alert(message);
-    } finally {
-      setLoading(false);
-    }
+    // Xử lý đăng nhập
+    console.log("Username:", username);
+    console.log("Password:", password);
   };
 
   const handleGoogleLogin = async () => {
@@ -55,12 +30,6 @@ const Login = () => {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user]);
 
   return (
     <div
