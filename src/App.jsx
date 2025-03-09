@@ -10,6 +10,7 @@ import Blog from './components/pages/Blogs';
 import EmailCheck from './components/Auth/EmailCheck';
 import Profile from './components/pages/Profile';
 import BookingProcess from './components/pages/BookingProcess';
+import Services from './components/pages/Services';
 function App() {
     return (
         <UserProvider>
@@ -23,6 +24,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/forgot" element={<ForgottenPW />} />
                     <Route path="/blog" element={<Blog />} />
+                    <Route path="/services" element={<Services />} />
                 </Routes>
             </Router>
         </UserProvider>
