@@ -23,8 +23,8 @@ import FeedbackList from './components/pages/Admin/FeedBackList';
 import SpaDashboard from './components/pages/Admin/SpaDashboard';
 function App() {
     return (
-        <UserProvider>
-            <Router>
+        <Router>
+            <UserProvider>
                 <Routes>
                     <Route path='/booking' element={<BookingProcess/>}/>
                     <Route path="/profile" element={<Profile />} />
@@ -46,8 +46,8 @@ function App() {
                     <Route path="/admin/feedback" element={<FeedbackList />} />
                     <Route path="/admin/dashboard" element={<SpaDashboard />} />
                 </Routes>
-            </Router>
-        </UserProvider>
+            </UserProvider>
+        </Router>
     );
 }
 

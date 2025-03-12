@@ -6,19 +6,47 @@ import { UserContext } from "../../components/context/UserContext";
 import Background from "../../components/images/LoginImage/LoginBackground.jpg";
 import spaImage2 from "../../components/images/logoSpa.png";
 import { motion } from "framer-motion";
+import { loginUser } from "../service/authApi.js";
+import { ACCESS_TOKEN } from "../service/api.js";
+import { useEffect } from "react";
 
-const Login = () => {
+
+function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Xử lý đăng nhập
-    console.log("Username:", username);
-    console.log("Password:", password);
+    //Api
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      const loginObj = {
+        username,
+        password,
+      };
+
+      const loginResult = await loginUser(loginObj);
+      const isAuthenticated = loginResult?.result?.authenticated;
+      if (!loginResult || !isAuthenticated) {
+        throw new Error("Đăng nhập thất bại");
+      }
+
+      const accessToken = loginResult.result.token;
+      localStorage.setItem(ACCESS_TOKEN, accessToken);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      const message = error.message ? 'Mật khẩu hoặc tên đăng nhập không đúng' : 'Có lỗi xảy ra khi đăng nhập';
+      alert(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -30,6 +58,12 @@ const Login = () => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user]);
 
   return (
     <div
@@ -51,8 +85,7 @@ const Login = () => {
           <img
             src={spaImage2}
             alt="Spa Logo"
-            className="w-28 h-28 drop-shadow-lg"
-          />
+            className="w-28 h-28 drop-shadow-lg" />
         </motion.div>
 
         <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
@@ -69,8 +102,7 @@ const Login = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
-              placeholder="Nhập tên đăng nhập"
-            />
+              placeholder="Nhập tên đăng nhập" />
           </div>
 
           <div>
@@ -82,8 +114,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
-              placeholder="••••••••"
-            />
+              placeholder="••••••••" />
           </div>
 
           <motion.button
@@ -126,8 +157,7 @@ const Login = () => {
           <img
             src="https://www.svgrepo.com/show/475656/google-color.svg"
             alt="Google Logo"
-            className="w-5 h-5 mr-3"
-          />
+            className="w-5 h-5 mr-3" />
           Đăng nhập với Google
         </motion.button>
 
@@ -142,6 +172,6 @@ const Login = () => {
       </motion.div>
     </div>
   );
-};
+}
 
 export default Login;

@@ -1,28 +1,10 @@
 import React, { useState } from "react";
-import {
-  FaSearch,
-  FaTrash,
-  FaStar,
-  FaCheck,
-  FaTimes,
-  FaFilter,
-  FaSort,
-  FaUserCircle,
-  FaPhone,
-  FaComments,
-} from "react-icons/fa";
+import { FaSearch, FaTrash, FaStar, FaCheck, FaTimes, FaFilter, FaSort, FaUserCircle, FaPhone, FaComments } from "react-icons/fa";
 import Sidebar from "./SideBar";
 
 const FeedbackList = () => {
   // Mảng dịch vụ
-  const services = [
-    "Dịch vụ A",
-    "Dịch vụ B",
-    "Dịch vụ C",
-    "Nặn mụn",
-    "Tư vấn da",
-    "Chăm sóc da",
-  ];
+  const services = ["Dịch vụ A", "Dịch vụ B", "Dịch vụ C", "Nặn mụn", "Tư vấn da", "Chăm sóc da"];
 
   // State chọn dịch vụ
   const [selectedService, setSelectedService] = useState("");
@@ -41,10 +23,9 @@ const FeedbackList = () => {
       customerName: "Nguyễn Văn A",
       phone: "0123456789",
       rating: 4,
-      comment:
-        "Tôi rất hài lòng với dịch vụ, nhân viên nhiệt tình và chu đáo. Sẽ quay lại lần sau.",
+      comment: "Tôi rất hài lòng với dịch vụ, nhân viên nhiệt tình và chu đáo. Sẽ quay lại lần sau.",
       date: "01/03/2025",
-      staffName: "Bác sĩ A",
+      staffName: "Bác sĩ A"
     },
     {
       id: 2,
@@ -52,10 +33,9 @@ const FeedbackList = () => {
       customerName: "Trần Thị B",
       phone: "0987654321",
       rating: 5,
-      comment:
-        "Dịch vụ tuyệt vời, kết quả vượt ngoài mong đợi. Đã giới thiệu cho bạn bè.",
+      comment: "Dịch vụ tuyệt vời, kết quả vượt ngoài mong đợi. Đã giới thiệu cho bạn bè.",
       date: "02/03/2025",
-      staffName: "Bác sĩ B",
+      staffName: "Bác sĩ B"
     },
     {
       id: 3,
@@ -63,10 +43,9 @@ const FeedbackList = () => {
       customerName: "Lê Văn C",
       phone: "0911222333",
       rating: 3,
-      comment:
-        "Dịch vụ ổn, tuy nhiên thời gian chờ đợi hơi lâu. Cần cải thiện thêm.",
+      comment: "Dịch vụ ổn, tuy nhiên thời gian chờ đợi hơi lâu. Cần cải thiện thêm.",
       date: "03/03/2025",
-      staffName: "Bác sĩ C",
+      staffName: "Bác sĩ C"
     },
     {
       id: 4,
@@ -74,10 +53,9 @@ const FeedbackList = () => {
       customerName: "Phạm Thị D",
       phone: "0977888999",
       rating: 5,
-      comment:
-        "Nặn mụn rất nhẹ nhàng, không đau. Da sạch và không bị thâm. Rất hài lòng!",
+      comment: "Nặn mụn rất nhẹ nhàng, không đau. Da sạch và không bị thâm. Rất hài lòng!",
       date: "04/03/2025",
-      staffName: "Bác sĩ D",
+      staffName: "Bác sĩ D"
     },
     {
       id: 5,
@@ -85,10 +63,9 @@ const FeedbackList = () => {
       customerName: "Hoàng Văn E",
       phone: "0866777888",
       rating: 2,
-      comment:
-        "Buổi tư vấn hơi ngắn, cảm thấy chưa được giải đáp hết thắc mắc. Cần dành nhiều thời gian hơn cho khách hàng.",
+      comment: "Buổi tư vấn hơi ngắn, cảm thấy chưa được giải đáp hết thắc mắc. Cần dành nhiều thời gian hơn cho khách hàng.",
       date: "05/03/2025",
-      staffName: "Bác sĩ A",
+      staffName: "Bác sĩ A"
     },
     {
       id: 6,
@@ -96,10 +73,9 @@ const FeedbackList = () => {
       customerName: "Ngô Thị F",
       phone: "0933444555",
       rating: 4,
-      comment:
-        "Massage thư giãn và đắp mặt nạ rất tốt. Da căng mịn ngay sau khi dùng dịch vụ.",
+      comment: "Massage thư giãn và đắp mặt nạ rất tốt. Da căng mịn ngay sau khi dùng dịch vụ.",
       date: "06/03/2025",
-      staffName: "Bác sĩ B",
+      staffName: "Bác sĩ B"
     },
     {
       id: 7,
@@ -107,20 +83,18 @@ const FeedbackList = () => {
       customerName: "Vũ Văn G",
       phone: "0944555666",
       rating: 5,
-      comment:
-        "Tuyệt vời, không có gì để phàn nàn. Đội ngũ chuyên nghiệp, chu đáo.",
+      comment: "Tuyệt vời, không có gì để phàn nàn. Đội ngũ chuyên nghiệp, chu đáo.",
       date: "07/03/2025",
-      staffName: "Bác sĩ E",
-    },
+      staffName: "Bác sĩ E"
+    }
   ]);
 
   // Hàm lọc và sắp xếp feedback
   const getFilteredFeedbacks = () => {
     // Lọc theo dịch vụ và từ khóa tìm kiếm
     let result = feedbacks.filter((fb) => {
-      const matchService =
-        selectedService === "" || fb.service === selectedService;
-      const matchSearch =
+      const matchService = selectedService === "" || fb.service === selectedService;
+      const matchSearch = 
         fb.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         fb.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
         fb.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -178,9 +152,7 @@ const FeedbackList = () => {
         {/* Tiêu đề */}
         <div className="bg-gray-800 p-4 rounded-lg text-xl font-bold text-gray-100 mb-6 flex justify-between items-center">
           <span>Phản hồi khách hàng</span>
-          <span className="text-sm font-normal text-gray-400">
-            Tổng số: {feedbacks.length}
-          </span>
+          <span className="text-sm font-normal text-gray-400">Tổng số: {feedbacks.length}</span>
         </div>
 
         {/* Thanh công cụ */}
@@ -237,28 +209,26 @@ const FeedbackList = () => {
           {filteredFeedbacks.map((fb) => (
             <div
               key={fb.id}
-              className={`bg-gray-800 border rounded-lg overflow-hidden hover:shadow-lg transition-all ${getRatingColor(
-                fb.rating
-              )}`}
+              className={`bg-gray-800 border rounded-lg overflow-hidden hover:shadow-lg transition-all ${getRatingColor(fb.rating)}`}
             >
               {/* Phần header */}
-              <div
+              <div 
                 className="p-4 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                 onClick={() => toggleExpand(fb.id)}
               >
                 <div className="flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                    <span className="text-white font-semibold">
-                      {fb.customerName}
-                    </span>
+                    <span className="text-white font-semibold">{fb.customerName}</span>
                     <span className="text-gray-400 text-sm">
                       {fb.service} | {fb.date}
                     </span>
                   </div>
-
+                  
                   <div className="flex items-center">
                     <div className="flex mr-2">{renderStars(fb.rating)}</div>
-                    <span className="text-sm text-gray-300">{fb.rating}/5</span>
+                    <span className="text-sm text-gray-300">
+                      {fb.rating}/5
+                    </span>
                   </div>
                 </div>
 
@@ -272,7 +242,7 @@ const FeedbackList = () => {
                   >
                     <FaTrash size={14} />
                   </button>
-
+                  
                   {expandedId === fb.id ? (
                     <FaTimes className="text-gray-400" />
                   ) : (
@@ -292,28 +262,24 @@ const FeedbackList = () => {
                         <div className="text-white">{fb.customerName}</div>
                       </div>
                     </div>
-
+                    
                     <div className="flex items-center gap-2">
                       <FaPhone className="text-green-400" />
                       <div>
-                        <div className="text-gray-400 text-xs">
-                          Số điện thoại
-                        </div>
+                        <div className="text-gray-400 text-xs">Số điện thoại</div>
                         <div className="text-white">{fb.phone}</div>
                       </div>
                     </div>
-
+                    
                     <div className="flex items-center gap-2">
                       <FaUserCircle className="text-purple-400" />
                       <div>
-                        <div className="text-gray-400 text-xs">
-                          Nhân viên phục vụ
-                        </div>
+                        <div className="text-gray-400 text-xs">Nhân viên phục vụ</div>
                         <div className="text-white">{fb.staffName}</div>
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="mt-3">
                     <div className="flex items-center gap-2 mb-1">
                       <FaComments className="text-yellow-400" />
