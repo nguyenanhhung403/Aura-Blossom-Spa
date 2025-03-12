@@ -1,595 +1,481 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import {
-  FaEdit,
-  FaTrash,
-  FaPlus,
   FaSearch,
-  FaTimes,
+  FaTrash,
+  FaEdit,
   FaSave,
+  FaCheck,
+  FaTimes,
 } from "react-icons/fa";
-import Sidebar from "./SideBar";
+import Sidebar from "../Admin/SideBar";
 
 const Services = () => {
-  // Dữ liệu ban đầu (Read) không có trường "staff"
-  const initialServices = [
+  // Mảng dịch vụ mẫu
+  const [services, setServices] = useState([
     {
       id: 1,
-      serviceName: "Dịch vụ A",
-      image: "https://via.placeholder.com/40",
-      price: "100.000đ",
-      time: "30",
-      description: "Mô tả dịch vụ A",
-      combo: false,
+      category: "Hair",
+      name: "Cắt tóc",
+      image: "",
+      price: "30",
+      duration: "30 phút",
+      description: "Dịch vụ cắt tóc cơ bản.",
     },
     {
       id: 2,
-      serviceName: "Dịch vụ B",
-      image: "https://via.placeholder.com/40",
-      price: "150.000đ",
-      time: "45",
-      description: "Mô tả dịch vụ B",
-      combo: false,
+      category: "Spa",
+      name: "Chăm sóc da mặt",
+      image: "",
+      price: "50",
+      duration: "45 phút",
+      description: "Dịch vụ làm sạch da mặt và thư giãn.",
     },
-  ];
+  ]);
 
-  // State quản lý danh sách dịch vụ
-  const [services, setServices] = useState(initialServices);
-  // Biến dùng để tạo ID tự tăng
-  const [nextId, setNextId] = useState(
-    services.length ? Math.max(...services.map((s) => s.id)) + 1 : 1
+  // Tìm kiếm theo ID hoặc tên dịch vụ
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredServices = services.filter(
+    (s) =>
+      s.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  // State điều khiển form thêm mới
+
+  // Thêm dịch vụ mới
   const [isAdding, setIsAdding] = useState(false);
   const [newService, setNewService] = useState({
-    serviceName: "",
+    category: "",
+    name: "",
     image: "",
     price: "",
-    time: "",
+    duration: "",
     description: "",
-    combo: false,
   });
-  // State lưu lỗi cho form thêm mới
+  // State lưu lỗi cho form thêm
   const [addErrors, setAddErrors] = useState({});
+  const fileInputRef = useRef(null);
 
-  // State cho chế độ chỉnh sửa
-  const [editingId, setEditingId] = useState(null);
-  const [editedService, setEditedService] = useState({});
-  const [editErrors, setEditErrors] = useState({});
-
-  // State tìm kiếm (searchTerm)
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // Hàm dùng chung để cập nhật state từ input
   const handleInputChange = (e, setter) => {
-    const { name, value, type, checked } = e.target;
-    setter((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setter((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Hàm định dạng giá theo VND
-  const formatPrice = (price) => {
-    const numericPrice = parseFloat(
-      price.toString().replace(/,/g, "").replace(/\./g, "")
-    );
-    if (isNaN(numericPrice)) return null;
-    return numericPrice.toLocaleString("vi-VN") + "đ";
+  const handleImageChange = (e, setter) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Kiểm tra định dạng file, chỉ chấp nhận jpg và png
+      const validTypes = ["image/jpeg", "image/png"];
+      if (!validTypes.includes(file.type)) {
+        alert("Chỉ được chọn file JPG hoặc PNG!");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setter((prev) => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  // Tạo mới (Create) với kiểm tra lỗi
   const handleAddService = () => {
     const errors = {};
-    if (!newService.serviceName.trim()) {
-      errors.serviceName = "Tên dịch vụ không được để trống";
+
+    // Kiểm tra các trường không được để trống
+    if (!newService.category.trim()) {
+      errors.category = "Category không được để trống";
+    }
+    if (!newService.name.trim()) {
+      errors.name = "Tên dịch vụ không được để trống";
+    }
+    if (!newService.price.trim()) {
+      errors.price = "Giá không được để trống";
+    }
+    if (!newService.duration.trim()) {
+      errors.duration = "Thời gian không được để trống";
     }
     if (!newService.description.trim()) {
-      errors.description = "Mô tả dịch vụ không được để trống";
+      errors.description = "Mô tả không được để trống";
     }
-    const formattedPrice = formatPrice(newService.price);
-    if (!newService.price.trim() || formattedPrice === null) {
-      errors.price = "Giá phải là số";
-    }
-    if (!/^\d+$/.test(newService.time.trim())) {
-      errors.time = "Thời gian phải là số (phút)";
-    }
+
     if (Object.keys(errors).length > 0) {
       setAddErrors(errors);
       return;
     }
-    const serviceToAdd = {
-      ...newService,
-      id: nextId,
-      price: formattedPrice,
-    };
+
+    // Tạo ID tự tăng dựa trên max ID hiện có
+    const newId = services.length > 0 ? Math.max(...services.map(s => s.id)) + 1 : 1;
+    const serviceToAdd = { ...newService, id: newId };
     setServices((prev) => [...prev, serviceToAdd]);
-    setNextId(nextId + 1);
-    setNewService({
-      serviceName: "",
-      image: "",
-      price: "",
-      time: "",
-      description: "",
-      combo: false,
-    });
+    setNewService({ category: "", name: "", image: "", price: "", duration: "", description: "" });
     setAddErrors({});
     setIsAdding(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Xóa (Delete)
-  const handleDeleteService = (id) => {
-    if (window.confirm("Bạn có chắc muốn xóa dịch vụ này?")) {
-      setServices((prev) => prev.filter((service) => service.id !== id));
-    }
-  };
+  // Chỉnh sửa dịch vụ
+  const [editingId, setEditingId] = useState(null);
+  const [editedService, setEditedService] = useState({});
 
-  // Bắt đầu chỉnh sửa (Update)
   const handleStartEdit = (service) => {
     setEditingId(service.id);
     setEditedService(service);
-    setEditErrors({});
   };
 
-  // Lưu thay đổi (Update) với kiểm tra lỗi
   const handleSaveEdit = (id) => {
-    const errors = {};
-    if (!editedService.serviceName.trim()) {
-      errors.serviceName = "Tên dịch vụ không được để trống";
-    }
-    if (!editedService.description.trim()) {
-      errors.description = "Mô tả dịch vụ không được để trống";
-    }
-    const formattedPrice = formatPrice(editedService.price);
-    if (!editedService.price.trim() || formattedPrice === null) {
-      errors.price = "Giá phải là số";
-    }
-    if (!/^\d+$/.test(editedService.time.trim())) {
-      errors.time = "Thời gian phải là số (phút)";
-    }
-    if (Object.keys(errors).length > 0) {
-      setEditErrors(errors);
-      return;
-    }
     setServices((prev) =>
-      prev.map((service) =>
-        service.id === id
-          ? { ...editedService, price: formattedPrice }
-          : service
-      )
+      prev.map((s) => (s.id === id ? editedService : s))
     );
     setEditingId(null);
     setEditedService({});
-    setEditErrors({});
   };
 
-  // Hủy chỉnh sửa
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditedService({});
-    setEditErrors({});
   };
 
-  // Lọc dữ liệu dựa trên từ khóa tìm kiếm (theo ID hoặc Tên dịch vụ)
-  const filteredServices = services.filter(
-    (service) =>
-      service.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.serviceName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Form component để sử dụng lại cho thêm/chỉnh sửa
-  const ServiceForm = ({ service, errors, onChange }) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-800 p-6 rounded-lg shadow">
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-200">
-          Tên dịch vụ
-        </label>
-        <input
-          type="text"
-          name="serviceName"
-          placeholder="Tên dịch vụ"
-          value={service.serviceName}
-          onChange={onChange}
-          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm text-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        />
-        {errors.serviceName && (
-          <p className="text-red-400 text-xs">{errors.serviceName}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-200">
-          Hình ảnh
-        </label>
-        <input
-          type="text"
-          name="image"
-          placeholder="URL hình ảnh"
-          value={service.image}
-          onChange={onChange}
-          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm text-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-200">Giá</label>
-        <input
-          type="text"
-          name="price"
-          placeholder="Giá (chỉ số)"
-          value={service.price}
-          onChange={onChange}
-          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm text-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        />
-        {errors.price && <p className="text-red-400 text-xs">{errors.price}</p>}
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-200">
-          Thời gian (phút)
-        </label>
-        <input
-          type="text"
-          name="time"
-          placeholder="Thời gian (phút)"
-          value={service.time}
-          onChange={onChange}
-          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm text-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        />
-        {errors.time && <p className="text-red-400 text-xs">{errors.time}</p>}
-      </div>
-
-      <div className="space-y-2 md:col-span-2">
-        <label className="block text-sm font-medium text-gray-200">Mô tả</label>
-        <textarea
-          name="description"
-          placeholder="Mô tả dịch vụ"
-          value={service.description}
-          onChange={onChange}
-          rows="3"
-          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm text-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        />
-        {errors.description && (
-          <p className="text-red-400 text-xs">{errors.description}</p>
-        )}
-      </div>
-
-      <div className="flex items-center space-x-1">
-        <input
-          type="checkbox"
-          name="combo"
-          checked={service.combo}
-          onChange={onChange}
-          className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-        />
-        <label className="text-sm font-medium text-gray-200">Combo</label>
-      </div>
-    </div>
-  );
+  // Xóa dịch vụ
+  const handleDelete = (id) => {
+    if (window.confirm("Bạn có chắc muốn xóa dịch vụ này?")) {
+      setServices((prev) => prev.filter((s) => s.id !== id));
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-900">
-      {/* Sidebar */}
       <Sidebar />
+      <div className="flex-1 p-4">
+        {/* Nút trở về */}
+        <div className="mb-3">
+          <Link
+            to="/admin/services"
+            className="inline-block bg-gray-700 text-gray-200 px-3 py-1 rounded hover:bg-gray-600"
+          >
+            &larr; Trở về
+          </Link>
+        </div>
 
-      {/* Nội dung chính */}
-      <div className="flex-1">
-        <div className="bg-gray-800 p-4 shadow-md">
-          <h1 className="text-2xl font-bold text-white">Quản lý Dịch vụ</h1>
+        {/* Tiêu đề */}
+        <div className="bg-gray-800 p-3 border-b border-gray-700 text-lg font-bold text-gray-100 mb-4">
+          {filteredServices.length} Danh sách Dịch Vụ
         </div>
 
         {/* Thanh công cụ */}
-        <div className="bg-gray-800 p-4 shadow-md flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between bg-gray-800 p-3 border border-gray-700 rounded">
+          {/* Nút Thêm dịch vụ */}
+          <div className="flex items-center gap-2 mb-2 md:mb-0">
             <button
-              className={`flex items-center space-x-1 px-4 py-2 rounded-md ${
-                isAdding
-                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                  : "bg-indigo-600 text-white hover:bg-indigo-700"
-              }`}
-              onClick={() => !isAdding && setIsAdding(true)}
-              disabled={isAdding}
+              onClick={() => setIsAdding(true)}
+              className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
             >
-              <FaPlus size={14} />
-              <span>Thêm dịch vụ</span>
+              Thêm Dịch vụ
             </button>
           </div>
-
           {/* Ô tìm kiếm */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <FaSearch className="text-gray-400" />
-            </div>
+            <FaSearch className="absolute top-2 left-2 text-gray-400" />
             <input
               type="text"
-              className="pl-10 pr-5  py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Tìm theo ID hoặc tên dịch vụ"
+              className="pl-8 pr-2 py-1 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              placeholder="Tìm kiếm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            {searchTerm && (
-              <button
-                className="absolute inset-y-0 right-0 flex items-center pr-3"
-                onClick={() => setSearchTerm("")}
-              >
-                <FaTimes className="text-gray-400 hover:text-gray-200" />
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Form thêm mới */}
+        {/* Form Thêm Dịch vụ */}
         {isAdding && (
-          <div className="mt-6 mx-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-semibold text-gray-100">
-                Thêm dịch vụ mới
-              </h2>
-              <button
-                onClick={() => {
-                  setIsAdding(false);
-                  setAddErrors({});
-                }}
-                className="text-gray-400 hover:text-gray-200"
-              >
-                <FaTimes size={20} />
-              </button>
+          <div className="bg-gray-800 p-3 mt-3 border border-gray-700 rounded">
+            <div className="mb-2 font-semibold text-gray-200">Thêm Dịch vụ</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {/* Category */}
+              <div>
+                <input
+                  type="text"
+                  name="category"
+                  placeholder="Category"
+                  value={newService.category}
+                  onChange={(e) => handleInputChange(e, setNewService)}
+                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+                />
+                {addErrors.category && (
+                  <p className="text-red-400 text-sm">{addErrors.category}</p>
+                )}
+              </div>
+              {/* Tên dịch vụ */}
+              <div>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Tên dịch vụ"
+                  value={newService.name}
+                  onChange={(e) => handleInputChange(e, setNewService)}
+                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+                />
+                {addErrors.name && (
+                  <p className="text-red-400 text-sm">{addErrors.name}</p>
+                )}
+              </div>
+              {/* Giá */}
+              <div>
+                <input
+                  type="number"
+                  name="price"
+                  placeholder="Giá"
+                  value={newService.price}
+                  onChange={(e) => handleInputChange(e, setNewService)}
+                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+                />
+                {addErrors.price && (
+                  <p className="text-red-400 text-sm">{addErrors.price}</p>
+                )}
+              </div>
+              {/* Thời gian */}
+              <div>
+                <input
+                  type="text"
+                  name="duration"
+                  placeholder="Thời gian"
+                  value={newService.duration}
+                  onChange={(e) => handleInputChange(e, setNewService)}
+                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+                />
+                {addErrors.duration && (
+                  <p className="text-red-400 text-sm">{addErrors.duration}</p>
+                )}
+              </div>
+              {/* Mô tả */}
+              <div>
+                <input
+                  type="text"
+                  name="description"
+                  placeholder="Mô tả dịch vụ"
+                  value={newService.description}
+                  onChange={(e) => handleInputChange(e, setNewService)}
+                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+                />
+                {addErrors.description && (
+                  <p className="text-red-400 text-sm">{addErrors.description}</p>
+                )}
+              </div>
+              {/* Upload ảnh (chỉ nhận JPG và PNG) */}
+              <div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={(e) => handleImageChange(e, setNewService)}
+                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+                  accept="image/jpeg, image/png"
+                />
+                {newService.image && (
+                  <img
+                    src={newService.image}
+                    alt="Preview"
+                    className="w-20 h-20 object-cover mt-1"
+                  />
+                )}
+              </div>
             </div>
-            <ServiceForm
-              service={newService}
-              errors={addErrors}
-              onChange={(e) => handleInputChange(e, setNewService)}
-            />
-            <div className="flex justify-end space-x-3 mt-4">
+            <div className="flex space-x-2 mt-2">
               <button
-                className="px-4 py-2 bg-gray-600 text-gray-300 rounded-md hover:bg-gray-500"
+                onClick={handleAddService}
+                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center space-x-1"
+              >
+                <FaSave />
+                <span>Lưu</span>
+              </button>
+              <button
                 onClick={() => {
                   setIsAdding(false);
                   setAddErrors({});
+                  setNewService({ category: "", name: "", image: "", price: "", duration: "", description: "" });
+                  if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
+                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 flex items-center space-x-1"
               >
-                Hủy
-              </button>
-              <button
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center space-x-2"
-                onClick={handleAddService}
-              >
-                <FaSave size={14} />
-                <span>Lưu dịch vụ</span>
+                <FaTimes />
+                <span>Hủy</span>
               </button>
             </div>
           </div>
         )}
 
-        {/* Danh sách dịch vụ */}
-        <div className="m-4">
-          <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            {filteredServices.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="text-gray-400 mb-4 text-lg">
-                  Không có dịch vụ nào được tìm thấy
-                </div>
-                {searchTerm && (
-                  <button
-                    className="text-indigo-400 hover:text-indigo-300"
-                    onClick={() => setSearchTerm("")}
-                  >
-                    Xóa bộ lọc tìm kiếm
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-700">
-                  <thead className="bg-gray-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Combo
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Dịch vụ
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Hình ảnh
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Giá
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Thời gian
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Mô tả
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Thao tác
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-gray-800 divide-y divide-gray-700">
-                    {filteredServices.map((service) => (
-                      <tr key={service.id} className="hover:bg-gray-700">
-                        {editingId === service.id ? (
-                          // Editing mode row
-                          <>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <input
-                                type="checkbox"
-                                name="combo"
-                                checked={editedService.combo}
-                                onChange={(e) =>
-                                  handleInputChange(e, setEditedService)
-                                }
-                                className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-                              />
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="px-2 py-1 text-xs bg-gray-600 rounded-full text-gray-300">
-                                {service.id}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <input
-                                type="text"
-                                name="serviceName"
-                                value={editedService.serviceName}
-                                onChange={(e) =>
-                                  handleInputChange(e, setEditedService)
-                                }
-                                className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm text-gray-100"
-                              />
-                              {editErrors.serviceName && (
-                                <p className="text-red-400 text-xs mt-1">
-                                  {editErrors.serviceName}
-                                </p>
-                              )}
-                            </td>
-                            <td className="px-6 py-4">
-                              <input
-                                type="text"
-                                name="image"
-                                value={editedService.image}
-                                onChange={(e) =>
-                                  handleInputChange(e, setEditedService)
-                                }
-                                className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm text-gray-100"
-                              />
-                            </td>
-                            <td className="px-6 py-4">
-                              <input
-                                type="text"
-                                name="price"
-                                value={editedService.price}
-                                onChange={(e) =>
-                                  handleInputChange(e, setEditedService)
-                                }
-                                className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm text-gray-100"
-                              />
-                              {editErrors.price && (
-                                <p className="text-red-400 text-xs mt-1">
-                                  {editErrors.price}
-                                </p>
-                              )}
-                            </td>
-                            <td className="px-6 py-4">
-                              <input
-                                type="text"
-                                name="time"
-                                value={editedService.time}
-                                onChange={(e) =>
-                                  handleInputChange(e, setEditedService)
-                                }
-                                className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm text-gray-100"
-                              />
-                              {editErrors.time && (
-                                <p className="text-red-400 text-xs mt-1">
-                                  {editErrors.time}
-                                </p>
-                              )}
-                            </td>
-                            <td className="px-6 py-4">
-                              <textarea
-                                name="description"
-                                value={editedService.description}
-                                onChange={(e) =>
-                                  handleInputChange(e, setEditedService)
-                                }
-                                className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm text-gray-100"
-                                rows="2"
-                              />
-                              {editErrors.description && (
-                                <p className="text-red-400 text-xs mt-1">
-                                  {editErrors.description}
-                                </p>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <div className="flex justify-center space-x-2">
-                                <button
-                                  className="p-1 bg-green-600 text-white rounded-full hover:bg-green-500"
-                                  onClick={() => handleSaveEdit(service.id)}
-                                  title="Lưu"
-                                >
-                                  <FaSave size={16} />
-                                </button>
-                                <button
-                                  className="p-1 bg-red-600 text-white rounded-full hover:bg-red-500"
-                                  onClick={handleCancelEdit}
-                                  title="Hủy"
-                                >
-                                  <FaTimes size={16} />
-                                </button>
-                              </div>
-                            </td>
-                          </>
-                        ) : (
-                          // View mode row
-                          <>
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <input
-                                type="checkbox"
-                                checked={service.combo}
-                                readOnly
-                                className="w-4 h-4 text-indigo-600"
-                              />
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="px-2 py-1 text-xs bg-gray-600 rounded-full text-gray-300">
-                                {service.id}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-100">
-                              {service.serviceName}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <img
-                                src={service.image}
-                                alt={service.serviceName}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap font-medium text-indigo-400">
-                              {service.price}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-gray-300">
-                              {service.time} phút
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="max-w-xs truncate text-gray-300">
-                                {service.description}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <div className="flex justify-center space-x-2">
-                                <button
-                                  className="p-1 bg-blue-600 text-white rounded-full hover:bg-blue-500"
-                                  onClick={() => handleStartEdit(service)}
-                                  title="Chỉnh sửa"
-                                >
-                                  <FaEdit size={16} />
-                                </button>
-                                <button
-                                  className="p-1 bg-red-600 text-white rounded-full hover:bg-red-500"
-                                  onClick={() =>
-                                    handleDeleteService(service.id)
-                                  }
-                                  title="Xóa"
-                                >
-                                  <FaTrash size={16} />
-                                </button>
-                              </div>
-                            </td>
-                          </>
+        {/* Bảng Dịch vụ */}
+        <div className="mt-2 overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-700 text-center">
+            <thead className="bg-gray-700 text-gray-300">
+              <tr>
+                <th className="border border-gray-600 p-2">ID</th>
+                <th className="border border-gray-600 p-2">Category</th>
+                <th className="border border-gray-600 p-2">Tên dịch vụ</th>
+                <th className="border border-gray-600 p-2">Hình ảnh</th>
+                <th className="border border-gray-600 p-2">Giá</th>
+                <th className="border border-gray-600 p-2">Thời gian</th>
+                <th className="border border-gray-600 p-2">Mô tả</th>
+                <th className="border border-gray-600 p-2">Sửa</th>
+                <th className="border border-gray-600 p-2">Xóa</th>
+              </tr>
+            </thead>
+            <tbody className="bg-gray-800 text-gray-200">
+              {filteredServices.map((s) => (
+                <tr key={s.id} className="hover:bg-gray-700">
+                  <td className="border border-gray-600 p-2">{s.id}</td>
+                  {s.id === editingId ? (
+                    <>
+                      <td className="border border-gray-600 p-1">
+                        <input
+                          type="text"
+                          value={editedService.category}
+                          onChange={(e) =>
+                            setEditedService((prev) => ({
+                              ...prev,
+                              category: e.target.value,
+                            }))
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                        />
+                      </td>
+                      <td className="border border-gray-600 p-1">
+                        <input
+                          type="text"
+                          value={editedService.name}
+                          onChange={(e) =>
+                            setEditedService((prev) => ({
+                              ...prev,
+                              name: e.target.value,
+                            }))
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                        />
+                      </td>
+                      <td className="border border-gray-600 p-1">
+                        <input
+                          type="file"
+                          onChange={(e) =>
+                            handleImageChange(e, setEditedService)
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                          accept="image/jpeg, image/png"
+                        />
+                        {editedService.image && (
+                          <img
+                            src={editedService.image}
+                            alt="Preview"
+                            className="w-20 h-20 object-cover mt-1"
+                          />
                         )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                      </td>
+                      <td className="border border-gray-600 p-1">
+                        <input
+                          type="number"
+                          value={editedService.price}
+                          onChange={(e) =>
+                            setEditedService((prev) => ({
+                              ...prev,
+                              price: e.target.value,
+                            }))
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                        />
+                      </td>
+                      <td className="border border-gray-600 p-1">
+                        <input
+                          type="text"
+                          value={editedService.duration}
+                          onChange={(e) =>
+                            setEditedService((prev) => ({
+                              ...prev,
+                              duration: e.target.value,
+                            }))
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                        />
+                      </td>
+                      <td className="border border-gray-600 p-1">
+                        <input
+                          type="text"
+                          value={editedService.description}
+                          onChange={(e) =>
+                            setEditedService((prev) => ({
+                              ...prev,
+                              description: e.target.value,
+                            }))
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                        />
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        <button
+                          onClick={() => handleSaveEdit(s.id)}
+                          className="text-green-400 hover:text-green-200"
+                        >
+                          <FaCheck />
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="text-red-400 hover:text-red-200 ml-2"
+                        >
+                          <FaTimes />
+                        </button>
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        <button
+                          onClick={() => handleDelete(s.id)}
+                          className="text-red-400 hover:text-red-200"
+                        >
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="border border-gray-600 p-2">{s.category}</td>
+                      <td className="border border-gray-600 p-2">{s.name}</td>
+                      <td className="border border-gray-600 p-2">
+                        {s.image && (
+                          <img
+                            src={s.image}
+                            alt="Service"
+                            className="w-10 h-10 object-cover inline-block"
+                          />
+                        )}
+                      </td>
+                      <td className="border border-gray-600 p-2">{s.price}</td>
+                      <td className="border border-gray-600 p-2">{s.duration}</td>
+                      <td className="border border-gray-600 p-2">{s.description}</td>
+                      <td className="border border-gray-600 p-2">
+                        <button
+                          onClick={() => handleStartEdit(s)}
+                          className="text-blue-400 hover:text-blue-200"
+                        >
+                          <FaEdit />
+                        </button>
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        <button
+                          onClick={() => handleDelete(s.id)}
+                          className="text-red-400 hover:text-red-200"
+                        >
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+              {filteredServices.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="9"
+                    className="p-4 text-center text-red-400 font-semibold"
+                  >
+                    Không tìm thấy dịch vụ phù hợp!
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
