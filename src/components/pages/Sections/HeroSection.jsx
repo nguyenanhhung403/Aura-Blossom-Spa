@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import heroImage from '../../images/AnhSuMenh/SuMenh.jpg';
 import heroImage1 from '../../images/AnhSuMenh/SuMenh2.jpg';
 import heroImage2 from '../../images/AnhSuMenh/SuMenh3.jpg';
@@ -66,7 +67,7 @@ const HeroSection = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
-                        <span className="relative z-10">Đặt lịch ngay</span>
+                        <Link to="/booking" className="relative z-10">Đặt lịch ngay</Link>
                         <motion.div
                             className="absolute inset-0 bg-[var(--secondary-color)] rounded-full"
                             initial={{ scale: 0 }}
