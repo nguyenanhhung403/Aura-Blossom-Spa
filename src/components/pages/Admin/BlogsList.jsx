@@ -3,14 +3,14 @@ import { FaSearch, FaThList, FaThLarge, FaSort } from "react-icons/fa";
 import Sidebar from "./SideBar";
 
 const BlogList = () => {
-  // Sample blog array (expanded)
+  // Sample blog array (expanded) với tác giả mặc định là AuraBlossomSpa
   const [blogs] = useState([
     {
       id: 1,
       title: "Bí quyết chăm sóc da mùa đông",
       content: "Chia sẻ cách chăm sóc da mùa đông với các sản phẩm dưỡng ẩm chuyên sâu và phương pháp bảo vệ da khỏi thời tiết khắc nghiệt...",
       image: "https://via.placeholder.com/80",
-      author: "Nguyễn Văn A",
+      author: "AuraBlossomSpa",
       date: "01/03/2025",
       category: "Da mặt"
     },
@@ -19,7 +19,7 @@ const BlogList = () => {
       title: "Điều trị mụn hiệu quả tại nhà",
       content: "Điều trị mụn hiệu quả với quy trình XYZ kết hợp các sản phẩm có chứa BHA, retinol và cách chăm sóc da mụn đúng cách...",
       image: "https://via.placeholder.com/80",
-      author: "Trần Thị B",
+      author: "AuraBlossomSpa",
       date: "25/02/2025",
       category: "Da mụn"
     },
@@ -28,7 +28,7 @@ const BlogList = () => {
       title: "Chăm sóc tóc khô xơ mùa hanh khô",
       content: "Chăm sóc tóc khỏe, mượt với các loại mặt nạ tự nhiên, dầu dưỡng và cách gội đầu đúng để tránh làm tổn hại tóc...",
       image: "https://via.placeholder.com/80",
-      author: "Lê Văn C",
+      author: "AuraBlossomSpa",
       date: "20/02/2025",
       category: "Tóc"
     },
@@ -37,7 +37,7 @@ const BlogList = () => {
       title: "Các sản phẩm chống nắng tốt nhất 2025",
       content: "Tổng hợp các sản phẩm chống nắng được đánh giá cao nhất cho mọi loại da, từ da dầu, da khô đến da hỗn hợp và da nhạy cảm...",
       image: "https://via.placeholder.com/80",
-      author: "Phạm Thị D",
+      author: "AuraBlossomSpa",
       date: "15/02/2025",
       category: "Chống nắng"
     },
@@ -46,7 +46,7 @@ const BlogList = () => {
       title: "Quy trình skincare buổi tối hiệu quả",
       content: "Hướng dẫn chi tiết quy trình skincare buổi tối với 5 bước cơ bản giúp làn da được phục hồi và tái tạo tối ưu trong giấc ngủ...",
       image: "https://via.placeholder.com/80",
-      author: "Hoàng Thị E",
+      author: "AuraBlossomSpa",
       date: "10/02/2025",
       category: "Quy trình"
     },
@@ -55,7 +55,7 @@ const BlogList = () => {
       title: "Trị thâm mụn với nguyên liệu tự nhiên",
       content: "Cách điều trị vết thâm sau mụn bằng các nguyên liệu tự nhiên an toàn như nha đam, nghệ, mật ong và vitamin E...",
       image: "https://via.placeholder.com/80",
-      author: "Vũ Văn F",
+      author: "AuraBlossomSpa",
       date: "05/02/2025",
       category: "Da mụn"
     },
@@ -74,8 +74,8 @@ const BlogList = () => {
   // Filter blogs
   const filteredBlogs = blogs.filter(blog => {
     const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.author.toLowerCase().includes(searchTerm.toLowerCase());
+                          blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          blog.author.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesSearch;
   });
