@@ -68,7 +68,7 @@ const QuizSets = () => {
         {/* Nút Gợi ý dịch vụ đặt ở dưới danh sách */}
         <div className="">
           <Link
-            to="/admin/recommendservice"
+            to="/admin/recommend-service"
             className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition"
           >
             Gợi ý dịch vụ
