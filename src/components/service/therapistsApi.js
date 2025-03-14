@@ -1,54 +1,66 @@
-import api, {handleError} from "./api.js";
+import api, { handleError } from "./api.js";
 
 export const getAllTherapists = async () => {
     try {
-        const response = await api.get('/therapists');
+        const response = await api.get('/api/therapists');
         return response.data;
     } catch (error) {
         handleError(error);
     }
 };
 
-export const getTherapistById = async (therapistId) => {
+export const getTherapistById = async (id) => {
     try {
-        const response = await api.get(`/therapists/${therapistId}`);
+        const response = await api.get(`/api/therapists/${id}`);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const createTherapist = async (data) => {
+export const createTherapist = async (therapistRequest, thumbnail) => {
     try {
-        const response = await api.post('/therapists/create', data, {
+        const formData = new FormData();
+        formData.append("therapist", JSON.stringify(therapistRequest));
+        if (thumbnail) {
+            formData.append("thumbnail", thumbnail);
+        }
+
+        const response = await api.post('/api/therapists/create', formData, {
             headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+                'Content-Type': 'multipart/form-data',
+            },
         });
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const updateTherapist = async (therapistId, data) => {
+export const updateTherapist = async (id, therapistRequest, thumbnail) => {
     try {
-        const response = await api.put(`/therapists/update/${therapistId}`, data, {
+        const formData = new FormData();
+        formData.append("therapist", JSON.stringify(therapistRequest));
+        if (thumbnail) {
+            formData.append("thumbnail", thumbnail);
+        }
+
+        const response = await api.put(`/api/therapists/update/${id}`, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+                'Content-Type': 'multipart/form-data',
+            },
         });
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const deleteTherapist = async (therapistId) => {
+export const deleteTherapist = async (id) => {
     try {
-        const response = await api.delete(`/therapists/delete/${therapistId}`);
+        const response = await api.delete(`/api/therapists/delete/${id}`);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};

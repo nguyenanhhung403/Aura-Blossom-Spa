@@ -1,46 +1,66 @@
-import api, {handleError} from "./api.js";
+import api, { handleError } from "./api.js";
 
 export const getAllServices = async () => {
     try {
-        const response = await api.get('/services');
+        const response = await api.get('/api/services');
         return response.data;
     } catch (error) {
         handleError(error);
     }
 };
 
-export const getServiceById = async (serviceId) => {
+export const getServiceById = async (id) => {
     try {
-        const response = await api.get(`/services/${serviceId}`);
+        const response = await api.get(`/api/services/${id}`);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const createService = async (data) => {
+export const createService = async (serviceRequest, thumbnail) => {
     try {
-        const response = await api.post('/services/create', data);
-        return response.data;
-    } catch (error) {
-        handleError(error);
-    }
-}
+        const formData = new FormData();
+        formData.append("service", JSON.stringify(serviceRequest));
+        if (thumbnail) {
+            formData.append("thumbnail", thumbnail);
+        }
 
-export const updateService = async (serviceId, data) => {
-    try {
-        const response = await api.put(`/services/update/${serviceId}`, data);
+        const response = await api.post('/api/services/create', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const deleteService = async (serviceId) => {
+export const updateService = async (id, serviceRequest, thumbnail) => {
     try {
-        const response = await api.delete(`/services/delete/${serviceId}`);
+        const formData = new FormData();
+        formData.append("service", JSON.stringify(serviceRequest));
+        if (thumbnail) {
+            formData.append("thumbnail", thumbnail);
+        }
+
+        const response = await api.put(`/api/services/update/${id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
+
+export const deleteService = async (id) => {
+    try {
+        const response = await api.delete(`/api/services/delete/${id}`);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};

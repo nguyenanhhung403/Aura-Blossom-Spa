@@ -1,46 +1,55 @@
-import api, {handleError} from "./api.js";
+import api, { handleError } from "./api.js";
 
 export const getAllAppointments = async () => {
     try {
-        const response = await api.get('/therapists');
+        const response = await api.get('/api/appointments');
         return response.data;
     } catch (error) {
         handleError(error);
     }
 };
 
-export const getAppointmentById = async (appointmentId) => {
+export const getAppointmentById = async (id) => {
     try {
-        const response = await api.get(`/therapists/${appointmentId}`);
+        const response = await api.get(`/api/appointments/${id}`);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
 export const createAppointment = async (data) => {
     try {
-        const response = await api.post('/therapists/create', data);
+        const response = await api.post('/api/appointments/create', data);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const updateAppointment = async (appointmentId, data) => {
+export const updateAppointment = async (id, data) => {
     try {
-        const response = await api.put(`/therapists/update/${appointmentId}`, data);
+        const response = await api.put(`/api/appointments/update/${id}`, data);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const deleteAppointment = async (appointmentId) => {
+export const cancelAppointment = async (id) => {
     try {
-        const response = await api.delete(`/therapists/delete/${appointmentId}`);
+        const response = await api.put(`/api/appointments/cancel/${id}`);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
+
+export const deleteAppointment = async (id) => {
+    try {
+        const response = await api.delete(`/api/appointments/delete/${id}`);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};

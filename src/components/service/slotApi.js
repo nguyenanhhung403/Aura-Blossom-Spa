@@ -1,55 +1,55 @@
-import api, {handleError} from "./api.js";
+import api, { handleError } from "./api.js";
 
-export const getAllSlot = async () => {
+export const getAllSlots = async () => {
     try {
-        const response = await api.get('/slots');
+        const response = await api.get('/api/slots');
         return response.data;
     } catch (error) {
         handleError(error);
     }
 };
 
-export const getAvailableSlot = async (date) => {
+export const getSlotById = async (id) => {
     try {
-        const response = await api.get(`/slots/available/date/${date}`);
+        const response = await api.get(`/api/slots/${id}`);
         return response.data;
     } catch (error) {
         handleError(error);
     }
 };
 
-export const getSlotById = async (slotId) => {
+export const getAvailableSlotsByDate = async (date) => {
     try {
-        const response = await api.get(`/slots/${slotId}`);
+        const response = await api.get(`/api/slots/available/date/${date}`);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const createSlot = async (data) => {
+export const getAvailableSlotsByTherapist = async (therapistId) => {
     try {
-        const response = await api.post('/slots/create', data);
+        const response = await api.get(`/api/slots/available/therapist/${therapistId}`);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const updateSlot = async (slotId, data) => {
+export const generateSlotsForDay = async (slotRequest) => {
     try {
-        const response = await api.put(`/slots/update/${slotId}`, data);
+        const response = await api.post('/api/slots/generate/day', slotRequest);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
 
-export const deleteSlot = async (slotId) => {
+export const deleteSlot = async (id) => {
     try {
-        const response = await api.delete(`/slots/delete/${slotId}`);
+        const response = await api.delete(`/api/slots/delete/${id}`);
         return response.data;
     } catch (error) {
         handleError(error);
     }
-}
+};
