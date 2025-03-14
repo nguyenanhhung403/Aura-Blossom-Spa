@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaSearch, FaTrash, FaEdit, FaSave, FaCheck, FaTimes } from "react-icons/fa";
+import { FaSearch, FaTrash, FaEdit, FaCheck, FaTimes } from "react-icons/fa";
 import Sidebar from "../Admin/SideBar";
 
 const UserList = () => {
@@ -54,52 +54,9 @@ const UserList = () => {
       user.phone.includes(searchTerm)
   );
 
-  // Thêm người dùng
-  const [isAdding, setIsAdding] = useState(false);
-  const [newUser, setNewUser] = useState({
-    username: "",
-    email: "",
-    fullname: "",
-    phone: "",
-  });
-  // State lưu lỗi cho form thêm (nếu cần)
-  const [addErrors, setAddErrors] = useState({});
-  // Quản lý id cho người dùng mới
-  const [nextId, setNextId] = useState(6);
-
-  const handleInputChange = (e, setter) => {
-    const { name, value } = e.target;
-    setter((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleAddUser = () => {
-    const errors = {};
-    if (!newUser.username.trim()) errors.username = "Username không được để trống";
-    if (!newUser.email.trim()) errors.email = "Email không được để trống";
-    if (!newUser.fullname.trim()) errors.fullname = "Fullname không được để trống";
-    if (!newUser.phone.trim()) errors.phone = "Phone không được để trống";
-
-    if (Object.keys(errors).length > 0) {
-      setAddErrors(errors);
-      return;
-    }
-
-    const userToAdd = { ...newUser, id: nextId };
-    setUsers((prev) => [...prev, userToAdd]);
-    setNextId(nextId + 1);
-    setNewUser({ username: "", email: "", fullname: "", phone: "" });
-    setAddErrors({});
-    setIsAdding(false);
-  };
-
   // Chỉnh sửa người dùng
   const [editingId, setEditingId] = useState(null);
   const [editedUser, setEditedUser] = useState({});
-
-  const handleStartEdit = (user) => {
-    setEditingId(user.id);
-    setEditedUser(user);
-  };
 
   const handleSaveEdit = (id) => {
     setUsers((prev) => prev.map((u) => (u.id === id ? editedUser : u)));
@@ -148,15 +105,6 @@ const UserList = () => {
 
         {/* Thanh công cụ */}
         <div className="flex flex-col md:flex-row md:items-center justify-between bg-gray-800 p-3 border border-gray-700 rounded">
-          {/* Nút Thêm người dùng */}
-          <div className="flex items-center gap-2 mb-2 md:mb-0">
-            <button
-              onClick={() => setIsAdding(true)}
-              className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
-            >
-              Thêm Người dùng
-            </button>
-          </div>
           {/* Ô tìm kiếm */}
           <div className="relative">
             <FaSearch className="absolute top-2 left-2 text-gray-400" />
@@ -169,90 +117,6 @@ const UserList = () => {
             />
           </div>
         </div>
-
-        {/* Form thêm người dùng */}
-        {isAdding && (
-          <div className="bg-gray-800 p-3 mt-3 border border-gray-700 rounded">
-            <div className="mb-2 font-semibold text-gray-200">Thêm người dùng</div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-              {/* Username */}
-              <div>
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Username"
-                  value={newUser.username}
-                  onChange={(e) => handleInputChange(e, setNewUser)}
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                />
-                {addErrors.username && (
-                  <p className="text-red-400 text-sm">{addErrors.username}</p>
-                )}
-              </div>
-              {/* Email */}
-              <div>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={newUser.email}
-                  onChange={(e) => handleInputChange(e, setNewUser)}
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                />
-                {addErrors.email && (
-                  <p className="text-red-400 text-sm">{addErrors.email}</p>
-                )}
-              </div>
-              {/* Fullname */}
-              <div>
-                <input
-                  type="text"
-                  name="fullname"
-                  placeholder="Fullname"
-                  value={newUser.fullname}
-                  onChange={(e) => handleInputChange(e, setNewUser)}
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                />
-                {addErrors.fullname && (
-                  <p className="text-red-400 text-sm">{addErrors.fullname}</p>
-                )}
-              </div>
-              {/* Phone */}
-              <div>
-                <input
-                  type="text"
-                  name="phone"
-                  placeholder="Phone"
-                  value={newUser.phone}
-                  onChange={(e) => handleInputChange(e, setNewUser)}
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                />
-                {addErrors.phone && (
-                  <p className="text-red-400 text-sm">{addErrors.phone}</p>
-                )}
-              </div>
-            </div>
-            <div className="flex space-x-2 mt-2">
-              <button
-                onClick={handleAddUser}
-                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center space-x-1"
-              >
-                <FaSave />
-                <span>Lưu</span>
-              </button>
-              <button
-                onClick={() => {
-                  setIsAdding(false);
-                  setAddErrors({});
-                }}
-                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 flex items-center space-x-1"
-              >
-                <FaTimes />
-                <span>Hủy</span>
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Bảng người dùng */}
         <div className="mt-2 overflow-x-auto">
@@ -269,7 +133,7 @@ const UserList = () => {
               </tr>
             </thead>
             <tbody className="bg-gray-800 text-gray-200">
-              {filteredUsers.map((user) => (
+              {currentRecords.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-700">
                   <td className="border border-gray-600 p-2">{user.id}</td>
                   {user.id === editingId ? (
@@ -336,10 +200,10 @@ const UserList = () => {
                       </td>
                       <td className="border border-gray-600 p-2">
                         <button
-                          onClick={() => handleDelete(user.id)}
+                          onClick={handleCancelEdit}
                           className="text-red-400 hover:text-red-200"
                         >
-                          <FaTrash />
+                          <FaTimes />
                         </button>
                       </td>
                     </>
@@ -385,6 +249,25 @@ const UserList = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Phân trang */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-2 mt-4">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  currentPage === i + 1
+                    ? "bg-gray-800 text-white"
+                    : "bg-gray-300 text-gray-800"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
