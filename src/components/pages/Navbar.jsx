@@ -49,7 +49,9 @@ const Navbar = () => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
-
+  const scrollToBottom = () => {
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+  };
   return (
     <header className="fixed top-0 w-full z-50 bg-white shadow-md animate__animated animate__fadeInDown">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -206,13 +208,10 @@ const Navbar = () => {
             <FontAwesomeIcon icon={faBlog} />
             <span>Blog</span>
           </a>
-          <a
-            href="/#contact"
-            className="hover:text-[#446E6A] transition flex items-center space-x-2"
-          >
-            <FontAwesomeIcon icon={faPhone} />
-            <span>Liên hệ</span>
-          </a>
+          <button onClick={scrollToBottom} className="hover:text-[#446E6A] transition flex items-center space-x-2">
+  <FontAwesomeIcon icon={faPhone} />
+  <span>Liên hệ</span>
+</button>
         </nav>
       </div>
     </header>
