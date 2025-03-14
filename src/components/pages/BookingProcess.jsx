@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import imgBackground from '../images/LoginImage/AnhTemplate2.jpg';
-import QR from '../images/QRBanking/QR.jpg';
-
+import imgBackground from "../images/LoginImage/AnhTemplate2.jpg";
+import QR from "../images/QRBanking/QR.jpg";
+import ContactUs from "./ContactUs";
 const BookingProcess = () => {
   const navigate = useNavigate();
 
@@ -21,6 +21,9 @@ const BookingProcess = () => {
     time: "",
     note: "",
   });
+
+  // Quản lý phương thức thanh toán: "qr" hoặc "counter"
+  const [paymentMethod, setPaymentMethod] = useState("qr");
 
   // Handler khi nhập dữ liệu
   const handleInputChange = (e) => {
@@ -42,8 +45,9 @@ const BookingProcess = () => {
     setCurrentStep(3);
   };
 
-  // Bước 3: Khi người dùng nhấn "Chuyển qua trang lịch sử"
-  const handleGoToHistory = () => {
+  // Bước 3: Khi người dùng nhấn "Xác nhận thanh toán"
+  const handleConfirmPaymentFinal = () => {
+    // Xử lý thanh toán hoặc lưu dữ liệu tại đây
     navigate("/history");
   };
 
@@ -64,14 +68,13 @@ const BookingProcess = () => {
       >
         {/* Overlay mờ để làm nổi chữ */}
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-        
         {/* Tiêu đề */}
         <h1
           className="
             relative text-white text-3xl md:text-5xl font-bold uppercase 
             tracking-wider 
           "
-          style={{ fontFamily: 'Roboto, sans-serif' }}
+          style={{ fontFamily: "Roboto, sans-serif" }}
         >
           ĐẶT LỊCH
         </h1>
@@ -240,17 +243,18 @@ const BookingProcess = () => {
               <h2 className="text-2xl font-bold mb-4">Chú ý</h2>
               <div className="bg-[#FAF1E8] p-4 rounded">
                 <p className="text-red-600 font-semibold text-center">
-                  ⚠ THÔNG BÁO QUAN TRỌNG VỀ ĐẶT LỊCH & CỌC TIỀN ⚠
+                  ⚠ THÔNG BÁO QUAN TRỌNG VỀ ĐẶT LỊCH ⚠
                 </p>
                 <ul className="list-disc list-inside mt-3 space-y-1 text-gray-700">
+                  <li>Vui lòng đảm bảo thông tin đặt lịch chính xác.</li>
+                  <li>Nếu cần hỗ trợ, hãy liên hệ trực tiếp với Spa.</li>
                   <li>
-                    Để đảm bảo quyền lợi và giữ chỗ dịch vụ tốt nhất cho bạn, xin vui lòng lưu ý:
+                    Lưu ý: Khi thanh toán trực tiếp tại quầy, vui lòng mang theo
+                    CMND hoặc giấy tờ tùy thân.
                   </li>
-                  <li>1) Cọc trước 30% giá trị dịch vụ để xác nhận đặt lịch.</li>
                   <li>
-                    2) Số tiền cọc sẽ được trừ trực tiếp vào tổng hóa đơn hôm sử dụng dịch vụ.
+                    Một số dịch vụ có thể yêu cầu xác nhận qua điện thoại.
                   </li>
-                  <li>3) Chính sách hủy lịch: Hủy trước 24 giờ, quý khách sẽ không bị mất cọc.</li>
                 </ul>
               </div>
               <button
@@ -268,54 +272,98 @@ const BookingProcess = () => {
 
           {currentStep === 3 && (
             <div className="animate__animated animate__fadeInUp">
-              {/* Bước 3: Thanh toán (hiển thị thông tin và mã QR) */}
+              {/* Bước 3: Thanh toán */}
               <h2 className="text-2xl font-bold mb-4">Kiểm tra lại thông tin đặt lịch</h2>
+
+              {/* Chọn phương thức thanh toán */}
+              <div className="mb-4 p-4 bg-white border rounded shadow-sm">
+                <p className="font-medium mb-2">Chọn phương thức thanh toán:</p>
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      value="qr"
+                      checked={paymentMethod === "qr"}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="mr-2"
+                    />
+                    Thanh toán trực tuyến qua QR code
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      value="counter"
+                      checked={paymentMethod === "counter"}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="mr-2"
+                    />
+                    Thanh toán trực tiếp tại quầy
+                  </label>
+                </div>
+              </div>
+
               <div className="bg-[#FAF1E8] p-4 rounded space-y-3">
                 <p>
                   <strong>Họ và Tên:</strong> {bookingData.fullName}
                 </p>
                 <p>
+                  <strong>Số Điện Thoại:</strong> {bookingData.phone}
+                </p>
+                <p>
                   <strong>Dịch Vụ:</strong> {bookingData.service}
+                </p>
+                <p>
+                  <strong>Chuyên Viên:</strong> {bookingData.staff}
                 </p>
                 <p>
                   <strong>Thời gian:</strong> {bookingData.date} - {bookingData.time}
                 </p>
                 <p>
-                  <strong>Số tiền :</strong> 500.000đ
+                  <strong>Số tiền thanh toán:</strong> 500.000đ
                 </p>
-                <p>
-                  <strong>Số tiền cọc (30%):</strong> 150.000đ
-                </p>
-                <p>
-                  <strong>Còn lại thanh toán tại Spa:</strong> 350.000đ
-                </p>
-
-                <div className="flex items-center justify-center">
-                  <img
-                    src={QR}
-                    alt="QR Code"
-                    className="rounded w-40 h-40 md:w-48 md:h-48 shadow-md"
-                  />
-                </div>
-                <p className="text-gray-700 text-center mt-2">
-                  Quét mã để thanh toán cọc. Nếu không thanh toán cọc, lịch hẹn có thể bị hủy.
-                </p>
+                {paymentMethod === "qr" ? (
+                  <div className="flex flex-col items-center mt-4">
+                    <img
+                      src={QR}
+                      alt="QR Code"
+                      className="rounded w-40 h-40 md:w-48 md:h-48 shadow-md"
+                    />
+                    <div className="mt-4 text-center text-gray-700">
+                      <p>
+                        <strong>Chủ tài khoản:</strong> Nguyễn Anh Hùng
+                      </p>
+                      <p>
+                        <strong>Ngân hàng:</strong> MB Bank
+                      </p>
+                      <p>
+                        <strong>Số Tài Khoản:</strong> 0868205403
+                      </p>
+                      <p>
+                        Mã QR chấp nhận thanh toán qua VNpay, MoMo, ...
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-700 text-center mt-2">
+                    Vui lòng đến quầy thanh toán tại Spa để hoàn tất giao dịch.
+                  </p>
+                )}
               </div>
               <button
-                onClick={handleGoToHistory}
+                onClick={handleConfirmPaymentFinal}
                 className="
                   mt-6 px-6 py-2 bg-[#C8A27C] text-white font-semibold 
                   rounded hover:bg-[#AA8864] 
                   transition-transform duration-300 hover:scale-105 hover:shadow-xl
                 "
               >
-                Chuyển qua trang lịch sử
+                Xác nhận thanh toán
               </button>
             </div>
           )}
         </div>
       </div>
-      <Footer />
+      <ContactUs />
     </>
   );
 };

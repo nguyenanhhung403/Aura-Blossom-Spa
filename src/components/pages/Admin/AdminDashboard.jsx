@@ -8,10 +8,10 @@ const menuItems = [
   { name: "Nhân viên", path: "/admin/employees" },
   { name: "Khách hàng", path: "/admin/customers" },
   { name: "Lịch làm việc", path: "/admin/schedules" },
-  { name: "Quiz", path: "/admin/quiz" },
+  { name: "Quiz", path: "/admin/quizlist" },
   { name: "Blogs", path: "/admin/blogs" },
   { name: "Feedback", path: "/admin/feedback" },
-  { name: "Báo cáo", path: "/admin/reports" },
+  { name: "Báo cáo", path: "/admin/dashboard" },
 ];
 
 const AdminDashboard = () => {

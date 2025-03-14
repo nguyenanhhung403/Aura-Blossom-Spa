@@ -30,7 +30,7 @@ const Home = () => {
                 <FeedbackSection />
                 <ContactUs />
             </main>
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 };

@@ -8,10 +8,10 @@ import {
   FaCheck,
   FaTimes,
 } from "react-icons/fa";
-import Sidebar from "./SideBar";
+import Sidebar from "../SideBar";
 
 const TherapistList = () => {
-  // Mảng chuyên viên điều trị
+  // Mảng chuyên viên điều trị (đã bổ sung experience, xóa gender)
   const [therapists, setTherapists] = useState([
     {
       id: 1,
@@ -20,7 +20,7 @@ const TherapistList = () => {
       phone: "0123456789",
       email: "x@gmail.com",
       job: "Điều trị da",
-      gender: "Nam",
+      experience: "5 năm",
       desc: "Chuyên môn về da liễu...",
     },
     {
@@ -30,7 +30,7 @@ const TherapistList = () => {
       phone: "0987654321",
       email: "y@gmail.com",
       job: "Điều trị tóc",
-      gender: "Nữ",
+      experience: "3 năm",
       desc: "Chuyên môn về tóc...",
     },
   ]);
@@ -43,7 +43,7 @@ const TherapistList = () => {
       t.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Thêm chuyên viên
+  // Thêm chuyên viên - đã loại bỏ gender, bổ sung experience
   const [isAdding, setIsAdding] = useState(false);
   const [newTherapist, setNewTherapist] = useState({
     name: "",
@@ -51,7 +51,7 @@ const TherapistList = () => {
     phone: "",
     email: "",
     job: "",
-    gender: "",
+    experience: "",
     desc: "",
   });
   // Lưu lỗi cho form thêm
@@ -80,13 +80,11 @@ const TherapistList = () => {
     if (!newTherapist.job.trim()) {
       errors.job = "Công việc không được để trống";
     }
+    if (!newTherapist.experience.trim()) {
+      errors.experience = "Năm kinh nghiệm không được để trống";
+    }
     if (!newTherapist.desc.trim()) {
       errors.desc = "Mô tả chuyên môn không được để trống";
-    }
-    // Kiểm tra giới tính
-    const genderVal = newTherapist.gender.trim().toLowerCase();
-    if (!["nam", "nữ"].includes(genderVal)) {
-      errors.gender = "Giới tính phải là Nam hoặc Nữ";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -106,14 +104,14 @@ const TherapistList = () => {
       phone: "",
       email: "",
       job: "",
-      gender: "",
+      experience: "",
       desc: "",
     });
     setAddErrors({});
     setIsAdding(false);
   };
 
-  // Sửa chuyên viên
+  // Sửa chuyên viên - loại bỏ gender, bổ sung experience
   const [editingId, setEditingId] = useState(null);
   const [editedTherapist, setEditedTherapist] = useState({});
 
@@ -266,18 +264,18 @@ const TherapistList = () => {
                 )}
               </div>
 
-              {/* Giới tính */}
+              {/* Năm kinh nghiệm */}
               <div>
                 <input
                   type="text"
-                  name="gender"
-                  placeholder="Giới tính (Nam/Nữ)"
-                  value={newTherapist.gender}
+                  name="experience"
+                  placeholder="Năm kinh nghiệm"
+                  value={newTherapist.experience}
                   onChange={(e) => handleInputChange(e, setNewTherapist)}
                   className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
                 />
-                {addErrors.gender && (
-                  <p className="text-red-400 text-sm">{addErrors.gender}</p>
+                {addErrors.experience && (
+                  <p className="text-red-400 text-sm">{addErrors.experience}</p>
                 )}
               </div>
 
@@ -329,7 +327,7 @@ const TherapistList = () => {
                 <th className="border border-gray-600 p-2">Số điện thoại</th>
                 <th className="border border-gray-600 p-2">Gmail</th>
                 <th className="border border-gray-600 p-2">Công việc</th>
-                <th className="border border-gray-600 p-2">Giới tính</th>
+                <th className="border border-gray-600 p-2">Năm kinh nghiệm</th>
                 <th className="border border-gray-600 p-2">Mô tả chuyên môn</th>
                 <th className="border border-gray-600 p-2">Sửa</th>
                 <th className="border border-gray-600 p-2">Xóa</th>
@@ -409,11 +407,11 @@ const TherapistList = () => {
                       <td className="border border-gray-600 p-1">
                         <input
                           type="text"
-                          value={editedTherapist.gender}
+                          value={editedTherapist.experience}
                           onChange={(e) =>
                             setEditedTherapist((prev) => ({
                               ...prev,
-                              gender: e.target.value,
+                              experience: e.target.value,
                             }))
                           }
                           className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
@@ -469,7 +467,7 @@ const TherapistList = () => {
                       <td className="border border-gray-600 p-2">{t.phone}</td>
                       <td className="border border-gray-600 p-2">{t.email}</td>
                       <td className="border border-gray-600 p-2">{t.job}</td>
-                      <td className="border border-gray-600 p-2">{t.gender}</td>
+                      <td className="border border-gray-600 p-2">{t.experience}</td>
                       <td className="border border-gray-600 p-2">{t.desc}</td>
                       {/* Nút Edit */}
                       <td className="border border-gray-600 p-2">
@@ -486,8 +484,8 @@ const TherapistList = () => {
                       {/* Nút Delete */}
                       <td className="border border-gray-600 p-2">
                         <button
-                          className="text-red-400 hover:text-red-200"
                           onClick={() => handleDelete(t.id)}
+                          className="text-red-400 hover:text-red-200"
                         >
                           <FaTrash />
                         </button>

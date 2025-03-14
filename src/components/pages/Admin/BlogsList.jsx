@@ -1,94 +1,130 @@
-import React, { useState } from "react";
-import { FaSearch, FaThList, FaThLarge, FaSort } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaSearch, FaThList, FaThLarge, FaSort, FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import Sidebar from "./SideBar";
 
 const BlogList = () => {
-  // Sample blog array (expanded)
-  const [blogs] = useState([
-    {
-      id: 1,
-      title: "Bí quyết chăm sóc da mùa đông",
-      content: "Chia sẻ cách chăm sóc da mùa đông với các sản phẩm dưỡng ẩm chuyên sâu và phương pháp bảo vệ da khỏi thời tiết khắc nghiệt...",
-      image: "https://via.placeholder.com/80",
-      author: "Nguyễn Văn A",
-      date: "01/03/2025",
-      category: "Da mặt"
-    },
-    {
-      id: 2,
-      title: "Điều trị mụn hiệu quả tại nhà",
-      content: "Điều trị mụn hiệu quả với quy trình XYZ kết hợp các sản phẩm có chứa BHA, retinol và cách chăm sóc da mụn đúng cách...",
-      image: "https://via.placeholder.com/80",
-      author: "Trần Thị B",
-      date: "25/02/2025",
-      category: "Da mụn"
-    },
-    {
-      id: 3,
-      title: "Chăm sóc tóc khô xơ mùa hanh khô",
-      content: "Chăm sóc tóc khỏe, mượt với các loại mặt nạ tự nhiên, dầu dưỡng và cách gội đầu đúng để tránh làm tổn hại tóc...",
-      image: "https://via.placeholder.com/80",
-      author: "Lê Văn C",
-      date: "20/02/2025",
-      category: "Tóc"
-    },
-    {
-      id: 4,
-      title: "Các sản phẩm chống nắng tốt nhất 2025",
-      content: "Tổng hợp các sản phẩm chống nắng được đánh giá cao nhất cho mọi loại da, từ da dầu, da khô đến da hỗn hợp và da nhạy cảm...",
-      image: "https://via.placeholder.com/80",
-      author: "Phạm Thị D",
-      date: "15/02/2025",
-      category: "Chống nắng"
-    },
-    {
-      id: 5,
-      title: "Quy trình skincare buổi tối hiệu quả",
-      content: "Hướng dẫn chi tiết quy trình skincare buổi tối với 5 bước cơ bản giúp làn da được phục hồi và tái tạo tối ưu trong giấc ngủ...",
-      image: "https://via.placeholder.com/80",
-      author: "Hoàng Thị E",
-      date: "10/02/2025",
-      category: "Quy trình"
-    },
-    {
-      id: 6,
-      title: "Trị thâm mụn với nguyên liệu tự nhiên",
-      content: "Cách điều trị vết thâm sau mụn bằng các nguyên liệu tự nhiên an toàn như nha đam, nghệ, mật ong và vitamin E...",
-      image: "https://via.placeholder.com/80",
-      author: "Vũ Văn F",
-      date: "05/02/2025",
-      category: "Da mụn"
-    },
-  ]);
-
-  // Search functionality
+  const [blogs, setBlogs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  
-  // View mode state (grid or list)
   const [viewMode, setViewMode] = useState("list");
-  
-  // Sort states
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
-  
-  // Filter blogs
-  const filteredBlogs = blogs.filter(blog => {
-    const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.author.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentBlog, setCurrentBlog] = useState(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+    thumbnail: null, // Chứa file ảnh khi chọn
+  });
+
+  // Lấy dữ liệu blog từ API
+  const fetchBlogs = async () => {
+    try {
+      const response = await fetch("/api/blogs");
+      if (response.ok) {
+        const data = await response.json();
+        setBlogs(data);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu blog:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
+
+  // Xử lý chọn file ảnh cho thumbnail
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files[0];
+    setFormData({ ...formData, thumbnail: file });
+  };
+
+  // Xóa blog
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`/api/blogs/${id}`, { method: "DELETE" });
+      if (response.ok) {
+        setBlogs(blogs.filter((blog) => blog.id !== id));
+      }
+    } catch (error) {
+      console.error("Lỗi khi xóa blog:", error);
+    }
+  };
+
+  // Chuyển sang chế độ chỉnh sửa
+  const handleEdit = (blog) => {
+    setIsEditing(true);
+    setCurrentBlog(blog);
+    setFormData({
+      title: blog.title,
+      content: blog.content,
+      thumbnail: null, // Để chọn file mới nếu cần
+    });
+  };
+
+  // Xử lý submit form cho cả tạo mới và cập nhật
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    // Sử dụng FormData để gửi file ảnh và các trường khác
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("content", formData.content);
+    // Nếu có file ảnh được chọn, thêm vào FormData
+    if (formData.thumbnail) {
+      data.append("thumbnail", formData.thumbnail);
+    }
+
+    try {
+      let response;
+      if (isEditing) {
+        response = await fetch(`/api/blogs/${currentBlog.id}`, {
+          method: "PUT",
+          body: data,
+        });
+      } else {
+        response = await fetch("/api/blogs", {
+          method: "POST",
+          body: data,
+        });
+      }
+      if (response.ok) {
+        const result = await response.json();
+        if (isEditing) {
+          setBlogs(blogs.map((blog) => (blog.id === result.id ? result : blog)));
+          setIsEditing(false);
+          setCurrentBlog(null);
+        } else {
+          setBlogs([...blogs, result]);
+        }
+        // Reset form
+        setFormData({
+          title: "",
+          content: "",
+          thumbnail: null,
+        });
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi form:", error);
+    }
+  };
+
+  // Bộ lọc và sắp xếp blog
+  const filteredBlogs = blogs.filter((blog) => {
+    const matchesSearch =
+      blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      blog.content.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
-  
-  // Sort blogs
+
   const sortedBlogs = [...filteredBlogs].sort((a, b) => {
     if (sortBy === "date") {
-      const dateA = new Date(a.date.split('/').reverse().join('/'));
-      const dateB = new Date(b.date.split('/').reverse().join('/'));
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
       return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
     } else if (sortBy === "title") {
-      return sortOrder === "asc" 
-        ? a.title.localeCompare(b.title) 
+      return sortOrder === "asc"
+        ? a.title.localeCompare(b.title)
         : b.title.localeCompare(a.title);
     }
     return 0;
@@ -101,10 +137,10 @@ const BlogList = () => {
 
       {/* Main content */}
       <div className="flex-1 p-6">
-        {/* Title and toolbar */}
+        {/* Toolbar */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <h1 className="text-2xl font-bold mb-4 md:mb-0 text-gray-100">Blogs</h1>
-          
+
           <div className="flex flex-col md:flex-row gap-3">
             {/* Search bar */}
             <div className="relative">
@@ -113,21 +149,25 @@ const BlogList = () => {
                 placeholder="Tìm kiếm blog..."
                 className="pl-10 pr-4 py-2 border rounded-lg w-full md:w-64 bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400"
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
               <FaSearch className="absolute left-3 top-3 text-gray-400" />
             </div>
 
             {/* View mode toggle */}
             <div className="flex border rounded-lg overflow-hidden border-gray-600">
-              <button 
-                className={`px-3 py-2 ${viewMode === "list" ? "bg-purple-600 text-white" : "bg-gray-700 text-gray-300"}`}
+              <button
+                className={`px-3 py-2 ${
+                  viewMode === "list" ? "bg-purple-600 text-white" : "bg-gray-700 text-gray-300"
+                }`}
                 onClick={() => setViewMode("list")}
               >
                 <FaThList />
               </button>
-              <button 
-                className={`px-3 py-2 ${viewMode === "grid" ? "bg-purple-600 text-white" : "bg-gray-700 text-gray-300"}`}
+              <button
+                className={`px-3 py-2 ${
+                  viewMode === "grid" ? "bg-purple-600 text-white" : "bg-gray-700 text-gray-300"
+                }`}
                 onClick={() => setViewMode("grid")}
               >
                 <FaThLarge />
@@ -136,10 +176,10 @@ const BlogList = () => {
 
             {/* Sort dropdown */}
             <div className="relative inline-block">
-              <select 
+              <select
                 className="border rounded-lg px-3 py-2 appearance-none pr-8 bg-gray-700 border-gray-600 text-gray-200"
                 value={sortBy}
-                onChange={e => setSortBy(e.target.value)}
+                onChange={(e) => setSortBy(e.target.value)}
               >
                 <option value="date">Ngày đăng</option>
                 <option value="title">Tiêu đề</option>
@@ -150,52 +190,132 @@ const BlogList = () => {
             </div>
 
             {/* Sort order button */}
-            <button 
+            <button
               className="border rounded-lg px-3 py-2 bg-gray-700 border-gray-600 text-gray-200"
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             >
               {sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
             </button>
+
+            {/* Button mở form tạo mới */}
+            <button
+              className="flex items-center border rounded-lg px-3 py-2 bg-green-600 text-white"
+              onClick={() => {
+                setIsEditing(false);
+                setCurrentBlog(null);
+                setFormData({ title: "", content: "", thumbnail: null });
+              }}
+            >
+              <FaPlus className="mr-1" /> Thêm mới
+            </button>
           </div>
         </div>
 
-        {/* Blog content */}
+        {/* Form tạo / cập nhật blog */}
+        <form onSubmit={handleFormSubmit} className="mb-6 bg-gray-800 p-4 rounded-lg" encType="multipart/form-data">
+          <h2 className="text-xl font-bold mb-4">
+            {isEditing ? "Cập nhật Blog" : "Tạo Blog mới"}
+          </h2>
+          <div className="mb-4">
+            <label className="block mb-1">Tiêu đề</label>
+            <input
+              type="text"
+              className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Nội dung</label>
+            <textarea
+              className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200"
+              value={formData.content}
+              onChange={(e) =>
+                setFormData({ ...formData, content: e.target.value })
+              }
+              required
+            ></textarea>
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Chọn ảnh thumbnail</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleThumbnailChange}
+              className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200"
+              // Nếu tạo mới thì bắt buộc chọn file, còn cập nhật có thể giữ lại ảnh cũ
+              required={!isEditing || (isEditing && formData.thumbnail)}
+            />
+          </div>
+          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+            {isEditing ? "Cập nhật" : "Tạo"}
+          </button>
+        </form>
+
+        {/* Hiển thị danh sách blog */}
         {viewMode === "list" ? (
-          /* List view */
           <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <table className="min-w-full divide-y divide-gray-700">
               <thead className="bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Tiêu đề</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Nội dung</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Hình ảnh</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Tác giả</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Danh mục</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Ngày đăng</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Tiêu đề
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Nội dung
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Hình ảnh
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Ngày tạo
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Thao tác
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-gray-800 divide-y divide-gray-700">
-                {sortedBlogs.map(blog => (
+                {sortedBlogs.map((blog) => (
                   <tr key={blog.id} className="hover:bg-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-300">{blog.id}</td>
-                    <td className="px-6 py-4 font-medium text-gray-200">{blog.title}</td>
-                    <td className="px-6 py-4 truncate max-w-xs text-gray-300">{blog.content}</td>
-                    <td className="px-6 py-4">
-                      <img src={blog.image} alt={blog.title} className="h-10 w-10 rounded-full" />
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-300">
+                      {blog.id}
                     </td>
-                    <td className="px-6 py-4 text-gray-300">{blog.author}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 text-xs rounded-full bg-purple-900 text-purple-200">
-                        {blog.category}
-                      </span>
+                    <td className="px-6 py-4 font-medium text-gray-200">
+                      {blog.title}
                     </td>
-                    <td className="px-6 py-4 text-gray-300">{blog.date}</td>
+                    <td className="px-6 py-4 truncate max-w-xs text-gray-300">
+                      {blog.content}
+                    </td>
+                    <td className="px-6 py-4">
+                      <img
+                        src={blog.thumbnail}
+                        alt={blog.title}
+                        className="h-10 w-10 rounded-full"
+                      />
+                    </td>
+                    <td className="px-6 py-4 text-gray-300">
+                      {new Date(blog.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button className="mr-2 text-blue-400" onClick={() => handleEdit(blog)}>
+                        <FaEdit />
+                      </button>
+                      <button className="text-red-400" onClick={() => handleDelete(blog.id)}>
+                        <FaTrash />
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {sortedBlogs.length === 0 && (
                   <tr>
-                    <td colSpan="7" className="px-6 py-4 text-center text-gray-400">
+                    <td colSpan="6" className="px-6 py-4 text-center text-gray-400">
                       Không tìm thấy blog phù hợp!
                     </td>
                   </tr>
@@ -204,22 +324,31 @@ const BlogList = () => {
             </table>
           </div>
         ) : (
-          /* Grid view */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedBlogs.map(blog => (
+            {sortedBlogs.map((blog) => (
               <div key={blog.id} className="bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-700">
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="px-2 py-1 text-xs rounded-full bg-purple-900 text-purple-200">
-                      {blog.category}
+                      {blog.category || "Uncategorized"}
                     </span>
-                    <span className="text-sm text-gray-400">{blog.date}</span>
+                    <span className="text-sm text-gray-400">
+                      {new Date(blog.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                   <h3 className="text-lg font-bold mb-2 text-gray-100">{blog.title}</h3>
                   <p className="text-gray-400 text-sm mb-4 line-clamp-3">{blog.content}</p>
                   <div className="flex items-center">
-                    <img src={blog.image} alt={blog.author} className="h-8 w-8 rounded-full mr-2" />
-                    <span className="text-sm text-gray-300">{blog.author}</span>
+                    <img src={blog.thumbnail} alt={blog.title} className="h-8 w-8 rounded-full mr-2" />
+                    <span className="text-sm text-gray-300">{blog.author || "AuraBlossomSpa"}</span>
+                  </div>
+                  <div className="mt-2 flex justify-end">
+                    <button className="mr-2 text-blue-400" onClick={() => handleEdit(blog)}>
+                      <FaEdit />
+                    </button>
+                    <button className="text-red-400" onClick={() => handleDelete(blog.id)}>
+                      <FaTrash />
+                    </button>
                   </div>
                 </div>
               </div>

@@ -13,14 +13,17 @@ import BookingProcess from './components/pages/BookingProcess';
 import AminDashboard from './components/pages/Admin/AdminDashboard';
 import ServiceManagement from './components/pages/Admin/ServiceManagement';
 import AppointmentManagement from './components/pages/Admin/AppointmentManagement';
-import StaffManagerment from './components/pages/Admin/StaffManagement';
-import StaffList from './components/pages/Admin/stafflist';
-import TherapistList from './components/pages/Admin/therapistList';
-import CustomerList from './components/pages/Admin/CustomerList';
+import StaffManagerment from './components/pages/Admin/Employees/StaffManagement';
+import StaffList from './components/pages/Admin/Employees/StaffList';
+import TherapistList from './components/pages/Admin/Employees/therapistList';
+import CustomerList from './components/pages/Admin/CustomerList'; 
 import Schedule from './components/pages/Admin/Schedules';
 import BlogList from './components/pages/Admin/BlogsList';
 import FeedbackList from './components/pages/Admin/FeedBackList';
 import SpaDashboard from './components/pages/Admin/SpaDashboard';
+import QuizList from './components/pages/Admin/Quizs/QuizList';
+import QuizDetail from './components/pages/Admin/Quizs/QuizDetail';
+import RecommendService from './components/pages/Admin/Quizs/RecommentService'
 function App() {
     return (
         <Router>
@@ -45,6 +48,9 @@ function App() {
                     <Route path="/admin/blogs" element={<BlogList />} />
                     <Route path="/admin/feedback" element={<FeedbackList />} />
                     <Route path="/admin/dashboard" element={<SpaDashboard />} />
+                    <Route path="/admin/quizlist" element={<QuizList />} />
+                    <Route path="/admin/quizlist/:id" element={<QuizDetail />} />
+                    <Route path="/admin/recommend-service" element={<RecommendService />} />
                 </Routes>
             </UserProvider>
         </Router>

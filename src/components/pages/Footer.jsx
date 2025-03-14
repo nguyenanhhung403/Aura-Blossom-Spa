@@ -5,7 +5,7 @@ import { faPhone, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 const Footer = () => {
     return (
-        <footer className="bg-[#2F4F4F] text-white py-8 animate__animated animate__fadeInUp animate__delay-2s">
+        <footer  className="bg-[#2F4F4F] text-white py-8 animate__animated animate__fadeInUp animate__delay-2s">
             <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row md:justify-between">
                 <div className="mb-4 md:mb-0">
                     <h3 className="font-bold text-2xl">Aura Blossom Spa</h3>

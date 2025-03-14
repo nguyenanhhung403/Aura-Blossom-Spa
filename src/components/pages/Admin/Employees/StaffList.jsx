@@ -8,7 +8,7 @@ import {
   FaCheck,
   FaTimes,
 } from "react-icons/fa";
-import Sidebar from "./SideBar";
+import Sidebar from "../SideBar";
 
 const StaffList = () => {
   // Mảng nhân viên mẫu
@@ -18,40 +18,30 @@ const StaffList = () => {
       name: "Nguyễn Văn A",
       phone: "0123456789",
       email: "a@gmail.com",
-      job: "Nhân viên CSKH",
-      gender: "Nam",
     },
     {
       id: 2,
       name: "Trần Thị B",
       phone: "0987654321",
       email: "b@gmail.com",
-      job: "Quản lý",
-      gender: "Nữ",
     },
     {
       id: 3,
       name: "Lê Văn C",
       phone: "0911222333",
       email: "c@gmail.com",
-      job: "Nhân viên bán hàng",
-      gender: "Nam",
     },
     {
       id: 4,
       name: "Phạm Thị D",
       phone: "0944555666",
       email: "d@gmail.com",
-      job: "Nhân viên hỗ trợ",
-      gender: "Nữ",
     },
     {
       id: 5,
       name: "Đỗ Văn E",
       phone: "0933444555",
       email: "e@gmail.com",
-      job: "Nhân viên kỹ thuật",
-      gender: "Nam",
     },
   ]);
 
@@ -69,8 +59,6 @@ const StaffList = () => {
     name: "",
     phone: "",
     email: "",
-    job: "",
-    gender: "",
   });
   // State lưu lỗi cho form thêm
   const [addErrors, setAddErrors] = useState({});
@@ -93,14 +81,6 @@ const StaffList = () => {
     if (!newStaff.email.trim()) {
       errors.email = "Gmail không được để trống";
     }
-    if (!newStaff.job.trim()) {
-      errors.job = "Công việc không được để trống";
-    }
-    // Giới tính: chỉ nhận "Nam" hoặc "Nữ"
-    const genderVal = newStaff.gender.trim().toLowerCase();
-    if (!["nam", "nữ"].includes(genderVal)) {
-      errors.gender = 'Giới tính phải là "Nam" hoặc "Nữ"';
-    }
 
     if (Object.keys(errors).length > 0) {
       setAddErrors(errors);
@@ -112,7 +92,7 @@ const StaffList = () => {
       staffs.length > 0 ? Math.max(...staffs.map((s) => s.id)) + 1 : 1;
     const staffToAdd = { ...newStaff, id: newId };
     setStaffs((prev) => [...prev, staffToAdd]);
-    setNewStaff({ name: "", phone: "", email: "", job: "", gender: "" });
+    setNewStaff({ name: "", phone: "", email: "" });
     setAddErrors({});
     setIsAdding(false);
   };
@@ -234,34 +214,6 @@ const StaffList = () => {
                   <p className="text-red-400 text-sm">{addErrors.email}</p>
                 )}
               </div>
-              {/* Công việc */}
-              <div>
-                <input
-                  type="text"
-                  name="job"
-                  placeholder="Công việc"
-                  value={newStaff.job}
-                  onChange={(e) => handleInputChange(e, setNewStaff)}
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                />
-                {addErrors.job && (
-                  <p className="text-red-400 text-sm">{addErrors.job}</p>
-                )}
-              </div>
-              {/* Giới tính */}
-              <div>
-                <input
-                  type="text"
-                  name="gender"
-                  placeholder="Giới tính (Nam/Nữ)"
-                  value={newStaff.gender}
-                  onChange={(e) => handleInputChange(e, setNewStaff)}
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                />
-                {addErrors.gender && (
-                  <p className="text-red-400 text-sm">{addErrors.gender}</p>
-                )}
-              </div>
             </div>
             <div className="flex space-x-2 mt-2">
               <button
@@ -294,8 +246,6 @@ const StaffList = () => {
                 <th className="border border-gray-600 p-2">Tên nhân viên</th>
                 <th className="border border-gray-600 p-2">Số điện thoại</th>
                 <th className="border border-gray-600 p-2">Gmail</th>
-                <th className="border border-gray-600 p-2">Công việc</th>
-                <th className="border border-gray-600 p-2">Giới tính</th>
                 <th className="border border-gray-600 p-2">Sửa</th>
                 <th className="border border-gray-600 p-2">Xóa</th>
               </tr>
@@ -346,32 +296,6 @@ const StaffList = () => {
                           className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         />
                       </td>
-                      <td className="border border-gray-600 p-1">
-                        <input
-                          type="text"
-                          value={editedStaff.job}
-                          onChange={(e) =>
-                            setEditedStaff((prev) => ({
-                              ...prev,
-                              job: e.target.value,
-                            }))
-                          }
-                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
-                        />
-                      </td>
-                      <td className="border border-gray-600 p-1">
-                        <input
-                          type="text"
-                          value={editedStaff.gender}
-                          onChange={(e) =>
-                            setEditedStaff((prev) => ({
-                              ...prev,
-                              gender: e.target.value,
-                            }))
-                          }
-                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
-                        />
-                      </td>
                       <td className="border border-gray-600 p-2">
                         <button
                           onClick={() => handleSaveEdit(st.id)}
@@ -400,8 +324,6 @@ const StaffList = () => {
                       <td className="border border-gray-600 p-2">{st.name}</td>
                       <td className="border border-gray-600 p-2">{st.phone}</td>
                       <td className="border border-gray-600 p-2">{st.email}</td>
-                      <td className="border border-gray-600 p-2">{st.job}</td>
-                      <td className="border border-gray-600 p-2">{st.gender}</td>
                       <td className="border border-gray-600 p-2">
                         <button
                           onClick={() => {
@@ -428,7 +350,7 @@ const StaffList = () => {
               {filteredStaffs.length === 0 && (
                 <tr>
                   <td
-                    colSpan="8"
+                    colSpan="6"
                     className="p-4 text-center text-red-400 font-semibold"
                   >
                     Không tìm thấy nhân viên phù hợp!
