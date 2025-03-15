@@ -11,6 +11,7 @@ import EmailCheck from './components/Auth/EmailCheck';
 import Profile from './components/pages/Profile';
 import BookingProcess from './components/pages/BookingProcess';
 import Services from './components/pages/Services';
+import Quiz from './components/pages/Quiz';
 function App() {
     return (
         <UserProvider>
@@ -25,6 +26,7 @@ function App() {
                     <Route path="/forgot" element={<ForgottenPW />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/services" element={<Services />} />
+                    <Route path="/quiz" element={<Quiz />} />
                 </Routes>
             </Router>
         </UserProvider>

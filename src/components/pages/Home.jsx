@@ -29,6 +29,7 @@ const Home = () => {
                 <StaffSection />
                 <FeedbackSection />
                 <ContactUs />
+                {/* <QuizSection /> */}
             </main>
             <Footer />
         </div>
