@@ -1,5 +1,4 @@
-
-import React, { useState ,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Footer from "./Footer";
 import bannerserImg from "../images/SevivceImg/BannerServices.jpg";
 import Tech1Img from "../images/SevivceImg/tech1.jpg";
@@ -8,54 +7,60 @@ import Tech3Img from "../images/SevivceImg/tech3.png";
 import Tech4Img from "../images/SevivceImg/tech4.jpg";
 import Navbar from "./Navbar";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../../App.css";
-
-
 
 const ServicesTable = () => {
   const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true); // Trạng thái loading
-  const [error, setError] = useState(null); // Trạng thái lỗi
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [technologies, setTechnologies] = useState([  {
-    title: "CÔNG NGHỆ HYDRAFACIAL",
-    description: "Thanh lọc sâu, giảm mụn, kiểm dầu. Sạch thoáng làn da , sạch mát tinh thần",
-    image: Tech1Img,
-    color: "white",
-  },
-  {
-    title: "ÁNH SÁNG SINH HỌC BIO LED",
-    description: "Làm dịu, giảm viêm, mờ thâm. Phục hồi vẻ tươi sáng cho làng da ",
-    image: Tech2Img,
-    color: "#white",
-  },
-  {
-    title: "CÔNG NGHỆ HIGH PRESSURE MESO THERAPY",
-    description: "Dịu lành, an toàn, không đau. Không kim, không xâm lấn, không cần nghỉ dưỡng",
-    image: Tech3Img,
-    color: "#white",
-  },
-  {
-    title: "CÔNG NGHỆ RADIO FREQUENCY LIFTING & EMS",
-    description: "Săn chắc da, chống lão hóa. Tăng sinh collagen, tăng độ đàn hồi. Giảm nhăn, giảm quần thâm mắt",
-    image: Tech4Img,
-    color: "white",
-  },
-]);
-// Gọi API để lấy danh sách dịch vụ
-useEffect(() => {
-  axios
-    .get("https://your-api-endpoint.com/api/services") // Thay bằng API thật
-    .then((response) => {
-      setServices(response.data); // Cập nhật dữ liệu vào state
-      setLoading(false);
-    })
-    .catch((error) => {
-      console.error("Lỗi khi tải dữ liệu:", error);
-      setError("Không thể tải danh sách dịch vụ");
-      setLoading(false);
-    });
-}, []);
+  const navigate = useNavigate();
+
+  const [technologies, setTechnologies] = useState([
+    {
+      title: "CÔNG NGHỆ HYDRAFACIAL",
+      description:
+        "Thanh lọc sâu, giảm mụn, kiểm dầu. Sạch thoáng làn da , sạch mát tinh thần",
+      image: Tech1Img,
+      color: "white",
+    },
+    {
+      title: "ÁNH SÁNG SINH HỌC BIO LED",
+      description:
+        "Làm dịu, giảm viêm, mờ thâm. Phục hồi vẻ tươi sáng cho làng da ",
+      image: Tech2Img,
+      color: "white",
+    },
+    {
+      title: "CÔNG NGHỆ HIGH PRESSURE MESO THERAPY",
+      description:
+        "Dịu lành, an toàn, không đau. Không kim, không xâm lấn, không cần nghỉ dưỡng",
+      image: Tech3Img,
+      color: "white",
+    },
+    {
+      title: "CÔNG NGHỆ RADIO FREQUENCY LIFTING & EMS",
+      description:
+        "Săn chắc da, chống lão hóa. Tăng sinh collagen, tăng độ đàn hồi. Giảm nhăn, giảm quần thâm mắt",
+      image: Tech4Img,
+      color: "white",
+    },
+  ]);
+
+  useEffect(() => {
+    axios
+      .get("https://your-api-endpoint.com/api/services")
+      .then((response) => {
+        setServices(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải dữ liệu:", error);
+        setError("Không thể tải danh sách dịch vụ");
+        setLoading(false);
+      });
+  }, []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const itemsPerPage = 3;
@@ -75,6 +80,7 @@ useEffect(() => {
   const toggleCategory = (index) => {
     setSelectedCategory(selectedCategory === index ? null : index);
   };
+
   return (
     <>
       <Navbar />
@@ -106,7 +112,7 @@ useEffect(() => {
           </tr>
         </thead>
         <tbody>
-        {services.map((service, index) => (
+          {services.map((service, index) => (
             <React.Fragment key={index}>
               <tr>
                 <td
@@ -122,7 +128,7 @@ useEffect(() => {
                 service.items.map((item, idx) => (
                   <tr key={idx} className="service-details">
                     <td>{item.title}</td>
-                    <td style={{fontSize: "14px" }}>
+                    <td style={{ fontSize: "14px" }}>
                       <ul>
                         {item.steps.map((step, i) => (
                           <li key={i}>{step}</li>
@@ -130,33 +136,67 @@ useEffect(() => {
                       </ul>
                     </td>
                     <td>
-                      {item.image && <img src={item.image} alt={item.title} className="thumbnail" 
-                        style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                      />}
+                      {item.image && (
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="thumbnail"
+                          style={{
+                            width: "100px",
+                            height: "100px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
                     </td>
                     <td className="price">{item.price}</td>
                   </tr>
-                          ))}
-                       
-                </React.Fragment>
-              ))}
-              </tbody>
+                ))}
+            </React.Fragment>
+          ))}
+        </tbody>
       </table>
       <div className="technology-container">
         <h2 className="text-center text-2xl font-bold my-5">Công Nghệ Spa</h2>
-        <div className="technology-list" >
-          <button onClick={prevSlide} disabled={currentIndex === 0} style={{ cursor: "pointer", padding: "10px", borderRadius: "5px" }}>❮</button>
-          {technologies.slice(currentIndex, currentIndex + itemsPerPage).map((tech, i) => (
-            <div key={i} className="tech-card" >
-              <div className="tech-image image">
-                <img src={tech.image} alt={tech.title}/>
+        <div className="technology-list">
+          <button
+            onClick={prevSlide}
+            disabled={currentIndex === 0}
+            style={{ cursor: "pointer", padding: "10px", borderRadius: "5px" }}
+          >
+            ❮
+          </button>
+          {technologies
+            .slice(currentIndex, currentIndex + itemsPerPage)
+            .map((tech, i) => (
+              <div key={i} className="tech-card">
+                <div className="tech-image image">
+                  <img src={tech.image} alt={tech.title} />
+                </div>
+                <h3 style={{ marginTop: "10px", fontWeight: "bold" }}>
+                  {tech.title}
+                </h3>
+                <p style={{ fontSize: "14px", marginTop: "5px" }}>
+                  {tech.description}
+                </p>
               </div>
-              <h3 style={{ marginTop: "10px", fontWeight: "bold" }}>{tech.title}</h3>
-              <p style={{ fontSize: "14px", marginTop: "5px" }}>{tech.description}</p>
-            </div>
-          ))}
-          <button onClick={nextSlide} disabled={currentIndex + itemsPerPage >= technologies.length} style={{ cursor: "pointer", padding: "10px", borderRadius: "5px" }}>❯</button>
+            ))}
+          <button
+            onClick={nextSlide}
+            disabled={currentIndex + itemsPerPage >= technologies.length}
+            style={{ cursor: "pointer", padding: "10px", borderRadius: "5px" }}
+          >
+            ❯
+          </button>
         </div>
+      </div>
+      <div className="text-center my-5" style={{ backgroundColor: "#f7f1e8", width: "100vw", margin: "0", padding: "20px 0", textAlign: "center" }}>
+        <button
+          onClick={() => navigate("/booking")}
+          className="px-6 py-3 bg-[#446E6A] text-white rounded-full font-semibold hover:bg-[#375955] transition"
+        >
+          Đặt Lịch Ngay
+        </button>
       </div>
       <Footer />
     </>
