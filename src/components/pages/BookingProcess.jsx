@@ -381,6 +381,15 @@ const BookingProcess = () => {
                   <li>
                     Một số dịch vụ có thể yêu cầu xác nhận qua điện thoại.
                   </li>
+                  <li>
+                    <strong>Đặt cọc 30%:</strong> Để xác nhận lịch hẹn, quý khách vui lòng đặt cọc trước 30% giá trị dịch vụ.
+                  </li>
+                  <li>
+                    Số tiền cọc sẽ được khấu trừ vào tổng hóa đơn khi quý khách sử dụng dịch vụ.
+                  </li>
+                  <li className="text-red-500 font-semibold">
+                    <strong>Lưu ý quan trọng:</strong> Trong trường hợp quý khách hủy lịch, số tiền cọc sẽ không được hoàn trả.
+                  </li>
                 </ul>
               </div>
               <button
@@ -402,33 +411,6 @@ const BookingProcess = () => {
               <h2 className="text-2xl font-bold mb-4">
                 Kiểm tra lại thông tin đặt lịch
               </h2>
-
-              {/* Chọn phương thức thanh toán */}
-              <div className="mb-4 p-4 bg-white border rounded shadow-sm">
-                <p className="font-medium mb-2">Chọn phương thức thanh toán:</p>
-                <div className="flex items-center space-x-4">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      value="qr"
-                      checked={paymentMethod === "qr"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="mr-2"
-                    />
-                    Thanh toán trực tuyến qua QR code
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      value="counter"
-                      checked={paymentMethod === "counter"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="mr-2"
-                    />
-                    Thanh toán trực tiếp tại quầy
-                  </label>
-                </div>
-              </div>
 
               <div className="bg-[#FAF1E8] p-4 rounded space-y-3">
                 <p>
@@ -453,31 +435,11 @@ const BookingProcess = () => {
                 <p>
                   <strong>Số tiền cọc cần thanh toán (30%):</strong> {bookingData.price*0.3}
                 </p>
-                {paymentMethod === "qr" ? (
-                  <div className="flex flex-col items-center mt-4">
-                    <img
-                      src={QR}
-                      alt="QR Code"
-                      className="rounded w-40 h-40 md:w-48 md:h-48 shadow-md"
-                    />
-                    <div className="mt-4 text-center text-gray-700">
-                      <p>
-                        <strong>Chủ tài khoản:</strong> Nguyễn Anh Hùng
-                      </p>
-                      <p>
-                        <strong>Ngân hàng:</strong> MB Bank
-                      </p>
-                      <p>
-                        <strong>Số Tài Khoản:</strong> 0868205403
-                      </p>
-                      <p>Mã QR chấp nhận thanh toán qua VNpay, MoMo, ...</p>
-                    </div>
+                <div className="flex flex-col items-center mt-4">
+                  <div className="mt-4 text-center text-gray-700">
+                    <p>Vui lòng thanh toán qua VNPay để hoàn tất đặt lịch</p>
                   </div>
-                ) : (
-                  <p className="text-gray-700 text-center mt-2">
-                    Vui lòng đến quầy thanh toán tại Spa để hoàn tất giao dịch.
-                  </p>
-                )}
+                </div>
               </div>
               <button
                 onClick={handleConfirmPaymentFinal}
