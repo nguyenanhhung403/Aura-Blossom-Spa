@@ -4,7 +4,7 @@ import api, { handleError } from './api';
 // Lấy danh sách vai trò
 export const getAllRoles = async () => {
   try {
-    const response = await api.get('/roles');
+    const response = await api.get('/api/roles');
     return response.data;
   } catch (error) {
     handleError(error);
@@ -14,7 +14,7 @@ export const getAllRoles = async () => {
 // Tạo vai trò mới
 export const createRole = async (data) => {
   try {
-    const response = await api.post('/roles/create', data);
+    const response = await api.post('/api/roles/create', data);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -24,7 +24,7 @@ export const createRole = async (data) => {
 // Xóa vai trò
 export const deleteRole = async (roleId) => {
   try {
-    const response = await api.delete(`/roles/delete/${roleId}`);
+    const response = await api.delete(`/api/roles/delete/${roleId}`);
     return response.data;
   } catch (error) {
     handleError(error);
