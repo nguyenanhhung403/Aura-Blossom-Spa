@@ -11,6 +11,9 @@ const ServicesSection = () => {
     const handleBookingClick = () => {
         navigate('/booking');
     };
+    const handleServiceClick = () =>{
+        navigate('/services');
+    }
 
     return (
         <section
@@ -81,7 +84,9 @@ const ServicesSection = () => {
                     </p>
                 </div>
             </div>
-            <button className="mt-4 px-5 py-2 bg-white text-[#2F4F4F] border border-[#2F4F4F] font-semibold rounded-full mr-4 hover:bg-[#2F4F4F] hover:text-white transition">
+            <button className="mt-4 px-5 py-2 bg-white text-[#2F4F4F] border border-[#2F4F4F] font-semibold rounded-full mr-4 hover:bg-[#2F4F4F] hover:text-white transition"
+                    onClick={handleServiceClick}>
+
                 Bảng giá
             </button>
             <button 
