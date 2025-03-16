@@ -1,3 +1,6 @@
+@import "tailwindcss";
+/* @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap'); */
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -100,6 +103,7 @@ transition: transform 0.3s ease, box-shadow 0.3s ease;
 transform: translateY(-2px);
 box-shadow: 0 8px 24px rgba(20, 84, 78, 0.3);
 }
+
 /* services */
 .service-table-container {
   background-color: #f7f1e8; /* Màu nền mong muốn */

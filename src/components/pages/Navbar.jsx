@@ -21,6 +21,9 @@ import {
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { faSpa } from "@fortawesome/free-solid-svg-icons";
+
+
 const Navbar = () => {
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -47,6 +50,10 @@ const Navbar = () => {
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const scrollToBottom = () => {
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
   };
 
   return (
@@ -93,6 +100,7 @@ const Navbar = () => {
                     >
                       <FontAwesomeIcon icon={faUser} />
                       <span>Thông tin tài khoản</span>
+
                     </Link>
                     <Link
                       to="/support"
@@ -110,6 +118,23 @@ const Navbar = () => {
                         <span>Lịch sử</span>
                       </Link>
                     )}
+
+
+                    </Link>
+                    <Link
+                      to="/support"
+                      className="block px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
+                    >
+                      <FontAwesomeIcon icon={faComments} />
+                      <span>Hỗ trợ</span>
+                    </Link>
+                    <Link
+                      to="/history"
+                      className="block px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
+                    >
+                      <FontAwesomeIcon icon={faHistory} />
+                      <span>Lịch sử</span>
+                    </Link>
 
                     <button
                       onClick={handleLogout}
@@ -177,7 +202,10 @@ const Navbar = () => {
             href="/#services"
             className="hover:text-[#446E6A] transition flex items-center space-x-2"
           >
-            <FontAwesomeIcon icon={faConciergeBell} />
+
+
+            <FontAwesomeIcon icon={faSpa} /> {/* Changed icon here */}
+
             <span>Dịch vụ</span>
           </a>
           <a
@@ -208,6 +236,7 @@ const Navbar = () => {
             <FontAwesomeIcon icon={faBlog} />
             <span>Blog</span>
           </a>
+
           <a
             href="/#contact"
             className="hover:text-[#446E6A] transition flex items-center space-x-2"
@@ -215,6 +244,12 @@ const Navbar = () => {
             <FontAwesomeIcon icon={faPhone} />
             <span>Liên hệ</span>
           </a>
+
+          <button onClick={scrollToBottom} className="hover:text-[#446E6A] transition flex items-center space-x-2">
+  <FontAwesomeIcon icon={faPhone} />
+  <span>Liên hệ</span>
+</button>
+
         </nav>
       </div>
     </header>

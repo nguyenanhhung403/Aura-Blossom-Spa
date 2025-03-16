@@ -1,27 +1,69 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Background from "../../components/images/LoginImage/LoginBackground.jpg";
 import spaImage2 from "../../components/images/logoSpa.png";
+import { registerUser } from "../service/authApi.js";
+import { UserContext } from "../context/UserContext.jsx";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [username, setUsername] = useState(""); // state cho tên đăng nhập
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState(""); // Thêm state cho số điện thoại
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Xử lý đăng ký ở đây (gọi API, kiểm tra, v.v.)
+    if (loading) return;
+
     console.log(
       "Tên:", name,
       "Tên đăng nhập:", username,
       "Email:", email,
+      "Số điện thoại:", phone,
       "Mật khẩu:", password,
       "Xác nhận:", confirmPassword
     );
+
+    setLoading(true);
+    try {
+      const registerObj = {
+        fullname: name,
+        email,
+        phone, // gửi số điện thoại
+        password,
+        username,
+        confirmPassword,
+      };
+
+      const registerResult = await registerUser(registerObj);
+      const hasEmail = registerResult?.result?.email;
+
+      if (!registerResult || !hasEmail) {
+        throw new Error("Đăng ký thất bại");
+      }
+
+      alert("Đăng ký thành công. Vui lòng đăng nhập để tiếp tục");
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Có lỗi xảy ra khi đăng ký");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   return (
     <div
@@ -52,8 +94,7 @@ const Register = () => {
               onChange={(e) => setName(e.target.value)}
               placeholder="Nhập tên của bạn"
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
             />
           </div>
 
@@ -65,8 +106,20 @@ const Register = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Nhập email của bạn"
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            />
+          </div>
+
+          {/* Trường Số điện thoại */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Nhập số điện thoại của bạn"
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
             />
           </div>
 
@@ -79,8 +132,7 @@ const Register = () => {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Nhập tên đăng nhập của bạn"
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
             />
           </div>
 
@@ -92,8 +144,7 @@ const Register = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Nhập mật khẩu"
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
             />
           </div>
 
@@ -105,8 +156,7 @@ const Register = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Xác nhận mật khẩu"
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
             />
           </div>
 
@@ -114,8 +164,7 @@ const Register = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 
-                       rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
           >
             Đăng ký
           </motion.button>
