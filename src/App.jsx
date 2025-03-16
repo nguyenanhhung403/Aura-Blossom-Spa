@@ -24,6 +24,7 @@ import SpaDashboard from './components/pages/Admin/SpaDashboard';
 import QuizList from './components/pages/Admin/Quizs/QuizList';
 import QuizDetail from './components/pages/Admin/Quizs/QuizDetail';
 import RecommendService from './components/pages/Admin/Quizs/RecommentService'
+import ServicesTable from './components/pages/Services';
 function App() {
     return (
         <Router>
@@ -37,6 +38,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/forgot" element={<ForgottenPW />} />
                     <Route path="/blog" element={<Blog />} />
+                    <Route path="/services" element={<ServicesTable />} />
                     <Route path="/admin/*" element={<AminDashboard />} />
                     <Route path="/admin/services" element={<ServiceManagement />} />
                     <Route path="/admin/appointments" element={<AppointmentManagement />} />

@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import imgBackground from "../images/LoginImage/AnhTemplate2.jpg";
 import QR from "../images/QRBanking/QR.jpg";
 import ContactUs from "./ContactUs";
+import { getAllTherapists } from "../service/therapistsApi";
+import { getAllServices } from "../service/serviceApi";
+import { getSlotsByDateAndTherapist } from "../service/slotApi";
+import { createAppointment } from "../service/appointmentApi";
+import { createVnPayPayment } from "../service/paymentApi";
 const BookingProcess = () => {
   const navigate = useNavigate();
 
@@ -15,20 +20,106 @@ const BookingProcess = () => {
   const [bookingData, setBookingData] = useState({
     fullName: "",
     phone: "",
+    serviceId: "",
     service: "",
-    staff: "",
-    date: "",
+    price: "",
+    therapistId: "",
+    therapist: "",
     time: "",
+    date: "",
+    slotId: "",
     note: "",
   });
+
+  const [therapists, setTherapists] = useState([]);
+  const [services, setServices] = useState([]);
+  const [slots, setSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  useEffect(() => {
+    const fetchTherapists = async () => {
+      try {
+        const response = await getAllTherapists();
+        setTherapists(response.result);
+      } catch (error) {
+        console.error("Error fetching therapists:", error);
+      }
+    };
+    const fetchServices = async () => {
+      try {
+        const response = await getAllServices();
+        setServices(response.result);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+    fetchServices();
+    fetchTherapists();
+  }, []);
+
+  useEffect(() => {
+    const fetchSlots = async () => {
+      if (bookingData.date) {
+        try {
+          const response = await getSlotsByDateAndTherapist(
+            bookingData.date,
+            bookingData.therapistId
+          );
+          const unsortedSlots = response.result || [];
+          if(unsortedSlots.length>0){
+            unsortedSlots.sort((a, b) => {
+              let timeA = new Date(`1970-01-01T${a.time}`);
+              let timeB = new Date(`1970-01-01T${b.time}`);
+              return timeA - timeB;
+            });
+          }
+          setSlots(unsortedSlots)
+        } catch (error) {
+          console.error("Error fetching slots:", error);
+          setSlots([]);
+        }
+      } else {
+        setSlots([]);
+      }
+    };
+    fetchSlots();
+  }, [bookingData.date, bookingData.therapistId]);
 
   // Quản lý phương thức thanh toán: "qr" hoặc "counter"
   const [paymentMethod, setPaymentMethod] = useState("qr");
 
-  // Handler khi nhập dữ liệu
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setBookingData((prev) => ({ ...prev, [name]: value }));
+    if (name === "serviceId") {
+      const selectedService = services.find((service) => service.id == value);
+      setBookingData((prev) => ({
+        ...prev,
+        [name]: value,
+        service: selectedService ? selectedService.name : "",
+        price: selectedService ? selectedService.price : "",
+      }));
+    } else if (name === "therapistId") {
+      const selectedTherapist = therapists.find((therapist) => therapist.id == value);
+      setBookingData((prev) => ({
+        ...prev,
+        [name]: value,
+        therapist: selectedTherapist ? selectedTherapist.fullname : "",
+      }));
+    } else {
+      setBookingData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSelectSlot = (slotId) => {
+    const selectedSlot = slots.find((slot) => slot.id === slotId);
+    if (selectedSlot?.therapists[0].status === "AVAILABLE") {
+      setBookingData((prev) => ({
+        ...prev,
+        slotId: slotId,
+        time: selectedSlot.time || "",
+      }));
+    } else {
+      console.warn("Cannot select an unavailable slot");
+    }
   };
 
   // Bước 1: Khi người dùng nhấn "Tiếp tục"
@@ -46,9 +137,14 @@ const BookingProcess = () => {
   };
 
   // Bước 3: Khi người dùng nhấn "Xác nhận thanh toán"
-  const handleConfirmPaymentFinal = () => {
-    // Xử lý thanh toán hoặc lưu dữ liệu tại đây
-    navigate("/history");
+  const handleConfirmPaymentFinal = async () => {
+    const appointmentResponse = await createAppointment(bookingData);
+    const paymentRequest = {
+      amount: bookingData.price*0.3,
+      appointmentId: appointmentResponse.result.id,
+    }
+    const paymentResponse = await createVnPayPayment(paymentRequest);
+    window.location.href=paymentResponse.result.paymentUrl;
   };
 
   return (
@@ -153,8 +249,8 @@ const BookingProcess = () => {
                 <div>
                   <label className="block font-medium">Dịch Vụ</label>
                   <select
-                    name="service"
-                    value={bookingData.service}
+                    name="serviceId"
+                    value={bookingData.serviceId}
                     onChange={handleInputChange}
                     className="
                       w-full border rounded px-3 py-2 
@@ -162,67 +258,97 @@ const BookingProcess = () => {
                     "
                   >
                     <option value="">Chọn dịch vụ</option>
-                    <option value="Chăm sóc da cơ bản">Chăm sóc da cơ bản</option>
-                    <option value="Detox da nâng cao">Detox da nâng cao</option>
+                    {services.map((service) => (
+                      <option key={service.id} value={service.id}>
+                        {service.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className="block font-medium">Chuyên Viên</label>
                   <select
-                    name="staff"
-                    value={bookingData.staff}
-                    onChange={handleInputChange}
+                    name="therapistId"
+                    value={bookingData.therapistId}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                    }}
                     className="
                       w-full border rounded px-3 py-2 
                       focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
                     "
                   >
                     <option value="">Chọn chuyên viên</option>
-                    <option value="Chuyên viên A">Chuyên viên A</option>
-                    <option value="Chuyên viên B">Chuyên viên B</option>
+                    {therapists.map((therapist) => (
+                      <option key={therapist.id} value={therapist.id}>
+                        {therapist.fullname}
+                      </option>
+                    ))}
                   </select>
                 </div>
-                <div className="flex space-x-4">
-                  <div className="w-1/2">
-                    <label className="block font-medium">Ngày/Tháng/Năm</label>
-                    <input
-                      type="date"
-                      name="date"
-                      value={bookingData.date}
-                      onChange={handleInputChange}
-                      className="
-                        w-full border rounded px-3 py-2 
-                        focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
-                      "
-                    />
-                  </div>
-                  <div className="w-1/2">
-                    <label className="block font-medium">Giờ</label>
-                    <input
-                      type="time"
-                      name="time"
-                      value={bookingData.time}
-                      onChange={handleInputChange}
-                      className="
-                        w-full border rounded px-3 py-2 
-                        focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
-                      "
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-medium">Ghi chú</label>
-                  <textarea
-                    name="note"
-                    value={bookingData.note}
+                <div className="">
+                  <label className="block font-medium">Ngày/Tháng/Năm</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={bookingData.date}
                     onChange={handleInputChange}
                     className="
+                        w-full border rounded px-3 py-2 
+                        focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
+                      "
+                  />
+                </div>
+                <div className="pb-3">
+                  <label className="block font-medium">Giờ</label>
+                  <div className="flex flex-wrap gap-2">
+                    {slots.length > 0 ? (
+                      slots.map((slot) => (
+                        <button
+                          key={slot.id}
+                          type="button"
+                          onClick={() => handleSelectSlot(slot.id)}
+                          disabled={slot.therapists[0].status === "UNAVAILABLE"}
+                          className={`
+                      px-4 py-3 border rounded transition-all duration-200
+                      ${
+                        slot.therapists[0].status === "AVAILABLE"
+                          ? "bg-white text-black hover:bg-gray-200 hover:shadow-md"
+                          : "bg-gray-300 text-gray-500 opacity-50 cursor-not-allowed"
+                      }
+                      ${
+                        bookingData.slotId === slot.id
+                          ? "bg-[#C8A27C] text-white border-2 border-[#A67B5B] shadow-lg"
+                          : "border-gray-300"
+                      }
+                    `}
+                        >
+                          {slot.time}
+                          {slot.therapists[0].status === "UNAVAILABLE" && (
+                            <span className="ml-2 text-red-500">Hết chỗ</span>
+                          )}
+                        </button>
+                      ))
+                    ) : bookingData.date && bookingData.therapistId ? (
+                      <p className="text-gray-500">Hiện tại chưa có khung giờ phù hợp</p>
+                    ) : (
+                      <p className="text-gray-500">Vui lòng chọn ngày và chuyên viên để xem khung giờ</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="block font-medium">Ghi chú</label>
+                <textarea
+                  name="note"
+                  value={bookingData.note}
+                  onChange={handleInputChange}
+                  className="
                       w-full border rounded px-3 py-2 
                       focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
                     "
-                    placeholder="Nhập ghi chú (nếu có)"
-                  />
-                </div>
+                  placeholder="Nhập ghi chú (nếu có)"
+                />
               </div>
               <button
                 onClick={handleGoToPayment}
@@ -273,7 +399,9 @@ const BookingProcess = () => {
           {currentStep === 3 && (
             <div className="animate__animated animate__fadeInUp">
               {/* Bước 3: Thanh toán */}
-              <h2 className="text-2xl font-bold mb-4">Kiểm tra lại thông tin đặt lịch</h2>
+              <h2 className="text-2xl font-bold mb-4">
+                Kiểm tra lại thông tin đặt lịch
+              </h2>
 
               {/* Chọn phương thức thanh toán */}
               <div className="mb-4 p-4 bg-white border rounded shadow-sm">
@@ -313,13 +441,17 @@ const BookingProcess = () => {
                   <strong>Dịch Vụ:</strong> {bookingData.service}
                 </p>
                 <p>
-                  <strong>Chuyên Viên:</strong> {bookingData.staff}
+                  <strong>Chuyên Viên:</strong> {bookingData.therapist}
                 </p>
                 <p>
-                  <strong>Thời gian:</strong> {bookingData.date} - {bookingData.time}
+                  <strong>Thời gian:</strong> {bookingData.date} -{" "}
+                  {bookingData.time}
                 </p>
                 <p>
-                  <strong>Số tiền thanh toán:</strong> 500.000đ
+                  <strong>Phí dịch vụ:</strong> {bookingData.price}
+                </p>
+                <p>
+                  <strong>Số tiền cọc cần thanh toán (30%):</strong> {bookingData.price*0.3}
                 </p>
                 {paymentMethod === "qr" ? (
                   <div className="flex flex-col items-center mt-4">
@@ -338,9 +470,7 @@ const BookingProcess = () => {
                       <p>
                         <strong>Số Tài Khoản:</strong> 0868205403
                       </p>
-                      <p>
-                        Mã QR chấp nhận thanh toán qua VNpay, MoMo, ...
-                      </p>
+                      <p>Mã QR chấp nhận thanh toán qua VNpay, MoMo, ...</p>
                     </div>
                   </div>
                 ) : (

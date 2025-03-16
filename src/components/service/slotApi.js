@@ -27,6 +27,15 @@ export const getAvailableSlotsByDate = async (date) => {
     }
 };
 
+export const getSlotsByDateAndTherapist = async (date, therapistId) => {
+    try {
+        const response = await api.get(`/api/slots/date-and-therapist?date=${date}&therapistId=${therapistId}`);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
 export const getAvailableSlotsByTherapist = async (therapistId) => {
     try {
         const response = await api.get(`/api/slots/available/therapist/${therapistId}`);
