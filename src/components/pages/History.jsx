@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import HistoryBanner from "../images/HistoryImg/history-banner.jpg";
@@ -8,129 +9,27 @@ const History = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const upcomingAppointments = [
-    {
-      date: "15/02/2025",
-      service: "MASSAGE THƯ GIÃN",
-      staff: "NV. Nguyễn Thị A",
-      note: "",
-    },
-    {
-      date: "01/02/2025",
-      service: "CHĂM SÓC DA MẶT",
-      staff: "NV. Phạm Ngọc & BS. Nguyễn Minh Anh",
-      note: "KHÁCH DỊ ỨNG VỚI VITAMIN C",
-    },
-    {
-      date: "20/01/2025",
-      service: "TRIỆT LÔNG",
-      staff: "NV. LÊ QUANG V",
-      note: "",
-    },
-    {
-      date: "10/01/2025",
-      service: "TẨY TẾ BÀO CHẾT",
-      staff: "NV. Trần Hoàng B",
-      note: "KHÁCH CÓ DA NHẠY CẢM",
-    },
-    {
-      date: "05/01/2025",
-      service: "GỘI ĐẦU THƯ GIÃN",
-      staff: "NV. Nguyễn Thanh",
-      note: "",
-    },
-    {
-      date: "01/01/2025",
-      service: "XÔNG HƠI",
-      staff: "NV. Lê Văn C",
-      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
-    },
-    {
-      date: "01/01/2025",
-      service: "XÔNG HƠI",
-      staff: "NV. Lê Văn C",
-      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
-    },
-    {
-      date: "01/01/2025",
-      service: "XÔNG HƠI",
-      staff: "NV. Lê Văn C",
-      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
-    },
-    {
-      date: "01/01/2025",
-      service: "XÔNG HƠI",
-      staff: "NV. Lê Văn C",
-      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
-    },
-    {
-      date: "01/01/2025",
-      service: "XÔNG HƠI",
-      staff: "NV. Lê Văn C",
-      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
-    },
-    {
-      date: "01/01/2025",
-      service: "XÔNG HƠI",
-      staff: "NV. Lê Văn C",
-      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
-    },
-    {
-      date: "01/01/2025",
-      service: "XÔNG HƠI",
-      staff: "NV. Lê Văn C",
-      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
-    },
-  ];
+  // State để lưu dữ liệu từ API
+  const [upcomingAppointments, setUpcomingAppointments] = useState([]);
+  const [previousServices, setPreviousServices] = useState([]);
+  const [payments, setPayments] = useState([]);
 
-  const previousServices = [
-    {
-      date: "15/02/2025",
-      service: "MASSAGE THƯ GIÃN",
-      staff: "NV. Nguyễn Thị A",
-      note: "KHÁCH HÀI LÒNG",
-      status: "HOÀN THÀNH",
-      rating: "⭐⭐⭐⭐⭐",
-      feedback: "RẤT THƯ GIÃN, NHÂN VIÊN CHUYÊN NGHIỆP.",
-    },
-    {
-      date: "01/02/2025",
-      service: "CHĂM SÓC DA MẶT",
-      staff: "NV. Phạm Ngọc & BS. Nguyễn Minh Anh",
-      note: "KHÁCH CẦN THĂM KHÁM THƯỜNG XUYÊN",
-      status: "HOÀN THÀNH",
-      rating: "⭐⭐⭐⭐⭐",
-      feedback: "DA ĐƯỢC CẢI THIỆN SAU 3 NGÀY ĐIỀU TRỊ.",
-    },
-    {
-      date: "20/01/2025",
-      service: "TRIỆT LÔNG",
-      staff: "NV. LÊ QUANG V",
-      note: "KHÁCH BÁO BẬN",
-      status: "ĐÃ HỦY",
-      rating: "",
-      feedback: "",
-    },
-  ];
-
-  const payments = [
-    {
-      service: "MASSAGE THƯ GIÃN",
-      date: "15/02/2025",
-      amount: "500,000 VND",
-      method: "Chuyển khoản",
-      balance: "0 VND",
-      status: "Đã thanh toán",
-    },
-    {
-      service: "CHĂM SÓC DA MẶT",
-      date: "01/02/2025",
-      amount: "800,000 VND",
-      method: "Tiền mặt",
-      balance: "300,000 VND",
-      status: "Chưa hoàn tất",
-    },
-  ];
+  // Gọi API khi component được render hoặc khi activeTable thay đổi
+  useEffect(() => {
+    if (activeTable === "upcoming") {
+      axios.get("https://api.example.com/upcoming-appointments")
+        .then(response => setUpcomingAppointments(response.data))
+        .catch(error => console.error("Error fetching upcoming appointments:", error));
+    } else if (activeTable === "previous") {
+      axios.get("https://api.example.com/previous-services")
+        .then(response => setPreviousServices(response.data))
+        .catch(error => console.error("Error fetching previous services:", error));
+    } else if (activeTable === "payment") {
+      axios.get("https://api.example.com/payments")
+        .then(response => setPayments(response.data))
+        .catch(error => console.error("Error fetching payments:", error));
+    }
+  }, [activeTable]);
 
   const getCurrentItems = () => {
     let data = [];
@@ -162,16 +61,15 @@ const History = () => {
         </div>
 
         <div className="history-buttons">
-        <button className="history-btn" onClick={() => { setActiveTable("upcoming"); setCurrentPage(1); }}>
-  LỊCH HẸN SẮP TỚI
-</button>
-<button className="history-btn" onClick={() => { setActiveTable("previous"); setCurrentPage(1); }}>
-  DỊCH VỤ TRƯỚC ĐÓ
-</button>
-<button className="history-btn" onClick={() => { setActiveTable("payment"); setCurrentPage(1); }}>
-  THANH TOÁN
-</button>
-
+          <button className="history-btn" onClick={() => { setActiveTable("upcoming"); setCurrentPage(1); }}>
+            LỊCH HẸN SẮP TỚI
+          </button>
+          <button className="history-btn" onClick={() => { setActiveTable("previous"); setCurrentPage(1); }}>
+            DỊCH VỤ TRƯỚC ĐÓ
+          </button>
+          <button className="history-btn" onClick={() => { setActiveTable("payment"); setCurrentPage(1); }}>
+            THANH TOÁN
+          </button>
         </div>
 
         {activeTable && (
@@ -180,8 +78,8 @@ const History = () => {
               {activeTable === "upcoming"
                 ? "LỊCH HẸN SẮP TỚI"
                 : activeTable === "previous"
-                ? "DỊCH VỤ TRƯỚC ĐÓ"
-                : "THANH TOÁN"}
+                  ? "DỊCH VỤ TRƯỚC ĐÓ"
+                  : "THANH TOÁN"}
             </h3>
             <table>
               <thead>
@@ -213,13 +111,7 @@ const History = () => {
                 </tr>
               </thead>
               <tbody>
-                {getCurrentItems(
-                  activeTable === "upcoming"
-                    ? upcomingAppointments
-                    : activeTable === "previous"
-                    ? previousServices
-                    : payments
-                ).map((item, index) => (
+                {getCurrentItems().map((item, index) => (
                   <tr key={index}>
                     {activeTable === "payment" ? (
                       <>

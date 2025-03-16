@@ -101,13 +101,15 @@ const Navbar = () => {
                       <FontAwesomeIcon icon={faComments} />
                       <span>Hỗ trợ</span>
                     </Link>
-                    <Link
-                      to="/history"
-                      className="block px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
-                    >
-                      <FontAwesomeIcon icon={faHistory} />
-                      <span>Lịch sử</span>
-                    </Link>
+                    {user && (
+                      <Link
+                        to="/history"
+                        className="block px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
+                      >
+                        <FontAwesomeIcon icon={faHistory} />
+                        <span>Lịch sử</span>
+                      </Link>
+                    )}
 
                     <button
                       onClick={handleLogout}
@@ -212,13 +214,6 @@ const Navbar = () => {
           >
             <FontAwesomeIcon icon={faPhone} />
             <span>Liên hệ</span>
-          </a>
-          <a
-            href="/history"
-            className="hover:text-[#446E6A] transition flex items-center space-x-2"
-          >
-            <FontAwesomeIcon icon={faHistory} />
-            <span>Lịch sử</span>
           </a>
         </nav>
       </div>
