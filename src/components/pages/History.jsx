@@ -6,35 +6,151 @@ import HistoryBanner from "../images/HistoryImg/history-banner.jpg";
 const History = () => {
   const [activeTable, setActiveTable] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3;
+  const itemsPerPage = 10;
 
   const upcomingAppointments = [
-    { date: "15/02/2025", service: "MASSAGE THƯ GIÃN", staff: "NV. Nguyễn Thị A", note: "" },
-    { date: "01/02/2025", service: "CHĂM SÓC DA MẶT", staff: "NV. Phạm Ngọc & BS. Nguyễn Minh Anh", note: "KHÁCH DỊ ỨNG VỚI VITAMIN C" },
-    { date: "20/01/2025", service: "TRIỆT LÔNG", staff: "NV. LÊ QUANG V", note: "" },
-    { date: "10/01/2025", service: "TẨY TẾ BÀO CHẾT", staff: "NV. Trần Hoàng B", note: "KHÁCH CÓ DA NHẠY CẢM" },
-    { date: "05/01/2025", service: "GỘI ĐẦU THƯ GIÃN", staff: "NV. Nguyễn Thanh", note: "" },
-    { date: "01/01/2025", service: "XÔNG HƠI", staff: "NV. Lê Văn C", note: "KHÁCH YÊU CẦU DỊCH VỤ VIP" }
+    {
+      date: "15/02/2025",
+      service: "MASSAGE THƯ GIÃN",
+      staff: "NV. Nguyễn Thị A",
+      note: "",
+    },
+    {
+      date: "01/02/2025",
+      service: "CHĂM SÓC DA MẶT",
+      staff: "NV. Phạm Ngọc & BS. Nguyễn Minh Anh",
+      note: "KHÁCH DỊ ỨNG VỚI VITAMIN C",
+    },
+    {
+      date: "20/01/2025",
+      service: "TRIỆT LÔNG",
+      staff: "NV. LÊ QUANG V",
+      note: "",
+    },
+    {
+      date: "10/01/2025",
+      service: "TẨY TẾ BÀO CHẾT",
+      staff: "NV. Trần Hoàng B",
+      note: "KHÁCH CÓ DA NHẠY CẢM",
+    },
+    {
+      date: "05/01/2025",
+      service: "GỘI ĐẦU THƯ GIÃN",
+      staff: "NV. Nguyễn Thanh",
+      note: "",
+    },
+    {
+      date: "01/01/2025",
+      service: "XÔNG HƠI",
+      staff: "NV. Lê Văn C",
+      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
+    },
+    {
+      date: "01/01/2025",
+      service: "XÔNG HƠI",
+      staff: "NV. Lê Văn C",
+      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
+    },
+    {
+      date: "01/01/2025",
+      service: "XÔNG HƠI",
+      staff: "NV. Lê Văn C",
+      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
+    },
+    {
+      date: "01/01/2025",
+      service: "XÔNG HƠI",
+      staff: "NV. Lê Văn C",
+      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
+    },
+    {
+      date: "01/01/2025",
+      service: "XÔNG HƠI",
+      staff: "NV. Lê Văn C",
+      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
+    },
+    {
+      date: "01/01/2025",
+      service: "XÔNG HƠI",
+      staff: "NV. Lê Văn C",
+      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
+    },
+    {
+      date: "01/01/2025",
+      service: "XÔNG HƠI",
+      staff: "NV. Lê Văn C",
+      note: "KHÁCH YÊU CẦU DỊCH VỤ VIP",
+    },
   ];
 
   const previousServices = [
-    { date: "15/02/2025", service: "MASSAGE THƯ GIÃN", staff: "NV. Nguyễn Thị A", note: "KHÁCH HÀI LÒNG", status: "HOÀN THÀNH", rating: "⭐⭐⭐⭐⭐", feedback: "RẤT THƯ GIÃN, NHÂN VIÊN CHUYÊN NGHIỆP." },
-    { date: "01/02/2025", service: "CHĂM SÓC DA MẶT", staff: "NV. Phạm Ngọc & BS. Nguyễn Minh Anh", note: "KHÁCH CẦN THĂM KHÁM THƯỜNG XUYÊN", status: "HOÀN THÀNH", rating: "⭐⭐⭐⭐⭐", feedback: "DA ĐƯỢC CẢI THIỆN SAU 3 NGÀY ĐIỀU TRỊ." },
-    { date: "20/01/2025", service: "TRIỆT LÔNG", staff: "NV. LÊ QUANG V", note: "KHÁCH BÁO BẬN", status: "ĐÃ HỦY", rating: "", feedback: "" }
+    {
+      date: "15/02/2025",
+      service: "MASSAGE THƯ GIÃN",
+      staff: "NV. Nguyễn Thị A",
+      note: "KHÁCH HÀI LÒNG",
+      status: "HOÀN THÀNH",
+      rating: "⭐⭐⭐⭐⭐",
+      feedback: "RẤT THƯ GIÃN, NHÂN VIÊN CHUYÊN NGHIỆP.",
+    },
+    {
+      date: "01/02/2025",
+      service: "CHĂM SÓC DA MẶT",
+      staff: "NV. Phạm Ngọc & BS. Nguyễn Minh Anh",
+      note: "KHÁCH CẦN THĂM KHÁM THƯỜNG XUYÊN",
+      status: "HOÀN THÀNH",
+      rating: "⭐⭐⭐⭐⭐",
+      feedback: "DA ĐƯỢC CẢI THIỆN SAU 3 NGÀY ĐIỀU TRỊ.",
+    },
+    {
+      date: "20/01/2025",
+      service: "TRIỆT LÔNG",
+      staff: "NV. LÊ QUANG V",
+      note: "KHÁCH BÁO BẬN",
+      status: "ĐÃ HỦY",
+      rating: "",
+      feedback: "",
+    },
   ];
 
   const payments = [
-    { service: "MASSAGE THƯ GIÃN", date: "15/02/2025", amount: "500,000 VND", method: "Chuyển khoản", balance: "0 VND", status: "Đã thanh toán" },
-    { service: "CHĂM SÓC DA MẶT", date: "01/02/2025", amount: "800,000 VND", method: "Tiền mặt", balance: "300,000 VND", status: "Chưa hoàn tất" }
+    {
+      service: "MASSAGE THƯ GIÃN",
+      date: "15/02/2025",
+      amount: "500,000 VND",
+      method: "Chuyển khoản",
+      balance: "0 VND",
+      status: "Đã thanh toán",
+    },
+    {
+      service: "CHĂM SÓC DA MẶT",
+      date: "01/02/2025",
+      amount: "800,000 VND",
+      method: "Tiền mặt",
+      balance: "300,000 VND",
+      status: "Chưa hoàn tất",
+    },
   ];
 
-  const getCurrentItems = (data) => {
+  const getCurrentItems = () => {
+    let data = [];
+    if (activeTable === "upcoming") data = upcomingAppointments;
+    if (activeTable === "previous") data = previousServices;
+    if (activeTable === "payment") data = payments;
+
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     return data.slice(indexOfFirstItem, indexOfLastItem);
   };
 
-  const totalPages = (data) => Math.ceil(data.length / itemsPerPage);
+  const totalPages = () => {
+    let data = [];
+    if (activeTable === "upcoming") data = upcomingAppointments;
+    if (activeTable === "previous") data = previousServices;
+    if (activeTable === "payment") data = payments;
+
+    return Math.ceil(data.length / itemsPerPage);
+  };
 
   return (
     <>
@@ -46,21 +162,26 @@ const History = () => {
         </div>
 
         <div className="history-buttons">
-          <button className="history-btn" onClick={() => { setActiveTable("upcoming"); setCurrentPage(1); }}>
-            LỊCH HẸN SẮP TỚI
-          </button>
-          <button className="history-btn" onClick={() => { setActiveTable("previous"); setCurrentPage(1); }}>
-            DỊCH VỤ TRƯỚC ĐÓ
-          </button>
-          <button className="history-btn" onClick={() => { setActiveTable("payment"); setCurrentPage(1); }}>
-            THANH TOÁN
-          </button>
+        <button className="history-btn" onClick={() => { setActiveTable("upcoming"); setCurrentPage(1); }}>
+  LỊCH HẸN SẮP TỚI
+</button>
+<button className="history-btn" onClick={() => { setActiveTable("previous"); setCurrentPage(1); }}>
+  DỊCH VỤ TRƯỚC ĐÓ
+</button>
+<button className="history-btn" onClick={() => { setActiveTable("payment"); setCurrentPage(1); }}>
+  THANH TOÁN
+</button>
+
         </div>
 
         {activeTable && (
           <div className="history-table">
             <h3 className="table-header">
-              {activeTable === "upcoming" ? "LỊCH HẸN SẮP TỚI" : activeTable === "previous" ? "DỊCH VỤ TRƯỚC ĐÓ" : "THANH TOÁN"}
+              {activeTable === "upcoming"
+                ? "LỊCH HẸN SẮP TỚI"
+                : activeTable === "previous"
+                ? "DỊCH VỤ TRƯỚC ĐÓ"
+                : "THANH TOÁN"}
             </h3>
             <table>
               <thead>
@@ -92,7 +213,13 @@ const History = () => {
                 </tr>
               </thead>
               <tbody>
-                {getCurrentItems(activeTable === "upcoming" ? upcomingAppointments : activeTable === "previous" ? previousServices : payments).map((item, index) => (
+                {getCurrentItems(
+                  activeTable === "upcoming"
+                    ? upcomingAppointments
+                    : activeTable === "previous"
+                    ? previousServices
+                    : payments
+                ).map((item, index) => (
                   <tr key={index}>
                     {activeTable === "payment" ? (
                       <>
@@ -122,17 +249,21 @@ const History = () => {
                 ))}
               </tbody>
             </table>
-            {totalPages(getCurrentItems(activeTable === "upcoming" ? upcomingAppointments : activeTable === "previous" ? previousServices : payments)) > 1 && (
+            {totalPages() > 1 && (
               <div className="pagination">
-                <button 
-                  onClick={() => setCurrentPage(currentPage - 1)} 
-                  disabled={currentPage === 1}>
+                <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
                   ❮ Trước
                 </button>
-                <span>Trang {currentPage} / {totalPages(getCurrentItems(activeTable === "upcoming" ? upcomingAppointments : activeTable === "previous" ? previousServices : payments))}</span>
-                <button 
-                  onClick={() => setCurrentPage(currentPage + 1)} 
-                  disabled={currentPage === totalPages(getCurrentItems(activeTable === "upcoming" ? upcomingAppointments : activeTable === "previous" ? previousServices : payments))}>
+                <span>
+                  Trang {currentPage} / {totalPages()}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages()}
+                >
                   Tiếp ❯
                 </button>
               </div>
