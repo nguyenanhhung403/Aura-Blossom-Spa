@@ -150,7 +150,7 @@ const Services = () => {
 
   const handleStartEdit = (service) => {
     setEditingId(service.id);
-    setEditedService({...service, categoryId: service.category.id});
+    setEditedService(service);
     console.log(service);
   };
 
@@ -405,7 +405,7 @@ const Services = () => {
                       <td className="border border-gray-600 p-1">
                         <select
                           name="categoryId"
-                          value={editedService?.category?.id}
+                          value={editedService.category.id}
                           onChange={(e) =>
                             setEditedService((prev) => ({
                               ...prev,
