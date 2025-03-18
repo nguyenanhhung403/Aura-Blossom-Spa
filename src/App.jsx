@@ -27,6 +27,8 @@ import RecommendService from './components/pages/Admin/Quizs/RecommentService'
 import ServicesTable from './components/pages/Services';
 import RateService from './components/pages/RateService';
 import ViewFeedbacks from './components/pages/ViewFeedbacks';
+import Quiz from './components/pages/Quiz';
+import History from './components/pages/History';
 
 // Import staff components
 import StaffLayout from './components/staff/StaffLayout';
@@ -52,7 +54,8 @@ function App() {
                     <Route path="/services" element={<ServicesTable />} />
                     <Route path="/rate-service" element={<RateService />} />
                     <Route path="/view-feedbacks" element={<ViewFeedbacks />} />
-                    
+                    <Route path="/quiz" element={<Quiz />} />
+                    <Route path='/history' element={<History/>}/>
                     {/* Admin Routes */}
                     <Route path="/admin/*" element={<AminDashboard />} />
                     <Route path="/admin/services" element={<ServiceManagement />} />
