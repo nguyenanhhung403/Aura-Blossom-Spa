@@ -1,64 +1,80 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import HistoryBanner from "../images/HistoryImg/history-banner.jpg";
 
 const History = () => {
+  const navigate = useNavigate();
+
+  if (!localStorage.getItem("isLoggedIn")) {
+    window.location.href = "/login"; 
+    return null;
+  }
+
   const [activeTable, setActiveTable] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [dropdownIndex, setDropdownIndex] = useState(null);
   const [cancelConfirmIndex, setCancelConfirmIndex] = useState(null);
+  const [upcomingAppointments, setUpcomingAppointments] = useState([]);
+  const [previousServices, setPreviousServices] = useState([]);
   const itemsPerPage = 3;
 
-  const upcomingAppointments = [
-    {
-      date: "15/02/2025",
-      time: "10:00 AM",
-      service: "MASSAGE THƯ GIÃN",
-      staff: "NV. Nguyễn Thị A",
-      price: "500,000 VND",
-      deposit: "200,000 VND",
-      paymentMethod: "Tiền mặt",
-      remaining: "300,000 VND",
-      status: "ĐÃ ĐẶT LỊCH",
-      note: "",
-    },
-  ];
+  useEffect(() => {
+    // Giả định API sẽ được gắn vào đây
+    const fetchUpcomingAppointments = async () => {
+      try {
+        const response = await fetch("API_URL_UPCOMING");
+        const data = await response.json();
+        setUpcomingAppointments(data);
+      } catch (error) {
+        console.error("Lỗi khi lấy lịch hẹn sắp tới:", error);
+      }
+    };
 
-  const previousServices = [
-    {
-      date: "01/02/2025",
-      time: "10:00 AM",
-      service: "CHĂM SÓC DA MẶT",
-      staff: "NV. Phạm Ngọc & BS. Nguyễn Minh Anh",
-      rating: "⭐⭐⭐⭐⭐",
-      feedback: "DA ĐƯỢC CẢI THIỆN SAU 3 NGÀY ĐIỀU TRỊ.",
-    },
-  ];
+    const fetchPreviousServices = async () => {
+      try {
+        const response = await fetch("API_URL_PREVIOUS");
+        const data = await response.json();
+        setPreviousServices(data);
+      } catch (error) {
+        console.error("Lỗi khi lấy dịch vụ trước đó:", error);
+      }
+    };
+
+    fetchUpcomingAppointments();
+    fetchPreviousServices();
+  }, []);
 
   const getCurrentItems = () => {
-    let data =
-      activeTable === "upcoming" ? upcomingAppointments : previousServices;
+    let data = activeTable === "upcoming" ? upcomingAppointments : previousServices;
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     return data.slice(indexOfFirstItem, indexOfLastItem);
   };
 
   const totalPages = () => {
-    let data =
-      activeTable === "upcoming" ? upcomingAppointments : previousServices;
+    let data = activeTable === "upcoming" ? upcomingAppointments : previousServices;
     return Math.ceil(data.length / itemsPerPage);
   };
 
-  const handleCancelAppointment = (index) => {
-    alert("Đã hủy lịch hẹn thành công!");
-    setCancelConfirmIndex(null); // Đóng box xác nhận
+  const handleCancelAppointment = async (id) => {
+    try {
+      await fetch(`API_URL_CANCEL/${id}`, { method: "DELETE" });
+      alert("Đã hủy lịch hẹn thành công!");
+      setUpcomingAppointments(upcomingAppointments.filter(item => item.id !== id));
+    } catch (error) {
+      console.error("Lỗi khi hủy lịch hẹn:", error);
+    }
+    setCancelConfirmIndex(null);
   };
-  const navigate = useNavigate(); // Hook điều hướng
 
   const handleUpdateClick = (item) => {
-    navigate("/booking", { state: { appointment: item } }); // Chuyển trang kèm dữ liệu
+    navigate("/booking", { state: { appointment: item } });
+  };
+
+  const handleReviewClick = () => {
+    navigate("/rate-service");
   };
 
   return (
@@ -71,22 +87,10 @@ const History = () => {
         </div>
 
         <div className="history-buttons">
-          <button
-            className="history-btn"
-            onClick={() => {
-              setActiveTable("upcoming");
-              setCurrentPage(1);
-            }}
-          >
+          <button className="history-btn" onClick={() => { setActiveTable("upcoming"); setCurrentPage(1); }}>
             LỊCH HẸN SẮP TỚI
           </button>
-          <button
-            className="history-btn"
-            onClick={() => {
-              setActiveTable("previous");
-              setCurrentPage(1);
-            }}
-          >
+          <button className="history-btn" onClick={() => { setActiveTable("previous"); setCurrentPage(1); }}>
             DỊCH VỤ TRƯỚC ĐÓ
           </button>
         </div>
@@ -121,59 +125,10 @@ const History = () => {
                     <td>{item.paymentMethod}</td>
                     <td>{item.remaining}</td>
                     <td>
-                      <div className="dropdown-container">
-                        <span>{item.status}</span>
-                        {item.status === "ĐÃ ĐẶT LỊCH" && (
-                          <>
-                            <button
-                              className="dropdown-btn"
-                              onClick={() =>
-                                setDropdownIndex(
-                                  dropdownIndex === index ? null : index
-                                )
-                              }
-                            >
-                              ▼
-                            </button>
-                            {dropdownIndex === index && (
-                              <div className="dropdown-menu">
-                                <button
-                                  className="cancel-btn"
-                                  onClick={() => {
-                                    setCancelConfirmIndex(index);
-                                    setDropdownIndex(null);
-                                  }}
-                                >
-                                  Hủy
-                                </button>
-                                <button
-                                  className="update-btn"
-                                  onClick={() => handleUpdateClick(item)}
-                                >
-                                  Cập nhật
-                                </button>
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-
-                      {cancelConfirmIndex === index && (
-                        <div className="cancel-confirm-box">
-                          <p>Bạn có chắc muốn hủy lịch hẹn?</p>
-                          <button
-                            className="confirm-btn"
-                            onClick={() => handleCancelAppointment(index)}
-                          >
-                            Xác nhận
-                          </button>
-                          <button
-                            className="cancel-btn"
-                            onClick={() => setCancelConfirmIndex(null)}
-                          >
-                            Hủy bỏ
-                          </button>
-                        </div>
+                      {item.status === "ĐÃ ĐẶT LỊCH" && (
+                        <button className="cancel-btn" onClick={() => handleCancelAppointment(item.id)}>
+                          Hủy
+                        </button>
                       )}
                     </td>
                     <td>{item.note || "-"}</td>
@@ -183,6 +138,7 @@ const History = () => {
             </table>
           </div>
         )}
+
         {activeTable === "previous" && (
           <div className="history-table">
             <h3 className="table-header">DỊCH VỤ TRƯỚC ĐÓ</h3>
@@ -204,32 +160,16 @@ const History = () => {
                     <td>{item.time}</td>
                     <td>{item.service}</td>
                     <td>{item.staff}</td>
-                    <td>{item.rating}</td>
+                    <td>
+                      {item.rating ? "⭐".repeat(item.rating) : (
+                        <button className="review-btn" onClick={handleReviewClick}>Đánh giá ngay</button>
+                      )}
+                    </td>
                     <td>{item.feedback}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-
-        {totalPages() > 1 && (
-          <div className="pagination">
-            <button
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              ❮ Trước
-            </button>
-            <span>
-              Trang {currentPage} / {totalPages()}
-            </span>
-            <button
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages()}
-            >
-              Tiếp ❯
-            </button>
           </div>
         )}
       </div>
