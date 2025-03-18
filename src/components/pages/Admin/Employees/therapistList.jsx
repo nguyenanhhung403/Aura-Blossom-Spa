@@ -7,11 +7,12 @@ import {
   FaSave,
   FaCheck,
   FaTimes,
+  FaPlus,
 } from "react-icons/fa";
 import Sidebar from "../SideBar";
 
 const TherapistList = () => {
-  // Mảng chuyên viên điều trị (đã bổ sung experience, xóa gender)
+  // Mảng chuyên viên điều trị (đã bổ sung experience, xóa gender, job và category)
   const [therapists, setTherapists] = useState([
     {
       id: 1,
@@ -19,7 +20,6 @@ const TherapistList = () => {
       image: "https://via.placeholder.com/40",
       phone: "0123456789",
       email: "x@gmail.com",
-      job: "Điều trị da",
       experience: "5 năm",
       desc: "Chuyên môn về da liễu...",
     },
@@ -29,7 +29,6 @@ const TherapistList = () => {
       image: "https://via.placeholder.com/40",
       phone: "0987654321",
       email: "y@gmail.com",
-      job: "Điều trị tóc",
       experience: "3 năm",
       desc: "Chuyên môn về tóc...",
     },
@@ -43,14 +42,13 @@ const TherapistList = () => {
       t.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Thêm chuyên viên - đã loại bỏ gender, bổ sung experience
+  // Thêm chuyên viên - đã loại bỏ gender, job và category, bổ sung experience
   const [isAdding, setIsAdding] = useState(false);
   const [newTherapist, setNewTherapist] = useState({
     name: "",
     image: "",
     phone: "",
     email: "",
-    job: "",
     experience: "",
     desc: "",
   });
@@ -77,9 +75,6 @@ const TherapistList = () => {
     if (!newTherapist.email.trim()) {
       errors.email = "Gmail không được để trống";
     }
-    if (!newTherapist.job.trim()) {
-      errors.job = "Công việc không được để trống";
-    }
     if (!newTherapist.experience.trim()) {
       errors.experience = "Năm kinh nghiệm không được để trống";
     }
@@ -103,7 +98,6 @@ const TherapistList = () => {
       image: "",
       phone: "",
       email: "",
-      job: "",
       experience: "",
       desc: "",
     });
@@ -111,7 +105,7 @@ const TherapistList = () => {
     setIsAdding(false);
   };
 
-  // Sửa chuyên viên - loại bỏ gender, bổ sung experience
+  // Sửa chuyên viên - loại bỏ gender, job và category, bổ sung experience
   const [editingId, setEditingId] = useState(null);
   const [editedTherapist, setEditedTherapist] = useState({});
 
@@ -204,14 +198,21 @@ const TherapistList = () => {
                 )}
               </div>
 
-              {/* URL hình ảnh */}
+              {/* Import hình ảnh */}
               <div>
                 <input
-                  type="text"
+                  type="file"
                   name="image"
-                  placeholder="URL hình ảnh"
-                  value={newTherapist.image}
-                  onChange={(e) => handleInputChange(e, setNewTherapist)}
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        handleInputChange({ target: { name: 'image', value: reader.result } }, setNewTherapist);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
                   className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
                 />
                 {addErrors.image && (
@@ -249,25 +250,10 @@ const TherapistList = () => {
                 )}
               </div>
 
-              {/* Công việc */}
-              <div>
-                <input
-                  type="text"
-                  name="job"
-                  placeholder="Công việc"
-                  value={newTherapist.job}
-                  onChange={(e) => handleInputChange(e, setNewTherapist)}
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                />
-                {addErrors.job && (
-                  <p className="text-red-400 text-sm">{addErrors.job}</p>
-                )}
-              </div>
-
               {/* Năm kinh nghiệm */}
               <div>
                 <input
-                  type="text"
+                  type="number"
                   name="experience"
                   placeholder="Năm kinh nghiệm"
                   value={newTherapist.experience}
@@ -326,7 +312,6 @@ const TherapistList = () => {
                 <th className="border border-gray-600 p-2">Hình ảnh</th>
                 <th className="border border-gray-600 p-2">Số điện thoại</th>
                 <th className="border border-gray-600 p-2">Gmail</th>
-                <th className="border border-gray-600 p-2">Công việc</th>
                 <th className="border border-gray-600 p-2">Năm kinh nghiệm</th>
                 <th className="border border-gray-600 p-2">Mô tả chuyên môn</th>
                 <th className="border border-gray-600 p-2">Sửa</th>
@@ -354,14 +339,20 @@ const TherapistList = () => {
                       </td>
                       <td className="border border-gray-600 p-1">
                         <input
-                          type="text"
-                          value={editedTherapist.image}
-                          onChange={(e) =>
-                            setEditedTherapist((prev) => ({
-                              ...prev,
-                              image: e.target.value,
-                            }))
-                          }
+                          type="file"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setEditedTherapist((prev) => ({
+                                  ...prev,
+                                  image: reader.result,
+                                }));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
                           className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         />
                       </td>
@@ -393,20 +384,7 @@ const TherapistList = () => {
                       </td>
                       <td className="border border-gray-600 p-1">
                         <input
-                          type="text"
-                          value={editedTherapist.job}
-                          onChange={(e) =>
-                            setEditedTherapist((prev) => ({
-                              ...prev,
-                              job: e.target.value,
-                            }))
-                          }
-                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
-                        />
-                      </td>
-                      <td className="border border-gray-600 p-1">
-                        <input
-                          type="text"
+                          type="number"
                           value={editedTherapist.experience}
                           onChange={(e) =>
                             setEditedTherapist((prev) => ({
@@ -466,7 +444,6 @@ const TherapistList = () => {
                       </td>
                       <td className="border border-gray-600 p-2">{t.phone}</td>
                       <td className="border border-gray-600 p-2">{t.email}</td>
-                      <td className="border border-gray-600 p-2">{t.job}</td>
                       <td className="border border-gray-600 p-2">{t.experience}</td>
                       <td className="border border-gray-600 p-2">{t.desc}</td>
                       {/* Nút Edit */}
@@ -497,7 +474,7 @@ const TherapistList = () => {
               {filteredTherapists.length === 0 && (
                 <tr>
                   <td
-                    colSpan="10"
+                    colSpan="9"
                     className="p-4 text-center text-red-400 font-semibold"
                   >
                     Không tìm thấy chuyên viên phù hợp!
