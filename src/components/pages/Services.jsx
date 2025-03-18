@@ -7,16 +7,16 @@ import Tech3Img from "../images/SevivceImg/tech3.png";
 import Tech4Img from "../images/SevivceImg/tech4.jpg";
 import Navbar from "./Navbar";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import "../../App.css";
+import { getAllServices } from "../service/serviceApi";
+import { getAllServiceCategories } from "../service/serviceCategoryApi";
 
 const ServicesTable = () => {
   const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true); // Trạng thái loading
+  const [error, setError] = useState(null); // Trạng thái lỗi
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const navigate = useNavigate();
-
   const [technologies, setTechnologies] = useState([
     {
       title: "CÔNG NGHỆ HYDRAFACIAL",
@@ -30,14 +30,14 @@ const ServicesTable = () => {
       description:
         "Làm dịu, giảm viêm, mờ thâm. Phục hồi vẻ tươi sáng cho làng da ",
       image: Tech2Img,
-      color: "white",
+      color: "#white",
     },
     {
       title: "CÔNG NGHỆ HIGH PRESSURE MESO THERAPY",
       description:
         "Dịu lành, an toàn, không đau. Không kim, không xâm lấn, không cần nghỉ dưỡng",
       image: Tech3Img,
-      color: "white",
+      color: "#white",
     },
     {
       title: "CÔNG NGHỆ RADIO FREQUENCY LIFTING & EMS",
@@ -47,19 +47,19 @@ const ServicesTable = () => {
       color: "white",
     },
   ]);
-
+  // Gọi API để lấy danh sách dịch vụ
   useEffect(() => {
-    axios
-      .get("https://your-api-endpoint.com/api/services")
-      .then((response) => {
-        setServices(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải dữ liệu:", error);
-        setError("Không thể tải danh sách dịch vụ");
-        setLoading(false);
-      });
+    const fetchServices = async () => {
+      const response = await getAllServices();
+      // Giới hạn chỉ lấy 4 dịch vụ đầu tiên
+      setServices(response.result.slice(0, 4));
+    };
+    const fetchCategories = async () => {
+      const response = await getAllServiceCategories();
+      setCategories(response.result);
+    };
+    fetchCategories();
+    fetchServices();
   }, []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -80,7 +80,6 @@ const ServicesTable = () => {
   const toggleCategory = (index) => {
     setSelectedCategory(selectedCategory === index ? null : index);
   };
-
   return (
     <>
       <Navbar />
@@ -112,48 +111,50 @@ const ServicesTable = () => {
           </tr>
         </thead>
         <tbody>
-          {services.map((service, index) => (
-            <React.Fragment key={index}>
-              <tr>
-                <td
-                  colSpan="4"
-                  className="category"
-                  onClick={() => toggleCategory(index)}
-                  style={{ cursor: "pointer", fontWeight: "bold" }}
-                >
-                  {service.category}
-                </td>
-              </tr>
-              {selectedCategory === index &&
-                service.items.map((item, idx) => (
-                  <tr key={idx} className="service-details">
-                    <td>{item.title}</td>
-                    <td style={{ fontSize: "14px" }}>
-                      <ul>
-                        {item.steps.map((step, i) => (
-                          <li key={i}>{step}</li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td>
-                      {item.image && (
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="thumbnail"
-                          style={{
-                            width: "100px",
-                            height: "100px",
-                            objectFit: "cover",
-                          }}
-                        />
-                      )}
-                    </td>
-                    <td className="price">{item.price}</td>
-                  </tr>
-                ))}
-            </React.Fragment>
-          ))}
+          {categories.length > 0 &&
+            categories.map((category, index) => (
+              <React.Fragment key={index}>
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="category"
+                    onClick={() => toggleCategory(category.id)}
+                    style={{ cursor: "pointer", fontWeight: "bold" }}
+                  >
+                    {category.name}
+                  </td>
+                </tr>
+                {selectedCategory === category.id &&
+                  services
+                    .filter((service) => service.category?.id === category.id)
+                    .map((service, idx) => (
+                      <tr
+                        key={`${category.id}-${service.id}`}
+                        className="service-details"
+                      >
+                        <td>{service.name}</td>
+                        <td style={{ fontSize: "14px" }}>
+                          <ul>{service.description}</ul>
+                        </td>
+                        <td>
+                          {service.thumbnail && (
+                            <img
+                              src={service.thumbnail}
+                              alt={service.name}
+                              className="thumbnail"
+                              style={{
+                                width: "100px",
+                                height: "100px",
+                                objectFit: "cover",
+                              }}
+                            />
+                          )}
+                        </td>
+                        <td className="price">{service.price}</td>
+                      </tr>
+                    ))}
+              </React.Fragment>
+            ))}
         </tbody>
       </table>
       <div className="technology-container">
@@ -189,14 +190,6 @@ const ServicesTable = () => {
             ❯
           </button>
         </div>
-      </div>
-      <div className="text-center my-5" style={{ backgroundColor: "#f7f1e8", width: "100vw", margin: "0", padding: "20px 0", textAlign: "center" }}>
-        <button
-          onClick={() => navigate("/booking")}
-          className="px-6 py-3 bg-[#446E6A] text-white rounded-full font-semibold hover:bg-[#375955] transition"
-        >
-          Đặt Lịch Ngay
-        </button>
       </div>
       <Footer />
     </>

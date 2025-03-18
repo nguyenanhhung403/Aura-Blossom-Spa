@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const feedbacks = [
     {
@@ -55,6 +56,21 @@ const FeedbackSection = () => {
                             <StarRating rating={rating} />
                         </div>
                     ))}
+                </div>
+                
+                <div className="mt-10 flex justify-center space-x-4">
+                    <Link 
+                        to="/rate-service" 
+                        className="bg-white text-[rgb(88,137,133)] hover:bg-gray-100 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg"
+                    >
+                        Đánh giá dịch vụ
+                    </Link>
+                    <Link 
+                        to="/view-feedbacks" 
+                        className="bg-transparent text-white border-2 border-white hover:bg-white hover:text-[rgb(88,137,133)] px-6 py-3 rounded-full font-medium transition-all duration-300"
+                    >
+                        Xem tất cả feedback
+                    </Link>
                 </div>
             </div>
         </section>
