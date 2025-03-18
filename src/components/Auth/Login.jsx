@@ -1,33 +1,65 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, provider } from "../../components/config/firebase";
-import { signInWithPopup } from "firebase/auth";
 import { UserContext } from "../../components/context/UserContext";
 import Background from "../../components/images/LoginImage/LoginBackground.jpg";
 import spaImage2 from "../../components/images/logoSpa.png";
 import { motion } from "framer-motion";
+import { loginUser } from "../service/authApi.js";
+import { ACCESS_TOKEN } from "../service/api.js";
 
-const Login = () => {
-  const [username, setUsername] = useState("");
+function Login() {
+  const [username, setUsername] = useState(
+    localStorage.getItem("rememberedUsername") || ""
+  );
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(
+    localStorage.getItem("rememberMe") === "true"
+  );
+  const [loading, setLoading] = useState(false);
 
-  const { setUser } = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Xử lý đăng nhập
-    console.log("Username:", username);
-    console.log("Password:", password);
-  };
-
-  const handleGoogleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
+  useEffect(() => {
+    if (user) {
       navigate("/");
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      const loginObj = { username, password };
+      const loginResult = await loginUser(loginObj);
+      const isAuthenticated = loginResult?.result?.authenticated;
+
+      if (!loginResult || !isAuthenticated) {
+        throw new Error("Đăng nhập thất bại");
+      }
+
+      const accessToken = loginResult.result.token;
+      localStorage.setItem(ACCESS_TOKEN, accessToken);
+
+      if (rememberMe) {
+        localStorage.setItem("rememberedUsername", username);
+        localStorage.setItem("rememberMe", "true");
+      } else {
+        localStorage.removeItem("rememberedUsername");
+        localStorage.removeItem("rememberMe");
+      }
+      const roles = loginResult.result.roles;
+      const isAdmin = roles.some((role) => role.name.toUpperCase() === "ADMIN");
+
+      // Redirect based on role
+      navigate(isAdmin ? "/admin" : "/");
     } catch (error) {
       console.error(error);
+      alert("Mật khẩu hoặc tên đăng nhập không đúng");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,7 +88,7 @@ const Login = () => {
         </motion.div>
 
         <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
-          Đăng nhập
+Đăng nhập
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -86,6 +118,20 @@ const Login = () => {
             />
           </div>
 
+          {/* Ghi nhớ đăng nhập */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-700">
+              Ghi nhớ đăng nhập
+            </label>
+          </div>
+
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -111,26 +157,6 @@ const Login = () => {
           </Link>
         </div>
 
-        <div className="my-8 flex items-center">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="px-4 text-sm text-gray-500">hoặc</span>
-          <div className="flex-1 border-t border-gray-300"></div>
-        </div>
-
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleGoogleLogin}
-          className="w-full bg-white border border-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-300 flex items-center justify-center"
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google Logo"
-            className="w-5 h-5 mr-3"
-          />
-          Đăng nhập với Google
-        </motion.button>
-
         <div className="mt-6 text-center">
           <Link
             to="/"
@@ -142,6 +168,6 @@ const Login = () => {
       </motion.div>
     </div>
   );
-};
+}
 
 export default Login;

@@ -72,10 +72,6 @@ h1, h2, h3, h4, h5, h6 {
 --text-light: #f8fafc;
 }
 
-body {
-@apply bg-white text-[var(--text-dark)] antialiased;
-font-feature-settings: 'kern' 1;
-}
 
 .hero-section {
 background-position: center;
@@ -99,6 +95,319 @@ transition: transform 0.3s ease, box-shadow 0.3s ease;
 .button-hover-effect:hover {
 transform: translateY(-2px);
 box-shadow: 0 8px 24px rgba(20, 84, 78, 0.3);
+}
+/* services */
+.service-table-container {
+  background-color: #f7f1e8; /* Màu nền mong muốn */
+  padding: 20px; /* Tạo khoảng cách */
+  width: 100%; /* Đảm bảo full chiều rộng */
+}
+
+.services-table {
+  width: 90%;
+  margin: auto;
+  border-collapse: collapse;
+  
+}
+
+.services-table th, .services-table td {
+  border: 2px solid #9c746e; 
+  padding: 8px;
+  text-align: center;
+}
+
+.services-table th {
+  background-color: #d0baa0;
+}
+
+/* cong nghe  */
+.technology-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Căn đều cả hai bên */
+  align-items: center; /* Đảm bảo các card cao bằng nhau */
+  text-align: center; /* Căn giữa nội dung */
+  flex-wrap: wrap; /* Khi thêm nhiều card, chúng sẽ tự động xuống hàng */
+  background-color: #f7f1e8;
+  padding: 40px;
+  overflow-x: hidden;
+}
+
+.technology-list {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  overflow-x: auto;  /* Cho phép cuộn ngang */
+  padding-top: 30px;
+  scroll-snap-type: x mandatory; /* Cải thiện trải nghiệm cuộn */
+}
+
+.tech-card {
+  flex: 1; /* Đảm bảo các card có chiều rộng bằng nhau */
+  width: 280px; /* Đảm bảo kích thước phù hợp */
+  gap: 20px;
+  min-height: 250px; /* Chiều cao cố định */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+  padding: 60px 20px 20px; /* Điều chỉnh padding cho cân đối */
+  background: white;
+  border-radius: 20px;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Căn nội dung theo chiều dọc */
+  align-items: center; /* Căn giữa theo chiều ngang */
+  overflow: visible; /* Đảm bảo không bị tràn nội dung */
+  position: relative;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tech-image {
+  width: 100px; /* Điều chỉnh kích thước vòng tròn */
+  height: 100px;
+  border-radius: 50%; /* Làm tròn hình */
+  background-color: var(--circle-color, white); /* Màu nền, có thể thay đổi */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Đảm bảo hình ảnh không tràn ra ngoài */
+  position: absolute;
+  top: -30px; /* Đưa lên trên một nửa */
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  padding: 5px; /* Tạo khoảng cách bên trong */
+  font-size: 14px; /* Giảm kích thước chữ */
+  font-weight: bold;
+  color: black; /* Chữ nổi bật hơn */
+  line-height: 1.2; /* Điều chỉnh khoảng cách giữa các dòng */
+  overflow: hidden; /* Ngăn chữ tràn ra */
+  white-space: normal; /* Cho phép chữ xuống dòng */
+  word-break: break-word; 
+} 
+.tech-image span {
+  display: block;
+  width: 85%; /* Giới hạn chiều rộng chữ để căn chỉnh đẹp hơn */
+  text-align: center;
+}
+
+.tech-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.technology-container h2 {
+  font-family: "Roboto", sans-serif;
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+  margin-bottom: 40px;
+}
+
+.tech-card h3 {
+  font-family: "Arial", sans-serif; /* Thay đổi font chữ */
+  font-size: 15px; /* Điều chỉnh kích thước chữ */
+  font-weight: bold; /* Đậm chữ */
+  color: #333; /* Màu chữ */
+  text-transform: uppercase; /* Viết hoa toàn bộ */
+  padding-top: 20px;
+}
+ /* Quiz _ trắc nghiệm */
+ .quiz-container {
+  text-align: center;
+  width: 100%;
+  overflow: hidden; /* Tránh hiển thị scroll ngang */
+
+}
+ 
+.quiz-header {
+  text-align: center;
+  position: relative;
+  height: 250px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.quiz-banner {
+  width: 100%;
+  height: 320px;
+  margin-top: 80px; /* Điều chỉnh khoảng cách */
+  position: relative; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quiz-banner img {
+  width: 100%;
+  height: 320px; /* Điều chỉnh chiều cao */
+  object-fit: cover;
+  display: block; /* Tránh bị dư khoảng trống */
+  margin: 0;
+  padding: 0;
+}
+.quiz-header  { 
+  position: absolute; /* Để chữ hiển thị trên ảnh */
+  color: white;
+  font-size: 70px;
+  font-weight: bold;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6); /* Hiệu ứng đổ bóng */
+  font-family: "Arial", sans-serif; /* Kiểu chữ */
+  text-transform: uppercase; /* Viết hoa toàn bộ */
+}
+
+.quiz-description {
+  background-color: #2F4F4F; /* Màu nền xanh đậm */
+  padding: 30px 20px;
+  text-align: center; /* Căn giữa chữ */
+}
+
+.quiz-description p {
+  font-size: 24px; /* Chỉnh to hơn một chút */
+  color: white;
+  font-weight: bold;
+  font-family: "Times New Roman", serif; /* Kiểu chữ sang trọng */
+  line-height: 1.5; /* Tăng khoảng cách dòng để dễ đọc hơn */
+}
+
+.quiz-underline {
+  width: 350px; /* Chỉnh chiều dài gạch ngang dài hơn */
+  height: 3px;
+  background-color: black;
+  margin: 20px auto 10px auto; /* Điều chỉnh khoảng cách trên dưới */
+}
+
+/* Căn chỉnh tổng thể slider */
+.quiz-slider {
+  display: flex;
+  overflow-x: auto; /* Cho phép cuộn ngang */
+  scroll-snap-type: x mandatory; /* Cải thiện trải nghiệm cuộn */
+  gap: 20px; /* Khoảng cách giữa các slide */
+  padding: 20px 0; /* Khoảng cách trên dưới */
+  margin: 0; /* Loại bỏ khoảng trống */
+  background-color: #8ea396; /* Màu xanh matcha */
+  border-radius: 0; /* Loại bỏ bo góc để full width thực sự */
+}
+/* Điều chỉnh container bên ngoài nếu có */
+.quiz-slider-container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Điều chỉnh từng slide */
+.slide-item {
+  background-color: #d2b48c; /* Màu nền be */
+  padding: 20px;
+  border-radius: 30px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: white;
+  height: 200px; /* Cố định chiều cao */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Căn chỉnh chữ trong slide */
+.slide-item h3 {
+  font-family: "Arial", sans-serif; /* Kiểu chữ */
+  font-size: 24px; /* Kích thước chữ */
+  text-transform: uppercase; /* Viết hoa toàn bộ */
+}
+/* slider */
+
+.slide-item {
+  background: #d0baa0;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.slide-item:hover {
+  transform: scale(1.1);
+  background: #9c746e;
+  border-radius: 10px;
+}
+
+.quiz-content {
+  background: #2d4c46; /* Màu nền xanh đậm */
+  padding: 20px;
+  border-radius: 15px; /* Bo góc ngoài */
+  max-width: 700px;
+  margin: 20px auto;
+  color: white; /* Màu chữ trắng */
+  font-family: Arial, sans-serif;
+}
+.quiz-container {
+  background: #8ea396; /* Màu xanh nhạt, bạn có thể chỉnh lại nếu cần */
+  padding: 20px;
+  border-radius: 10px;
+}
+
+
+.quiz-question {
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.quiz-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 cột */
+  gap: 10px; /* Khoảng cách giữa các đáp án */
+  width: 100%;
+}
+
+.quiz-option {
+  display: flex;
+  align-items: center;
+  background: #c4b098;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.3s ease-in-out;
+}
+
+.quiz-option input {
+  display: none; /* Ẩn input radio */
+}
+
+.quiz-option.selected {
+  font-weight: bold;
+  background: #a38a6d; /* Màu nền khi chọn */
+  color: white; /* Đổi màu chữ khi chọn */
+}
+
+
+
+/* Giữ nguyên các styles khác */
+.quiz-submit-container {
+  position: relative !important;
+  text-align: center;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.submit-btn {
+  display: inline-block;
+  background-color: #d9534f;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #c9302c;
 }
 /* services */
 .service-table-container {

@@ -31,7 +31,7 @@ const Home = () => {
                 <ContactUs />
                 {/* <QuizSection /> */}
             </main>
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 };

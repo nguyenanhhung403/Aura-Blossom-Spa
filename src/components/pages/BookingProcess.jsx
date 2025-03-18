@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import imgBackground from '../images/LoginImage/AnhTemplate2.jpg';
-import QR from '../images/QRBanking/QR.jpg';
-
+import imgBackground from "../images/LoginImage/AnhTemplate2.jpg";
+import QR from "../images/QRBanking/QR.jpg";
+import ContactUs from "./ContactUs";
+import { getAllTherapists } from "../service/therapistsApi";
+import { getAllServices } from "../service/serviceApi";
+import { getSlotsByDateAndTherapist } from "../service/slotApi";
+import { createAppointment } from "../service/appointmentApi";
+import { createVnPayPayment } from "../service/paymentApi";
 const BookingProcess = () => {
   const navigate = useNavigate();
 
@@ -15,17 +20,106 @@ const BookingProcess = () => {
   const [bookingData, setBookingData] = useState({
     fullName: "",
     phone: "",
+    serviceId: "",
     service: "",
-    staff: "",
-    date: "",
+    price: "",
+    therapistId: "",
+    therapist: "",
     time: "",
+    date: "",
+    slotId: "",
     note: "",
   });
 
-  // Handler khi nhập dữ liệu
+  const [therapists, setTherapists] = useState([]);
+  const [services, setServices] = useState([]);
+  const [slots, setSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  useEffect(() => {
+    const fetchTherapists = async () => {
+      try {
+        const response = await getAllTherapists();
+        setTherapists(response.result);
+      } catch (error) {
+        console.error("Error fetching therapists:", error);
+      }
+    };
+    const fetchServices = async () => {
+      try {
+        const response = await getAllServices();
+        setServices(response.result);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+    fetchServices();
+    fetchTherapists();
+  }, []);
+
+  useEffect(() => {
+    const fetchSlots = async () => {
+      if (bookingData.date) {
+        try {
+          const response = await getSlotsByDateAndTherapist(
+            bookingData.date,
+            bookingData.therapistId
+          );
+          const unsortedSlots = response.result || [];
+          if(unsortedSlots.length>0){
+            unsortedSlots.sort((a, b) => {
+              let timeA = new Date(`1970-01-01T${a.time}`);
+              let timeB = new Date(`1970-01-01T${b.time}`);
+              return timeA - timeB;
+            });
+          }
+          setSlots(unsortedSlots)
+        } catch (error) {
+          console.error("Error fetching slots:", error);
+          setSlots([]);
+        }
+      } else {
+        setSlots([]);
+      }
+    };
+    fetchSlots();
+  }, [bookingData.date, bookingData.therapistId]);
+
+  // Quản lý phương thức thanh toán: "qr" hoặc "counter"
+  const [paymentMethod, setPaymentMethod] = useState("qr");
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setBookingData((prev) => ({ ...prev, [name]: value }));
+    if (name === "serviceId") {
+      const selectedService = services.find((service) => service.id == value);
+      setBookingData((prev) => ({
+        ...prev,
+        [name]: value,
+        service: selectedService ? selectedService.name : "",
+        price: selectedService ? selectedService.price : "",
+      }));
+    } else if (name === "therapistId") {
+      const selectedTherapist = therapists.find((therapist) => therapist.id == value);
+      setBookingData((prev) => ({
+        ...prev,
+        [name]: value,
+        therapist: selectedTherapist ? selectedTherapist.fullname : "",
+      }));
+    } else {
+      setBookingData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSelectSlot = (slotId) => {
+    const selectedSlot = slots.find((slot) => slot.id === slotId);
+    if (selectedSlot?.therapists[0].status === "AVAILABLE") {
+      setBookingData((prev) => ({
+        ...prev,
+        slotId: slotId,
+        time: selectedSlot.time || "",
+      }));
+    } else {
+      console.warn("Cannot select an unavailable slot");
+    }
   };
 
   // Bước 1: Khi người dùng nhấn "Tiếp tục"
@@ -42,9 +136,15 @@ const BookingProcess = () => {
     setCurrentStep(3);
   };
 
-  // Bước 3: Khi người dùng nhấn "Chuyển qua trang lịch sử"
-  const handleGoToHistory = () => {
-    navigate("/history");
+  // Bước 3: Khi người dùng nhấn "Xác nhận thanh toán"
+  const handleConfirmPaymentFinal = async () => {
+    const appointmentResponse = await createAppointment(bookingData);
+    const paymentRequest = {
+      amount: bookingData.price*0.3,
+      appointmentId: appointmentResponse.result.id,
+    }
+    const paymentResponse = await createVnPayPayment(paymentRequest);
+    window.location.href=paymentResponse.result.paymentUrl;
   };
 
   return (
@@ -64,14 +164,13 @@ const BookingProcess = () => {
       >
         {/* Overlay mờ để làm nổi chữ */}
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-        
         {/* Tiêu đề */}
         <h1
           className="
             relative text-white text-3xl md:text-5xl font-bold uppercase 
             tracking-wider 
           "
-          style={{ fontFamily: 'Roboto, sans-serif' }}
+          style={{ fontFamily: "Roboto, sans-serif" }}
         >
           ĐẶT LỊCH
         </h1>
@@ -150,8 +249,8 @@ const BookingProcess = () => {
                 <div>
                   <label className="block font-medium">Dịch Vụ</label>
                   <select
-                    name="service"
-                    value={bookingData.service}
+                    name="serviceId"
+                    value={bookingData.serviceId}
                     onChange={handleInputChange}
                     className="
                       w-full border rounded px-3 py-2 
@@ -159,67 +258,97 @@ const BookingProcess = () => {
                     "
                   >
                     <option value="">Chọn dịch vụ</option>
-                    <option value="Chăm sóc da cơ bản">Chăm sóc da cơ bản</option>
-                    <option value="Detox da nâng cao">Detox da nâng cao</option>
+                    {services.map((service) => (
+                      <option key={service.id} value={service.id}>
+                        {service.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className="block font-medium">Chuyên Viên</label>
                   <select
-                    name="staff"
-                    value={bookingData.staff}
-                    onChange={handleInputChange}
+                    name="therapistId"
+                    value={bookingData.therapistId}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                    }}
                     className="
                       w-full border rounded px-3 py-2 
                       focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
                     "
                   >
                     <option value="">Chọn chuyên viên</option>
-                    <option value="Chuyên viên A">Chuyên viên A</option>
-                    <option value="Chuyên viên B">Chuyên viên B</option>
+                    {therapists.map((therapist) => (
+                      <option key={therapist.id} value={therapist.id}>
+                        {therapist.fullname}
+                      </option>
+                    ))}
                   </select>
                 </div>
-                <div className="flex space-x-4">
-                  <div className="w-1/2">
-                    <label className="block font-medium">Ngày/Tháng/Năm</label>
-                    <input
-                      type="date"
-                      name="date"
-                      value={bookingData.date}
-                      onChange={handleInputChange}
-                      className="
-                        w-full border rounded px-3 py-2 
-                        focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
-                      "
-                    />
-                  </div>
-                  <div className="w-1/2">
-                    <label className="block font-medium">Giờ</label>
-                    <input
-                      type="time"
-                      name="time"
-                      value={bookingData.time}
-                      onChange={handleInputChange}
-                      className="
-                        w-full border rounded px-3 py-2 
-                        focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
-                      "
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-medium">Ghi chú</label>
-                  <textarea
-                    name="note"
-                    value={bookingData.note}
+                <div className="">
+                  <label className="block font-medium">Ngày/Tháng/Năm</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={bookingData.date}
                     onChange={handleInputChange}
                     className="
+                        w-full border rounded px-3 py-2 
+                        focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
+                      "
+                  />
+                </div>
+                <div className="pb-3">
+                  <label className="block font-medium">Giờ</label>
+                  <div className="flex flex-wrap gap-2">
+                    {slots.length > 0 ? (
+                      slots.map((slot) => (
+                        <button
+                          key={slot.id}
+                          type="button"
+                          onClick={() => handleSelectSlot(slot.id)}
+                          disabled={slot.therapists[0].status === "UNAVAILABLE"}
+                          className={`
+                      px-4 py-3 border rounded transition-all duration-200
+                      ${
+                        slot.therapists[0].status === "AVAILABLE"
+                          ? "bg-white text-black hover:bg-gray-200 hover:shadow-md"
+                          : "bg-gray-300 text-gray-500 opacity-50 cursor-not-allowed"
+                      }
+                      ${
+                        bookingData.slotId === slot.id
+                          ? "bg-[#C8A27C] text-white border-2 border-[#A67B5B] shadow-lg"
+                          : "border-gray-300"
+                      }
+                    `}
+                        >
+                          {slot.time}
+                          {slot.therapists[0].status === "UNAVAILABLE" && (
+                            <span className="ml-2 text-red-500">Hết chỗ</span>
+                          )}
+                        </button>
+                      ))
+                    ) : bookingData.date && bookingData.therapistId ? (
+                      <p className="text-gray-500">Hiện tại chưa có khung giờ phù hợp</p>
+                    ) : (
+                      <p className="text-gray-500">Vui lòng chọn ngày và chuyên viên để xem khung giờ</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="block font-medium">Ghi chú</label>
+                <textarea
+                  name="note"
+                  value={bookingData.note}
+                  onChange={handleInputChange}
+                  className="
                       w-full border rounded px-3 py-2 
                       focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
                     "
-                    placeholder="Nhập ghi chú (nếu có)"
-                  />
-                </div>
+                  placeholder="Nhập ghi chú (nếu có)"
+                />
               </div>
               <button
                 onClick={handleGoToPayment}
@@ -240,17 +369,27 @@ const BookingProcess = () => {
               <h2 className="text-2xl font-bold mb-4">Chú ý</h2>
               <div className="bg-[#FAF1E8] p-4 rounded">
                 <p className="text-red-600 font-semibold text-center">
-                  ⚠ THÔNG BÁO QUAN TRỌNG VỀ ĐẶT LỊCH & CỌC TIỀN ⚠
+                  ⚠ THÔNG BÁO QUAN TRỌNG VỀ ĐẶT LỊCH ⚠
                 </p>
                 <ul className="list-disc list-inside mt-3 space-y-1 text-gray-700">
+                  <li>Vui lòng đảm bảo thông tin đặt lịch chính xác.</li>
+                  <li>Nếu cần hỗ trợ, hãy liên hệ trực tiếp với Spa.</li>
                   <li>
-                    Để đảm bảo quyền lợi và giữ chỗ dịch vụ tốt nhất cho bạn, xin vui lòng lưu ý:
+                    Lưu ý: Khi thanh toán trực tiếp tại quầy, vui lòng mang theo
+                    CMND hoặc giấy tờ tùy thân.
                   </li>
-                  <li>1) Cọc trước 30% giá trị dịch vụ để xác nhận đặt lịch.</li>
                   <li>
-                    2) Số tiền cọc sẽ được trừ trực tiếp vào tổng hóa đơn hôm sử dụng dịch vụ.
+                    Một số dịch vụ có thể yêu cầu xác nhận qua điện thoại.
                   </li>
-                  <li>3) Chính sách hủy lịch: Hủy trước 24 giờ, quý khách sẽ không bị mất cọc.</li>
+                  <li>
+                    <strong>Đặt cọc 30%:</strong> Để xác nhận lịch hẹn, quý khách vui lòng đặt cọc trước 30% giá trị dịch vụ.
+                  </li>
+                  <li>
+                    Số tiền cọc sẽ được khấu trừ vào tổng hóa đơn khi quý khách sử dụng dịch vụ.
+                  </li>
+                  <li className="text-red-500 font-semibold">
+                    <strong>Lưu ý quan trọng:</strong> Trong trường hợp quý khách hủy lịch, số tiền cọc sẽ không được hoàn trả.
+                  </li>
                 </ul>
               </div>
               <button
@@ -268,54 +407,55 @@ const BookingProcess = () => {
 
           {currentStep === 3 && (
             <div className="animate__animated animate__fadeInUp">
-              {/* Bước 3: Thanh toán (hiển thị thông tin và mã QR) */}
-              <h2 className="text-2xl font-bold mb-4">Kiểm tra lại thông tin đặt lịch</h2>
+              {/* Bước 3: Thanh toán */}
+              <h2 className="text-2xl font-bold mb-4">
+                Kiểm tra lại thông tin đặt lịch
+              </h2>
+
               <div className="bg-[#FAF1E8] p-4 rounded space-y-3">
                 <p>
                   <strong>Họ và Tên:</strong> {bookingData.fullName}
                 </p>
                 <p>
+                  <strong>Số Điện Thoại:</strong> {bookingData.phone}
+                </p>
+                <p>
                   <strong>Dịch Vụ:</strong> {bookingData.service}
                 </p>
                 <p>
-                  <strong>Thời gian:</strong> {bookingData.date} - {bookingData.time}
+                  <strong>Chuyên Viên:</strong> {bookingData.therapist}
                 </p>
                 <p>
-                  <strong>Số tiền :</strong> 500.000đ
+                  <strong>Thời gian:</strong> {bookingData.date} -{" "}
+                  {bookingData.time}
                 </p>
                 <p>
-                  <strong>Số tiền cọc (30%):</strong> 150.000đ
+                  <strong>Phí dịch vụ:</strong> {bookingData.price}
                 </p>
                 <p>
-                  <strong>Còn lại thanh toán tại Spa:</strong> 350.000đ
+                  <strong>Số tiền cọc cần thanh toán (30%):</strong> {bookingData.price*0.3}
                 </p>
-
-                <div className="flex items-center justify-center">
-                  <img
-                    src={QR}
-                    alt="QR Code"
-                    className="rounded w-40 h-40 md:w-48 md:h-48 shadow-md"
-                  />
+                <div className="flex flex-col items-center mt-4">
+                  <div className="mt-4 text-center text-gray-700">
+                    <p>Vui lòng thanh toán qua VNPay để hoàn tất đặt lịch</p>
+                  </div>
                 </div>
-                <p className="text-gray-700 text-center mt-2">
-                  Quét mã để thanh toán cọc. Nếu không thanh toán cọc, lịch hẹn có thể bị hủy.
-                </p>
               </div>
               <button
-                onClick={handleGoToHistory}
+                onClick={handleConfirmPaymentFinal}
                 className="
                   mt-6 px-6 py-2 bg-[#C8A27C] text-white font-semibold 
                   rounded hover:bg-[#AA8864] 
                   transition-transform duration-300 hover:scale-105 hover:shadow-xl
                 "
               >
-                Chuyển qua trang lịch sử
+                Xác nhận thanh toán
               </button>
             </div>
           )}
         </div>
       </div>
-      <Footer />
+      <ContactUs />
     </>
   );
 };
