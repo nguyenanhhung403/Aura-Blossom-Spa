@@ -4,6 +4,28 @@ import ContactUs from "./ContactUs";
 import Footer from "./Footer";
 import { getAllBlogs } from "../service/blogApi.js"; // Import hàm getAllBlogs từ blogApi.js
 
+// Dữ liệu mẫu để sử dụng khi API lỗi
+const SAMPLE_BLOGS = [
+  {
+    id: 1,
+    title: "Bí quyết chăm sóc da mùa đông",
+    content: "Mùa đông làn da thường khô và thiếu nước. Hãy sử dụng kem dưỡng ẩm đậm đặc và uống nhiều nước...",
+    thumbnail: "https://placehold.co/600x400?text=Skin+Care"
+  },
+  {
+    id: 2,
+    title: "Cách chọn son môi phù hợp với tông da",
+    content: "Để chọn được màu son phù hợp, bạn cần xác định tông da của mình là nóng hay lạnh...",
+    thumbnail: "https://placehold.co/600x400?text=Lipstick"
+  },
+  {
+    id: 3,
+    title: "Bí quyết trang điểm tự nhiên cho công sở",
+    content: "Trang điểm nhẹ nhàng, tự nhiên là xu hướng được nhiều cô gái văn phòng yêu thích...",
+    thumbnail: "https://placehold.co/600x400?text=Office+Makeup"
+  }
+];
+
 const BeautyTips = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTip, setSelectedTip] = useState(null);
@@ -13,13 +35,26 @@ const BeautyTips = () => {
   const fetchBlogs = async () => {
     try {
       const data = await getAllBlogs();
-      setBlogs(data);
+      // Kiểm tra dữ liệu trước khi đặt vào state
+      if (Array.isArray(data)) {
+        setBlogs(data);
+      } else if (data && Array.isArray(data.result)) {
+        setBlogs(data.result);
+      } else {
+        console.error("Dữ liệu không đúng định dạng:", data);
+        setBlogs([]);
+      }
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu blog:", error);
+      setBlogs([]);
     }
   };
 
   useEffect(() => {
+    // Xóa dòng sử dụng dữ liệu mẫu
+    // setBlogs(SAMPLE_BLOGS);
+    
+    // Gọi API để lấy dữ liệu thật
     fetchBlogs();
   }, []);
 
@@ -45,25 +80,31 @@ const BeautyTips = () => {
         </div>
 
         {/* Blog Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {paginatedBlogs.map((blog) => (
-            <div
-              key={blog.id}
-              className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition-shadow cursor-pointer"
-              onClick={() => setSelectedTip(blog)}
-            >
-              <img
-                src={blog.thumbnail}
-                alt={blog.title}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <h2 className="text-xl font-bold text-gray-800">{blog.title}</h2>
-                <p className="mt-2 text-gray-600">{blog.content.substring(0, 100)}...</p>
+        {blogs.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {paginatedBlogs.map((blog) => (
+              <div
+                key={blog.id}
+                className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition-shadow cursor-pointer"
+                onClick={() => setSelectedTip(blog)}
+              >
+                <img
+                  src={blog.thumbnail}
+                  alt={blog.title}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-4">
+                  <h2 className="text-xl font-bold text-gray-800">{blog.title}</h2>
+                  <p className="mt-2 text-gray-600">{blog.content.substring(0, 100)}...</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-10">
+            <p>Không có dữ liệu blog nào để hiển thị.</p>
+          </div>
+        )}
 
         {/* Pagination chỉ hiển thị nếu số lượng blog > 6 */}
         {blogs.length > itemsPerPage && (

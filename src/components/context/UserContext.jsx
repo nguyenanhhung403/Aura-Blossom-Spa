@@ -22,8 +22,19 @@ export const UserProvider = ({ children }) => {
 
     const location = useLocation();
     const [lastLocation, setLastLocation] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [fetchFailed, setFetchFailed] = useState(false);
 
     const fetchUser = useCallback(async () => {
+        if (isLoading || fetchFailed) return;
+        
+        const token = localStorage.getItem(ACCESS_TOKEN);
+        if (!token) {
+            setUser(null);
+            return;
+        }
+        
+        setIsLoading(true);
         try {
             const response = await getMyInfor();
             const gotUser = response?.result;
@@ -35,10 +46,19 @@ export const UserProvider = ({ children }) => {
                 localStorage.setItem("user", JSON.stringify(formattedUser));
                 setUser(formattedUser);
             }
+            setFetchFailed(false);
         } catch (error) {
             console.error("Error fetching user info:", error);
+            if (error?.response?.status === 401 || error?.response?.status === 404) {
+                localStorage.removeItem(ACCESS_TOKEN);
+                localStorage.removeItem("user");
+                setUser(null);
+                setFetchFailed(true);
+            }
+        } finally {
+            setIsLoading(false);
         }
-    }, []);
+    }, [isLoading, fetchFailed]);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -56,17 +76,17 @@ export const UserProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem(ACCESS_TOKEN);
-        if (!user && token) {
+        if (!user && token && !fetchFailed) {
             fetchUser();
         }
-    }, [fetchUser, user]);
+    }, [fetchUser, user, fetchFailed]);
 
     useEffect(() => {
-        if (!user && location.pathname !== lastLocation) {
+        if (!user && location.pathname !== lastLocation && !fetchFailed) {
             setLastLocation(location.pathname);
             fetchUser();
         }
-    }, [location, fetchUser, user]);
+    }, [location, fetchUser, user, lastLocation, fetchFailed]);
 
     return (
         <UserContext.Provider value={{ user, setUser }}>

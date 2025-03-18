@@ -2,21 +2,21 @@ import api, { handleError } from "./api.js";
 
 export const getAllBlogs = async () => {
     try {
-      const response = await fetch("/api/blogs");
-      const data = await response.json();
-      return response.data;
+        const response = await api.get('/api/blogs');
+        return response.data.result;
     } catch (error) {
-      handleError(error);
+        handleError(error);
+        return [];
     }
-  };
+};
 
- 
 export const getBlogById = async (id) => {
     try {
         const response = await api.get(`/api/blogs/${id}`);
         return response.data;
     } catch (error) {
         handleError(error);
+        return null; // hoặc throw error tùy use case
     }
 };
 
@@ -32,6 +32,7 @@ export const createBlog = async (blogData, thumbnail) => {
         return response.data;
     } catch (error) {
         handleError(error);
+        return null; // hoặc throw error tùy use case
     }
 };
 
@@ -47,13 +48,16 @@ export const updateBlog = async (id, blogData, thumbnail) => {
         return response.data;
     } catch (error) {
         handleError(error);
+        return null; // hoặc throw error tùy use case
     }
 };
 
 export const deleteBlog = async (id) => {
     try {
-        await api.delete(`/api/blogs/delete/${id}`);
+        const response = await api.delete(`/api/blogs/delete/${id}`);
+        return response.data;
     } catch (error) {
         handleError(error);
+        return false; // hoặc throw error tùy use case
     }
 };
