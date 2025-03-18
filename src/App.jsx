@@ -25,6 +25,8 @@ import QuizList from './components/pages/Admin/Quizs/QuizList';
 import QuizDetail from './components/pages/Admin/Quizs/QuizDetail';
 import RecommendService from './components/pages/Admin/Quizs/RecommentService'
 import ServicesTable from './components/pages/Services';
+import RateService from './components/pages/RateService';
+import ViewFeedbacks from './components/pages/ViewFeedbacks';
 
 // Import staff components
 import StaffLayout from './components/staff/StaffLayout';
@@ -48,6 +50,8 @@ function App() {
                     <Route path="/forgot" element={<ForgottenPW />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/services" element={<ServicesTable />} />
+                    <Route path="/rate-service" element={<RateService />} />
+                    <Route path="/view-feedbacks" element={<ViewFeedbacks />} />
                     
                     {/* Admin Routes */}
                     <Route path="/admin/*" element={<AminDashboard />} />
