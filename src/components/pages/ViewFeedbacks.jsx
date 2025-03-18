@@ -90,6 +90,10 @@ const ViewFeedbacks = () => {
     const [selectedRating, setSelectedRating] = useState(0);
     const [selectedService, setSelectedService] = useState('');
     
+    // Phân trang
+    const [currentPage, setCurrentPage] = useState(1);
+    const feedbacksPerPage = 6;
+    
     // Lấy danh sách dịch vụ độc nhất
     const uniqueServices = [...new Set(dummyFeedbacks.map(fb => fb.service))];
     
@@ -117,6 +121,7 @@ const ViewFeedbacks = () => {
         });
         
         setFilteredFeedbacks(filtered);
+        setCurrentPage(1); // Reset về trang 1 khi lọc lại dữ liệu
     }, [searchTerm, selectedRating, selectedService, feedbacks]);
     
     const handleSearch = (e) => {
@@ -137,10 +142,82 @@ const ViewFeedbacks = () => {
         return "bg-red-50 border-red-200";
     };
     
+    // Tính toán phân trang
+    const indexOfLastFeedback = currentPage * feedbacksPerPage;
+    const indexOfFirstFeedback = indexOfLastFeedback - feedbacksPerPage;
+    const currentFeedbacks = filteredFeedbacks.slice(indexOfFirstFeedback, indexOfLastFeedback);
+    const totalPages = Math.ceil(filteredFeedbacks.length / feedbacksPerPage);
+    
+    // Thay đổi trang
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    
+    // Component Pagination
+    const Pagination = () => {
+        const pageNumbers = [];
+        
+        for (let i = 1; i <= totalPages; i++) {
+            pageNumbers.push(i);
+        }
+        
+        return (
+            <div className="flex justify-center mt-8">
+                <nav>
+                    <ul className="flex space-x-2">
+                        {/* Nút về trang trước */}
+                        <li>
+                            <button 
+                                onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-1 rounded-md ${
+                                    currentPage === 1 
+                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                                        : 'bg-teal-100 text-teal-800 hover:bg-teal-200'
+                                }`}
+                            >
+                                &laquo;
+                            </button>
+                        </li>
+                        
+                        {/* Các số trang */}
+                        {pageNumbers.map(number => (
+                            <li key={number}>
+                                <button
+                                    onClick={() => paginate(number)}
+                                    className={`px-3 py-1 rounded-md ${
+                                        currentPage === number
+                                            ? 'bg-teal-600 text-white'
+                                            : 'bg-teal-100 text-teal-800 hover:bg-teal-200'
+                                    }`}
+                                >
+                                    {number}
+                                </button>
+                            </li>
+                        ))}
+                        
+                        {/* Nút đến trang sau */}
+                        <li>
+                            <button 
+                                onClick={() => currentPage < totalPages && paginate(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className={`px-3 py-1 rounded-md ${
+                                    currentPage === totalPages 
+                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                                        : 'bg-teal-100 text-teal-800 hover:bg-teal-200'
+                                }`}
+                            >
+                                &raquo;
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        );
+    };
+    
     return (
         <div className="min-h-screen bg-gray-100">
             <Navbar />
-            <div className="pt-28 pb-12 px-4">
+            <div className="pt-36 pb-12 px-4">
                 <div className="max-w-7xl mx-auto">
                     <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Đánh giá từ khách hàng</h2>
                     <p className="text-center text-gray-600 mb-8">
@@ -197,6 +274,11 @@ const ViewFeedbacks = () => {
                         </div>
                     </div>
                     
+                    {/* Số lượng kết quả tìm thấy */}
+                    <p className="text-sm text-gray-600 mb-4">
+                        Hiển thị {currentFeedbacks.length} trong tổng số {filteredFeedbacks.length} đánh giá
+                    </p>
+                    
                     {/* Kết quả */}
                     <div className="space-y-6">
                         {filteredFeedbacks.length === 0 ? (
@@ -204,7 +286,7 @@ const ViewFeedbacks = () => {
                                 <p className="text-gray-500">Không tìm thấy đánh giá phù hợp.</p>
                             </div>
                         ) : (
-                            filteredFeedbacks.map(feedback => (
+                            currentFeedbacks.map(feedback => (
                                 <div 
                                     key={feedback.id} 
                                     className={`p-6 rounded-lg shadow-md border ${getRatingColor(feedback.rating)}`}
@@ -235,6 +317,9 @@ const ViewFeedbacks = () => {
                             ))
                         )}
                     </div>
+                    
+                    {/* Phân trang */}
+                    {filteredFeedbacks.length > 0 && <Pagination />}
                 </div>
             </div>
             <Footer />
