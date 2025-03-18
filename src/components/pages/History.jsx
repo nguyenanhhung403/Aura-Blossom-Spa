@@ -183,6 +183,35 @@ const History = () => {
             </table>
           </div>
         )}
+        {activeTable === "previous" && (
+          <div className="history-table">
+            <h3 className="table-header">DỊCH VỤ TRƯỚC ĐÓ</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>NGÀY</th>
+                  <th>GIỜ</th>
+                  <th>DỊCH VỤ</th>
+                  <th>NGƯỜI PHỤ TRÁCH</th>
+                  <th>ĐÁNH GIÁ</th>
+                  <th>PHẢN HỒI</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getCurrentItems().map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.date}</td>
+                    <td>{item.time}</td>
+                    <td>{item.service}</td>
+                    <td>{item.staff}</td>
+                    <td>{item.rating}</td>
+                    <td>{item.feedback}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {totalPages() > 1 && (
           <div className="pagination">

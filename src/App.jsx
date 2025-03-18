@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { UserProvider } from './components/context/UserContext';
 import './App.css';
@@ -27,6 +27,8 @@ import RecommendService from './components/pages/Admin/Quizs/RecommentService'
 import ServicesTable from './components/pages/Services';
 import RateService from './components/pages/RateService';
 import ViewFeedbacks from './components/pages/ViewFeedbacks';
+import Quiz from './components/pages/Quiz';
+import History from './components/pages/History';
 
 // Import staff components
 import StaffLayout from './components/staff/StaffLayout';
@@ -39,7 +41,7 @@ import StaffSettings from './components/staff/StaffSettings';
 function App() {
     return (
         <Router>
-            <UserProvider>
+            <UserProvider>``
                 <Routes>
                     <Route path='/booking' element={<BookingProcess/>}/>
                     <Route path="/profile" element={<Profile />} />
@@ -52,7 +54,8 @@ function App() {
                     <Route path="/services" element={<ServicesTable />} />
                     <Route path="/rate-service" element={<RateService />} />
                     <Route path="/view-feedbacks" element={<ViewFeedbacks />} />
-                    
+                    <Route path="/quiz" element={<Quiz />} />
+                    <Route path='/history' element={<History/>}/>
                     {/* Admin Routes */}
                     <Route path="/admin/*" element={<AminDashboard />} />
                     <Route path="/admin/services" element={<ServiceManagement />} />
@@ -68,7 +71,7 @@ function App() {
                     <Route path="/admin/quizlist" element={<QuizList />} />
                     <Route path="/admin/quizlist/:id" element={<QuizDetail />} />
                     <Route path="/admin/recommend-service" element={<RecommendService />} />
-
+                    
                     {/* Staff Routes */}
                     <Route path="/staff" element={<StaffLayout />}>
                         <Route index element={<StaffDashboard />} />
