@@ -115,9 +115,10 @@ const BeautyTips = () => {
           </div>
         )}
 
-        <ContactUs />
         {/* <Footer /> */}
       </div>
+      <ContactUs />
+
     </div>
   );
 };

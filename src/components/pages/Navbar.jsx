@@ -101,6 +101,7 @@ const Navbar = () => {
                     >
                       <FontAwesomeIcon icon={faUser} />
                       <span>Thông tin tài khoản</span>
+
                     </Link>
                     <Link
                       to="/support"

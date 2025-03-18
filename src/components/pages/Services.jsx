@@ -51,7 +51,8 @@ const ServicesTable = () => {
   useEffect(() => {
     const fetchServices = async () => {
       const response = await getAllServices();
-      setServices(response.result);
+      // Giới hạn chỉ lấy 4 dịch vụ đầu tiên
+      setServices(response.result.slice(0, 4));
     };
     const fetchCategories = async () => {
       const response = await getAllServiceCategories();
