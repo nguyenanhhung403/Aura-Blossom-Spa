@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import HistoryBanner from "../images/HistoryImg/history-banner.jpg";
@@ -7,48 +7,58 @@ import HistoryBanner from "../images/HistoryImg/history-banner.jpg";
 const History = () => {
   const [activeTable, setActiveTable] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [dropdownIndex, setDropdownIndex] = useState(null);
+  const [cancelConfirmIndex, setCancelConfirmIndex] = useState(null);
+  const itemsPerPage = 3;
 
-  // State để lưu dữ liệu từ API
-  const [upcomingAppointments, setUpcomingAppointments] = useState([]);
-  const [previousServices, setPreviousServices] = useState([]);
-  const [payments, setPayments] = useState([]);
+  const upcomingAppointments = [
+    {
+      date: "15/02/2025",
+      time: "10:00 AM",
+      service: "MASSAGE THƯ GIÃN",
+      staff: "NV. Nguyễn Thị A",
+      price: "500,000 VND",
+      deposit: "200,000 VND",
+      paymentMethod: "Tiền mặt",
+      remaining: "300,000 VND",
+      status: "ĐÃ ĐẶT LỊCH",
+      note: "",
+    },
+  ];
 
-  // Gọi API khi component được render hoặc khi activeTable thay đổi
-  useEffect(() => {
-    if (activeTable === "upcoming") {
-      axios.get("https://api.example.com/upcoming-appointments")
-        .then(response => setUpcomingAppointments(response.data))
-        .catch(error => console.error("Error fetching upcoming appointments:", error));
-    } else if (activeTable === "previous") {
-      axios.get("https://api.example.com/previous-services")
-        .then(response => setPreviousServices(response.data))
-        .catch(error => console.error("Error fetching previous services:", error));
-    } else if (activeTable === "payment") {
-      axios.get("https://api.example.com/payments")
-        .then(response => setPayments(response.data))
-        .catch(error => console.error("Error fetching payments:", error));
-    }
-  }, [activeTable]);
+  const previousServices = [
+    {
+      date: "01/02/2025",
+      time: "10:00 AM",
+      service: "CHĂM SÓC DA MẶT",
+      staff: "NV. Phạm Ngọc & BS. Nguyễn Minh Anh",
+      rating: "⭐⭐⭐⭐⭐",
+      feedback: "DA ĐƯỢC CẢI THIỆN SAU 3 NGÀY ĐIỀU TRỊ.",
+    },
+  ];
 
   const getCurrentItems = () => {
-    let data = [];
-    if (activeTable === "upcoming") data = upcomingAppointments;
-    if (activeTable === "previous") data = previousServices;
-    if (activeTable === "payment") data = payments;
-
+    let data =
+      activeTable === "upcoming" ? upcomingAppointments : previousServices;
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     return data.slice(indexOfFirstItem, indexOfLastItem);
   };
 
   const totalPages = () => {
-    let data = [];
-    if (activeTable === "upcoming") data = upcomingAppointments;
-    if (activeTable === "previous") data = previousServices;
-    if (activeTable === "payment") data = payments;
-
+    let data =
+      activeTable === "upcoming" ? upcomingAppointments : previousServices;
     return Math.ceil(data.length / itemsPerPage);
+  };
+
+  const handleCancelAppointment = (index) => {
+    alert("Đã hủy lịch hẹn thành công!");
+    setCancelConfirmIndex(null); // Đóng box xác nhận
+  };
+  const navigate = useNavigate(); // Hook điều hướng
+
+  const handleUpdateClick = (item) => {
+    navigate("/booking", { state: { appointment: item } }); // Chuyển trang kèm dữ liệu
   };
 
   return (
@@ -61,105 +71,136 @@ const History = () => {
         </div>
 
         <div className="history-buttons">
-          <button className="history-btn" onClick={() => { setActiveTable("upcoming"); setCurrentPage(1); }}>
+          <button
+            className="history-btn"
+            onClick={() => {
+              setActiveTable("upcoming");
+              setCurrentPage(1);
+            }}
+          >
             LỊCH HẸN SẮP TỚI
           </button>
-          <button className="history-btn" onClick={() => { setActiveTable("previous"); setCurrentPage(1); }}>
+          <button
+            className="history-btn"
+            onClick={() => {
+              setActiveTable("previous");
+              setCurrentPage(1);
+            }}
+          >
             DỊCH VỤ TRƯỚC ĐÓ
-          </button>
-          <button className="history-btn" onClick={() => { setActiveTable("payment"); setCurrentPage(1); }}>
-            THANH TOÁN
           </button>
         </div>
 
-        {activeTable && (
+        {activeTable === "upcoming" && (
           <div className="history-table">
-            <h3 className="table-header">
-              {activeTable === "upcoming"
-                ? "LỊCH HẸN SẮP TỚI"
-                : activeTable === "previous"
-                  ? "DỊCH VỤ TRƯỚC ĐÓ"
-                  : "THANH TOÁN"}
-            </h3>
+            <h3 className="table-header">LỊCH HẸN SẮP TỚI</h3>
             <table>
               <thead>
                 <tr>
-                  {activeTable === "payment" ? (
-                    <>
-                      <th>TÊN DỊCH VỤ</th>
-                      <th>NGÀY THANH TOÁN</th>
-                      <th>TIỀN CẦN THANH TOÁN</th>
-                      <th>PHƯƠNG THỨC THANH TOÁN</th>
-                      <th>SỐ TIỀN CÒN LẠI</th>
-                      <th>TRẠNG THÁI</th>
-                    </>
-                  ) : (
-                    <>
-                      <th>NGÀY / GIỜ</th>
-                      <th>DỊCH VỤ</th>
-                      <th>NGƯỜI PHỤ TRÁCH</th>
-                      <th>GHI CHÚ</th>
-                      {activeTable === "previous" && (
-                        <>
-                          <th>TRẠNG THÁI</th>
-                          <th>ĐÁNH GIÁ</th>
-                          <th>PHẢN HỒI</th>
-                        </>
-                      )}
-                    </>
-                  )}
+                  <th>NGÀY</th>
+                  <th>GIỜ</th>
+                  <th>DỊCH VỤ</th>
+                  <th>NGƯỜI PHỤ TRÁCH</th>
+                  <th>GIÁ DỊCH VỤ</th>
+                  <th>TIỀN ĐÃ CỌC</th>
+                  <th>PHƯƠNG THỨC THANH TOÁN</th>
+                  <th>TIỀN CÒN LẠI</th>
+                  <th>TRẠNG THÁI</th>
+                  <th>GHI CHÚ</th>
                 </tr>
               </thead>
               <tbody>
                 {getCurrentItems().map((item, index) => (
                   <tr key={index}>
-                    {activeTable === "payment" ? (
-                      <>
-                        <td>{item.service}</td>
-                        <td>{item.date}</td>
-                        <td>{item.amount}</td>
-                        <td>{item.method}</td>
-                        <td>{item.balance}</td>
-                        <td>{item.status}</td>
-                      </>
-                    ) : (
-                      <>
-                        <td>{item.date}</td>
-                        <td>{item.service}</td>
-                        <td>{item.staff}</td>
-                        <td>{item.note}</td>
-                        {activeTable === "previous" && (
+                    <td>{item.date}</td>
+                    <td>{item.time}</td>
+                    <td>{item.service}</td>
+                    <td>{item.staff}</td>
+                    <td>{item.price}</td>
+                    <td>{item.deposit}</td>
+                    <td>{item.paymentMethod}</td>
+                    <td>{item.remaining}</td>
+                    <td>
+                      <div className="dropdown-container">
+                        <span>{item.status}</span>
+                        {item.status === "ĐÃ ĐẶT LỊCH" && (
                           <>
-                            <td>{item.status}</td>
-                            <td>{item.rating}</td>
-                            <td>{item.feedback}</td>
+                            <button
+                              className="dropdown-btn"
+                              onClick={() =>
+                                setDropdownIndex(
+                                  dropdownIndex === index ? null : index
+                                )
+                              }
+                            >
+                              ▼
+                            </button>
+                            {dropdownIndex === index && (
+                              <div className="dropdown-menu">
+                                <button
+                                  className="cancel-btn"
+                                  onClick={() => {
+                                    setCancelConfirmIndex(index);
+                                    setDropdownIndex(null);
+                                  }}
+                                >
+                                  Hủy
+                                </button>
+                                <button
+                                  className="update-btn"
+                                  onClick={() => handleUpdateClick(item)}
+                                >
+                                  Cập nhật
+                                </button>
+                              </div>
+                            )}
                           </>
                         )}
-                      </>
-                    )}
+                      </div>
+
+                      {cancelConfirmIndex === index && (
+                        <div className="cancel-confirm-box">
+                          <p>Bạn có chắc muốn hủy lịch hẹn?</p>
+                          <button
+                            className="confirm-btn"
+                            onClick={() => handleCancelAppointment(index)}
+                          >
+                            Xác nhận
+                          </button>
+                          <button
+                            className="cancel-btn"
+                            onClick={() => setCancelConfirmIndex(null)}
+                          >
+                            Hủy bỏ
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                    <td>{item.note || "-"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {totalPages() > 1 && (
-              <div className="pagination">
-                <button
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  ❮ Trước
-                </button>
-                <span>
-                  Trang {currentPage} / {totalPages()}
-                </span>
-                <button
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  disabled={currentPage === totalPages()}
-                >
-                  Tiếp ❯
-                </button>
-              </div>
-            )}
+          </div>
+        )}
+
+        {totalPages() > 1 && (
+          <div className="pagination">
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              ❮ Trước
+            </button>
+            <span>
+              Trang {currentPage} / {totalPages()}
+            </span>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages()}
+            >
+              Tiếp ❯
+            </button>
           </div>
         )}
       </div>

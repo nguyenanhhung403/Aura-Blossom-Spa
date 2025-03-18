@@ -16,10 +16,10 @@ import Therapist from "./components/pages/Therapist";
 import History from "./components/pages/History";
 
 // Component bảo vệ route
-const PrivateRoute = ({ element }) => {
-  const { user } = useContext(UserContext);
-  return user ? element : <Navigate to="/login" replace />;
-};
+// const PrivateRoute = ({ element }) => {
+//   const { user } = useContext(UserContext);
+//   return user ? element : <Navigate to="/login" replace />;
+// };
 
 function App() {
   return (
@@ -39,7 +39,7 @@ function App() {
           <Route path="/therapist" element={<Therapist />} />
           
           {/* Route được bảo vệ */}
-          <Route path="/history" element={<PrivateRoute element={<History />} />} />
+          <Route path="/history" element={<History />}  />
         </Routes>
       </Router>
     </UserProvider>

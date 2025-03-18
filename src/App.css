@@ -717,6 +717,11 @@ box-shadow: 0 8px 24px rgba(20, 84, 78, 0.3);
   text-align: center;
   font-size: 16px;
 }
+.history-table th:last-child, 
+.history-table td:last-child {
+  border-right: 1px solid black;
+}
+
 
 .history-table th {
   font-weight: bold;
@@ -770,4 +775,90 @@ box-shadow: 0 8px 24px rgba(20, 84, 78, 0.3);
   font-size: 16px;
   font-weight: bold;
   color: #333;
+}
+
+/* button cancel va update tron lich su */
+td {
+  position: relative;
+  padding-right: 20px; /* Tạo khoảng trống bên phải */
+}
+
+.dropdown-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.dropdown-btn {
+  position: absolute;
+  right: 5px; /* Căn nút về phía bên phải */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.cancel-btn, .update-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.update-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #cc0000;
+}
+
+.update-btn:hover {
+  background-color: #0056b3;
+}
+/* box confirm huy  */
+.cancel-confirm-box {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  text-align: center;
+  width: 200px;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.confirm-btn, .cancel-btn {
+  margin: 5px;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.confirm-btn {
+  background: #007bff;
+  color: white;
+}
+
+.cancel-btn {
+  background: red;
+  color: white;
 }
