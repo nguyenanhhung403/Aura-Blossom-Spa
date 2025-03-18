@@ -29,7 +29,7 @@ import RateService from './components/pages/RateService';
 import ViewFeedbacks from './components/pages/ViewFeedbacks';
 import Quiz from './components/pages/Quiz';
 import History from './components/pages/History';
-
+import Therapist from './components/pages/Therapist';
 // Import staff components
 import StaffLayout from './components/staff/StaffLayout';
 import StaffDashboard from './components/staff/StaffDashboard';
@@ -56,6 +56,7 @@ function App() {
                     <Route path="/view-feedbacks" element={<ViewFeedbacks />} />
                     <Route path="/quiz" element={<Quiz />} />
                     <Route path='/history' element={<History/>}/>
+                    <Route path='/therapist' element={<Therapist/>}/>
                     {/* Admin Routes */}
                     <Route path="/admin/*" element={<AminDashboard />} />
                     <Route path="/admin/services" element={<ServiceManagement />} />
