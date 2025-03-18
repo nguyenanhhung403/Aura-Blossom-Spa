@@ -1145,18 +1145,20 @@ td {
 }
 /* box confirm huy  */
 .cancel-confirm-box {
-  position: absolute;
+  position: fixed; /* Giữ hộp cố định trên màn hình */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Căn giữa theo cả chiều ngang và dọc */
   background: white;
   border: 1px solid #ccc;
-  padding: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  padding: 20px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000; /* Đảm bảo hiển thị trên tất cả các phần khác */
   text-align: center;
-  width: 200px;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 450px; /* Điều chỉnh kích thước */
+  border-radius: 8px; /* Bo góc cho đẹp */
 }
+
 
 .confirm-btn, .cancel-btn {
   margin: 5px;
@@ -1174,3 +1176,23 @@ td {
   background: red;
   color: white;
 }
+.review-btn{
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+body {
+  overflow: auto;
+  -ms-overflow-style: none; /* Ẩn thanh cuộn trên Edge */
+}
+
+/* Ẩn thanh cuộn trên Chrome, Safari */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
