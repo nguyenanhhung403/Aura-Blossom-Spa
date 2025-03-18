@@ -1,20 +1,23 @@
-import React, {createContext, useCallback, useEffect, useState} from 'react';
-import {useLocation} from 'react-router-dom';
-import {onAuthStateChanged} from 'firebase/auth';
-import {auth} from '../config/firebase.js';
-import {getMyInfor} from '../service/userApi.js';
-import {ACCESS_TOKEN} from '../service/api.js';
+import React, { createContext, useCallback, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../config/firebase.js";
+import { getMyInfor } from "../service/userApi.js";
+import { ACCESS_TOKEN } from "../service/api.js";
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
-        const storedUser = localStorage.getItem("user") || "{}";
-        const parseUser = JSON.parse(storedUser);
-        return parseUser.username ? {
-            ...parseUser,
-            displayName: parseUser.fullname,
-        } : null;
+        try {
+            const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+            return storedUser.username
+                ? { ...storedUser, displayName: storedUser.fullname }
+                : null;
+        } catch (error) {
+            console.error("Error parsing user data:", error);
+            return null;
+        }
     });
 
     const location = useLocation();
@@ -25,43 +28,45 @@ export const UserProvider = ({ children }) => {
             const response = await getMyInfor();
             const gotUser = response?.result;
             if (gotUser) {
-                localStorage.setItem("user", JSON.stringify(gotUser));
-                setUser({
+                const formattedUser = {
                     ...gotUser,
                     displayName: gotUser?.fullname,
-                })
+                };
+                localStorage.setItem("user", JSON.stringify(formattedUser));
+                setUser(formattedUser);
             }
-        }catch (error) {
-            console.error(error);
+        } catch (error) {
+            console.error("Error fetching user info:", error);
         }
     }, []);
 
     useEffect(() => {
-        if (user) {
-            return;
-        }
-
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            user && setUser(user);
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            if (firebaseUser) {
+                setUser(firebaseUser);
+                localStorage.setItem("user", JSON.stringify(firebaseUser));
+            } else {
+                setUser(null);
+                localStorage.removeItem("user");
+            }
         });
 
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
         const token = localStorage.getItem(ACCESS_TOKEN);
-        if (token) {
+        if (!user && token) {
             fetchUser();
         }
-
-        return () => unsubscribe();
     }, [fetchUser, user]);
 
     useEffect(() => {
-        if (user || location.pathname === lastLocation) {
-            return;
+        if (!user && location.pathname !== lastLocation) {
+            setLastLocation(location.pathname);
+            fetchUser();
         }
-
-        setLastLocation(location.pathname);
-
-        fetchUser();
-    }, [location, fetchUser, location, user]);
+    }, [location, fetchUser, user]);
 
     return (
         <UserContext.Provider value={{ user, setUser }}>

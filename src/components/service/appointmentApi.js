@@ -18,9 +18,27 @@ export const getAppointmentById = async (id) => {
     }
 };
 
+export const getMyUpcomingAppointments = async () => {
+    try {
+        const response = await api.get('/api/appointments/my-upcoming');
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+export const getMyHistoricalAppointments = async () => {
+    try {
+        const response = await api.get('/api/appointments/my-history');
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
 export const createAppointment = async (data) => {
     try {
-        const response = await api.post('/api/appointments/create', data);
+        const response = await api.post('/api/appointments', data);
         return response.data;
     } catch (error) {
         handleError(error);
@@ -29,7 +47,7 @@ export const createAppointment = async (data) => {
 
 export const updateAppointment = async (id, data) => {
     try {
-        const response = await api.put(`/api/appointments/update/${id}`, data);
+        const response = await api.put(`/api/appointments/${id}`, data);
         return response.data;
     } catch (error) {
         handleError(error);
@@ -47,7 +65,7 @@ export const cancelAppointment = async (id) => {
 
 export const deleteAppointment = async (id) => {
     try {
-        const response = await api.delete(`/api/appointments/delete/${id}`);
+        const response = await api.delete(`/api/appointments/${id}`);
         return response.data;
     } catch (error) {
         handleError(error);

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch, FaThList, FaThLarge, FaSort, FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import Sidebar from "./SideBar";
+import { getAllBlogs, createBlog, deleteBlog, getBlogById, updateBlog } from "../../service/blogApi.js";
+import axios from "axios";
+
 
 const BlogList = () => {
   const [blogs, setBlogs] = useState([]);
@@ -17,22 +20,27 @@ const BlogList = () => {
   });
 
   // Lấy dữ liệu blog từ API
-  const fetchBlogs = async () => {
-    try {
-      const response = await fetch("/api/blogs");
-      if (response.ok) {
-        const data = await response.json();
-        setBlogs(data);
-      }
-    } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu blog:", error);
-    }
-  };
-
   useEffect(() => {
     fetchBlogs();
   }, []);
 
+  const fetchBlogs = async () => {
+    try {
+      const data = await getAllBlogs();
+      console.log("Dữ liệu blogs nhận được:", data);
+      
+      if (!Array.isArray(data)) {
+        console.error("Dữ liệu không hợp lệ:", data);
+        setBlogs([]);
+      } else {
+        setBlogs(data);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu blogs:", error);
+      setBlogs([]);
+    }
+  };
+  
   // Xử lý chọn file ảnh cho thumbnail
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
@@ -42,70 +50,49 @@ const BlogList = () => {
   // Xóa blog
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/api/blogs/${id}`, { method: "DELETE" });
-      if (response.ok) {
-        setBlogs(blogs.filter((blog) => blog.id !== id));
-      }
+      await deleteBlog(id);
+      setBlogs(blogs.filter((blog) => blog.id !== id));
     } catch (error) {
       console.error("Lỗi khi xóa blog:", error);
     }
   };
 
   // Chuyển sang chế độ chỉnh sửa
-  const handleEdit = (blog) => {
-    setIsEditing(true);
-    setCurrentBlog(blog);
-    setFormData({
-      title: blog.title,
-      content: blog.content,
-      thumbnail: null, // Để chọn file mới nếu cần
-    });
+  const handleEdit = async (id) => {
+    try {
+      const blog = await getBlogById(id);
+      setIsEditing(true);
+      setCurrentBlog(blog);
+      setFormData({
+        title: blog.title,
+        content: blog.content,
+        thumbnail: null,
+      });
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu blog:", error);
+    }
   };
 
   // Xử lý submit form cho cả tạo mới và cập nhật
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
-    // Sử dụng FormData để gửi file ảnh và các trường khác
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("content", formData.content);
-    // Nếu có file ảnh được chọn, thêm vào FormData
-    if (formData.thumbnail) {
-      data.append("thumbnail", formData.thumbnail);
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+  
+    // Kiểm tra nếu thiếu title hoặc content
+    if (!formData.title || !formData.content) {
+      alert("Vui lòng nhập tiêu đề và nội dung!");
+      return;
     }
-
+  
+    console.log("Dữ liệu gửi đi:", formData); // Kiểm tra xem có title không
+  
     try {
-      let response;
-      if (isEditing) {
-        response = await fetch(`/api/blogs/${currentBlog.id}`, {
-          method: "PUT",
-          body: data,
-        });
-      } else {
-        response = await fetch("/api/blogs", {
-          method: "POST",
-          body: data,
-        });
-      }
-      if (response.ok) {
-        const result = await response.json();
-        if (isEditing) {
-          setBlogs(blogs.map((blog) => (blog.id === result.id ? result : blog)));
-          setIsEditing(false);
-          setCurrentBlog(null);
-        } else {
-          setBlogs([...blogs, result]);
-        }
-        // Reset form
-        setFormData({
-          title: "",
-          content: "",
-          thumbnail: null,
-        });
-      }
+      const thumbnail = formData.thumbnail; // Giả sử bạn có thumbnail trong formData
+      const response = await createBlog(formData, thumbnail);
+      console.log("Bài viết đã tạo:", response);
+      alert("Tạo bài viết thành công!");
+      fetchBlogs();
     } catch (error) {
-      console.error("Lỗi khi gửi form:", error);
+      console.error("Lỗi khi gửi bài viết:", error);
     }
   };
 

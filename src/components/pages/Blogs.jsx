@@ -1,63 +1,34 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import ContactUs from "./ContactUs";
 import Footer from "./Footer";
+import { getAllBlogs } from "../service/blogApi.js"; // Import hàm getAllBlogs từ blogApi.js
 
 const BeautyTips = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTip, setSelectedTip] = useState(null);
-  
-  // Danh sách các tip, ví dụ có 6 tip hoặc nhiều hơn.
-  const beautyTips = [
-    {
-      image: "/beauty-image.jpg",
-      title: "Beauty Tip 1",
-      description: "Mô tả ngắn gọn về bí quyết làm đẹp số 1.",
-      steps: ["Bước 1: Chuẩn bị da", "Bước 2: Thoa sản phẩm", "Bước 3: Massage nhẹ nhàng"]
-    },
-    {
-      image: "/beauty-image.jpg",
-      title: "Beauty Tip 2",
-      description: "Mô tả ngắn gọn về bí quyết làm đẹp số 2.",
-      steps: ["Bước 1: Làm sạch da", "Bước 2: Dưỡng ẩm sâu", "Bước 3: Bảo vệ với kem chống nắng"]
-    },
-    {
-      image: "/beauty-image.jpg",
-      title: "Beauty Tip 3",
-      description: "Mô tả ngắn gọn về bí quyết làm đẹp số 3.",
-      steps: ["Bước 1: Tẩy tế bào chết", "Bước 2: Dưỡng trắng da", "Bước 3: Se khít lỗ chân lông"]
-    },
-    {
-      image: "/beauty-image.jpg",
-      title: "Beauty Tip 4",
-      description: "Mô tả ngắn gọn về bí quyết làm đẹp số 4.",
-      steps: ["Bước 1: Dưỡng ẩm", "Bước 2: Chống lão hóa", "Bước 3: Phục hồi da ban đêm"]
-    },
-    {
-      image: "/beauty-image.jpg",
-      title: "Beauty Tip 5",
-      description: "Mô tả ngắn gọn về bí quyết làm đẹp số 5.",
-      steps: ["Bước 1: Tẩy trang cẩn thận", "Bước 2: Dưỡng da", "Bước 3: Sử dụng serum"]
-    },
-    {
-      image: "/beauty-image.jpg",
-      title: "Beauty Tip 6",
-      description: "Mô tả ngắn gọn về bí quyết làm đẹp số 6.",
-      steps: ["Bước 1: Chăm sóc vùng mắt", "Bước 2: Dưỡng da vùng mắt", "Bước 3: Massage vùng mắt"]
-    },
-    {
-      image: "/beauty-image.jpg",
-      title: "Beauty Tip 7",
-      description: "Mô tả ngắn gọn về bí quyết làm đẹp số 7.",
-      steps: ["Bước 1: Chăm sóc vùng mắt", "Bước 2: Dưỡng da vùng mắt", "Bước 3: Massage vùng mắt"]
+  const [blogs, setBlogs] = useState([]); // Thay thế beautyTips bằng blogs
+
+  // Lấy dữ liệu blog từ API
+  const fetchBlogs = async () => {
+    try {
+      const data = await getAllBlogs();
+      setBlogs(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu blog:", error);
     }
-  ];
+  };
 
-  // Nếu có nhiều hơn 6 tip thì chia trang, ngược lại hiển thị tất cả
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
+
+  // Nếu có nhiều hơn 6 blog thì chia trang, ngược lại hiển thị tất cả
   const itemsPerPage = 6;
-  const totalPages = Math.ceil(beautyTips.length / itemsPerPage);
-  const paginatedTips = beautyTips.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(blogs.length / itemsPerPage);
+  const paginatedBlogs = blogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  
   return (
     <div className="bg-gray-50 min-h-screen ">
       <Navbar />
@@ -71,38 +42,31 @@ const BeautyTips = () => {
           <p className="text-gray-600 mt-2">
             Khám phá những mẹo làm đẹp hiệu quả từ chuyên gia
           </p>
-          {/* <div className="mt-6 flex justify-center">
-            <input
-              type="text"
-              className="w-72 p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-400"
-              placeholder="Tìm kiếm bí quyết..."
-            />
-          </div> */}
         </div>
 
-        {/* Beauty Tips Grid */}
+        {/* Blog Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {paginatedTips.map((tip, index) => (
+          {paginatedBlogs.map((blog) => (
             <div
-              key={index}
+              key={blog.id}
               className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition-shadow cursor-pointer"
-              onClick={() => setSelectedTip(tip)}
+              onClick={() => setSelectedTip(blog)}
             >
               <img
-                src={tip.image}
-                alt={tip.title}
+                src={blog.thumbnail}
+                alt={blog.title}
                 className="w-full h-48 object-cover"
               />
               <div className="p-4">
-                <h2 className="text-xl font-bold text-gray-800">{tip.title}</h2>
-                <p className="mt-2 text-gray-600">{tip.description}</p>
+                <h2 className="text-xl font-bold text-gray-800">{blog.title}</h2>
+                <p className="mt-2 text-gray-600">{blog.content.substring(0, 100)}...</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Pagination chỉ hiển thị nếu số lượng tip > 6 */}
-        {beautyTips.length > itemsPerPage && (
+        {/* Pagination chỉ hiển thị nếu số lượng blog > 6 */}
+        {blogs.length > itemsPerPage && (
           <div className="flex justify-center items-center space-x-2 mt-10">
             {Array.from({ length: totalPages }, (_, i) => (
               <button
@@ -131,22 +95,14 @@ const BeautyTips = () => {
                 &times;
               </button>
               <img
-                src={selectedTip.image}
+                src={selectedTip.thumbnail}
                 alt={selectedTip.title}
                 className="w-full h-64 object-cover rounded-lg"
               />
               <h2 className="mt-4 text-2xl font-bold text-gray-800">
                 {selectedTip.title}
               </h2>
-              <p className="mt-2 text-gray-600">{selectedTip.description}</p>
-              <h3 className="mt-4 text-xl font-semibold text-gray-800">
-                Các bước thực hiện:
-              </h3>
-              <ul className="list-decimal list-inside mt-2 text-gray-600">
-                {selectedTip.steps.map((step, index) => (
-                  <li key={index}>{step}</li>
-                ))}
-              </ul>
+              <p className="mt-2 text-gray-600">{selectedTip.content}</p>
               <div className="mt-6 text-right">
                 <button
                   className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition"
