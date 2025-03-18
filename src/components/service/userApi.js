@@ -34,10 +34,26 @@ export const createUser = async (data) => {
 // Cập nhật thông tin người dùng
 export const updateUser = async (userId, data) => {
   try {
-    const response = await api.put(`/api/users/update/${userId}`, data);
+    // Sử dụng data được truyền vào thay vì userData
+    const requestData = {
+      id: userId,
+      username: data.username,
+      fullname: data.fullName,
+      phone: data.phone,
+      email: data.email,
+      role: data.role
+    };
+
+    console.log("Sending update request:", requestData);
+
+    const response = await api.put(`/api/users/update/${userId}`, requestData);
+
+    console.log("Update response:", response.data);
     return response.data;
   } catch (error) {
-    handleError(error);
+    console.error("Update user error:", error);
+    console.log("Error details:", error.response?.data);
+    throw error;
   }
 };
 
