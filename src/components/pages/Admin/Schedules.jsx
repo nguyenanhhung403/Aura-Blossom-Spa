@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./SideBar";
+import { FaPlus, FaTrash, FaEdit } from "react-icons/fa";
 
 const WorkSchedule = () => {
   // State để theo dõi khoảng thời gian xem lịch
@@ -19,8 +20,8 @@ const WorkSchedule = () => {
   
   // State cho lịch hẹn mới
   const [newAppointment, setNewAppointment] = useState({
-    date: "2025-03-10",
-    selectedDoctors: []
+    selectedDoctors: [],
+    weekSelection: "current"
   });
 
   // Danh sách bác sĩ
@@ -31,7 +32,7 @@ const WorkSchedule = () => {
   ];
 
   // State để theo dõi tuần hiện tại
-  const [currentWeek, setCurrentWeek] = useState(0); // 0: tuần hiện tại, -1: tuần trước
+  const [currentWeek, setCurrentWeek] = useState(0); // 0: tuần hiện tại, -1: tuần trước, 1: tuần sau
 
   // State cho tìm kiếm
   const [searchTerm, setSearchTerm] = useState("");
@@ -91,9 +92,45 @@ const WorkSchedule = () => {
     ],
   });
 
+  // Dữ liệu lịch tuần sau
+  const nextCalendarData = {
+    "2025-03-17": [
+      { id: 201, doctor: "Bác sĩ A" },
+    ],
+    "2025-03-18": [
+      { id: 202, doctor: "Bác sĩ B" },
+    ],
+    "2025-03-19": [
+      { id: 203, doctor: "Bác sĩ C" },
+    ],
+    "2025-03-20": [
+      { id: 204, doctor: "Bác sĩ D" },
+    ],
+    "2025-03-21": [
+      { id: 205, doctor: "Bác sĩ E" },
+    ],
+    "2025-03-22": [
+      { id: 206, doctor: "Bác sĩ F" },
+    ],
+    "2025-03-23": [
+      { id: 207, doctor: "Bác sĩ G" },
+    ],
+  };
+
+  // Dữ liệu các tuần
+  const weeks = [
+    { id: "week1", label: "Tuần 1 (01/03 - 07/03)", startDate: "2025-03-01", endDate: "2025-03-07" },
+    { id: "week2", label: "Tuần 2 (08/03 - 14/03)", startDate: "2025-03-08", endDate: "2025-03-14" },
+    { id: "week3", label: "Tuần 3 (15/03 - 21/03)", startDate: "2025-03-15", endDate: "2025-03-21" },
+    { id: "week4", label: "Tuần 4 (22/03 - 28/03)", startDate: "2025-03-22", endDate: "2025-03-28" },
+    { id: "week5", label: "Tuần 5 (29/03 - 31/03)", startDate: "2025-03-29", endDate: "2025-03-31" }
+  ];
+
   // Lấy dữ liệu lịch dựa vào tuần hiện tại
   const getActiveCalendarData = () => {
-    return currentWeek === 0 ? calendarData : previousCalendarData;
+    if (currentWeek === 0) return calendarData;
+    if (currentWeek === -1) return previousCalendarData;
+    return nextCalendarData;
   };
 
   // Lấy danh sách ngày dựa vào khoảng thời gian
@@ -278,81 +315,92 @@ const WorkSchedule = () => {
     return weekdays[dayOfWeek];
   };
 
+  // Xử lý khi chọn tuần
+  const handleWeekSelection = (weekId) => {
+    const selectedWeek = weeks.find(week => week.id === weekId);
+    if (selectedWeek) {
+      setNewAppointment(prev => ({
+        ...prev,
+        weekSelection: weekId,
+        date: selectedWeek.startDate // Đặt ngày bắt đầu của tuần được chọn
+      }));
+    }
+  };
+
   // Lưu lịch hẹn mới
   const saveNewAppointment = () => {
     // Kiểm tra dữ liệu
-    if (!newAppointment.date || newAppointment.selectedDoctors.length === 0) {
-      alert("Vui lòng chọn ngày và ít nhất một bác sĩ!");
+    if (newAppointment.selectedDoctors.length === 0) {
+      alert("Vui lòng chọn ít nhất một bác sĩ!");
       return;
     }
 
     let startId = generateNewId();
     
-    if (currentWeek === 0) {
-      setCalendarData(prevData => {
-        const newData = {...prevData};
-        
-        // Khởi tạo mảng nếu chưa có dữ liệu cho ngày này
-        if (!newData[newAppointment.date]) {
-          newData[newAppointment.date] = [];
+    // Nếu chọn theo tuần
+    if (newAppointment.weekSelection !== "current") {
+      const selectedWeek = weeks.find(week => week.id === newAppointment.weekSelection);
+      if (selectedWeek) {
+        const startDate = new Date(selectedWeek.startDate);
+        const endDate = new Date(selectedWeek.endDate);
+
+        // Lặp qua từng ngày trong tuần đã chọn
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+          const dateString = d.toISOString().split('T')[0];
+          addAppointmentsToDate(dateString, startId);
         }
-        
-        // Lấy danh sách bác sĩ đã có lịch trong ngày này
-        const existingDoctors = newData[newAppointment.date].map(app => app.doctor);
-        console.log("Bác sĩ đã tồn tại:", existingDoctors);
-        console.log("Bác sĩ được chọn:", newAppointment.selectedDoctors);
-        
-        // Lọc ra những bác sĩ chưa có lịch
-        const doctorsToAdd = newAppointment.selectedDoctors.filter(
-          doctor => !existingDoctors.includes(doctor)
-        );
-        console.log("Bác sĩ sẽ thêm:", doctorsToAdd);
-        
-        // Thêm các bác sĩ vào lịch (chỉ thêm những bác sĩ chưa có lịch)
-        doctorsToAdd.forEach((doctor, index) => {
-          newData[newAppointment.date].push({
-            id: startId + index,
-            doctor: doctor
-          });
-        });
-        
-        return newData;
-      });
+      }
     } else {
-      setPreviousCalendarData(prevData => {
-        const newData = {...prevData};
-        
-        // Khởi tạo mảng nếu chưa có dữ liệu cho ngày này
-        if (!newData[newAppointment.date]) {
-          newData[newAppointment.date] = [];
-        }
-        
-        // Lấy danh sách bác sĩ đã có lịch trong ngày này
-        const existingDoctors = newData[newAppointment.date].map(app => app.doctor);
-        
-        // Lọc ra những bác sĩ chưa có lịch
-        const doctorsToAdd = newAppointment.selectedDoctors.filter(
-          doctor => !existingDoctors.includes(doctor)
-        );
-        
-        // Thêm các bác sĩ vào lịch (chỉ thêm những bác sĩ chưa có lịch)
-        doctorsToAdd.forEach((doctor, index) => {
-          newData[newAppointment.date].push({
-            id: startId + index,
-            doctor: doctor
-          });
-        });
-        
-        return newData;
-      });
+      // Nếu chọn theo ngày cụ thể
+      if (!newAppointment.date) {
+        alert("Vui lòng chọn ngày!");
+        return;
+      }
+      addAppointmentsToDate(newAppointment.date, startId);
     }
 
     // Reset form và đóng modal
     setNewAppointment({
-      date: "2025-03-10",
-      selectedDoctors: []
+      selectedDoctors: [],
+      weekSelection: "current"
     });
     setShowCreateModal(false);
+  };
+
+  // Hàm hỗ trợ thêm lịch hẹn vào một ngày cụ thể
+  const addAppointmentsToDate = (dateString, startId) => {
+    const updateFunction = (prevData) => {
+      const newData = { ...prevData };
+      
+      // Khởi tạo mảng nếu chưa có dữ liệu cho ngày này
+      if (!newData[dateString]) {
+        newData[dateString] = [];
+      }
+      
+      // Lấy danh sách bác sĩ đã có lịch trong ngày này
+      const existingDoctors = newData[dateString].map(app => app.doctor);
+      
+      // Lọc ra những bác sĩ đã chọn chưa có lịch
+      const doctorsToAdd = newAppointment.selectedDoctors.filter(
+        doctor => !existingDoctors.includes(doctor)
+      );
+      
+      // Thêm các bác sĩ vào lịch
+      doctorsToAdd.forEach((doctor, index) => {
+        newData[dateString].push({
+          id: startId + index,
+          doctor: doctor
+        });
+      });
+      
+      return newData;
+    };
+
+    if (currentWeek === 0) {
+      setCalendarData(updateFunction);
+    } else {
+      setPreviousCalendarData(updateFunction);
+    }
   };
 
   // Render appointment card
@@ -369,7 +417,16 @@ const WorkSchedule = () => {
           onClick={() => deleteAppointment(date, entry.id)}
           className="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs"
         >
-          Xóa
+          <FaTrash />
+        </button>
+        <button 
+          onClick={() => {
+            setEditingAppointment(entry);
+            setShowEditModal(true);
+          }}
+          className="bg-yellow-600 hover:bg-yellow-500 text-white px-2 py-1 rounded text-xs"
+        >
+          <FaEdit />
         </button>
       </div>
     </div>
@@ -409,7 +466,7 @@ const WorkSchedule = () => {
                   }}
                   className="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs"
                 >
-                  Xóa
+                  <FaTrash />
                 </button>
               </div>
               <div className="mt-1 text-gray-200">
@@ -429,6 +486,57 @@ const WorkSchedule = () => {
     </div>
   );
 
+  // State để theo dõi trang hiện tại
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // Lấy danh sách ngày dựa vào trang hiện tại
+  const getDatesForCurrentPage = () => {
+    const dates = getDatesInRange();
+    const startIndex = currentPage * 7;
+    const endIndex = startIndex + 7;
+    return dates.slice(startIndex, endIndex);
+  };
+
+  // Xử lý khi chuyển trang
+  const handlePageChange = (direction) => {
+    setCurrentPage(prevPage => prevPage + direction);
+  };
+
+  // Xử lý cập nhật lịch hẹn
+  const handleUpdateAppointment = () => {
+    if (currentWeek === 0) {
+      setCalendarData(prevData => {
+        const newData = {...prevData};
+        const date = Object.keys(newData).find(date => 
+          newData[date].some(app => app.id === editingAppointment.id)
+        );
+        
+        if (date) {
+          newData[date] = newData[date].map(app => 
+            app.id === editingAppointment.id ? editingAppointment : app
+          );
+        }
+        return newData;
+      });
+    } else {
+      setPreviousCalendarData(prevData => {
+        const newData = {...prevData};
+        const date = Object.keys(newData).find(date => 
+          newData[date].some(app => app.id === editingAppointment.id)
+        );
+        
+        if (date) {
+          newData[date] = newData[date].map(app => 
+            app.id === editingAppointment.id ? editingAppointment : app
+          );
+        }
+        return newData;
+      });
+    }
+    setShowEditModal(false);
+    setEditingAppointment(null);
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-900 text-gray-100">
       {/* Sidebar */}
@@ -440,64 +548,15 @@ const WorkSchedule = () => {
         <div className="bg-gray-800 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl text-white">Lịch làm việc</h1>
-            <div className="flex space-x-2">
-              <button 
-                onClick={() => setCurrentWeek(-1)}
-                className={`px-3 py-1 rounded ${currentWeek === -1 ? 'bg-blue-600' : 'bg-gray-700'}`}
-              >
-                Tuần 22/02 - 28/02
-              </button>
-              <button 
-                onClick={() => setCurrentWeek(0)}
-                className={`px-3 py-1 rounded ${currentWeek === 0 ? 'bg-blue-600' : 'bg-gray-700'}`}
-              >
-                Tuần 10/03 - 16/03
-              </button>
-            </div>
           </div>
           
-          {/* Date range selector */}
-          <div className="flex flex-wrap items-center gap-4 mb-4">
-            <div className="flex items-center">
-              <label className="text-sm text-gray-400 mr-2">Từ ngày:</label>
-              <input 
-                type="date" 
-                name="startDate"
-                value={dateRange.startDate}
-                onChange={handleDateRangeChange}
-                className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm"
-              />
-            </div>
-            <div className="flex items-center">
-              <label className="text-sm text-gray-400 mr-2">Đến ngày:</label>
-              <input 
-                type="date" 
-                name="endDate"
-                value={dateRange.endDate}
-                onChange={handleDateRangeChange}
-                className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm"
-              />
-            </div>
-            <div className="text-sm text-gray-300 bg-gray-700 px-3 py-1 rounded">
-              Đang xem: {dateRange.startDate} - {dateRange.endDate}
-            </div>
-          </div>
-
           {/* Search and Create buttons */}
           <div className="flex flex-wrap gap-2">
-            <div className="flex-1 flex items-center gap-2">
-              <button
-                onClick={searchAppointments}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded w-full"
-              >
-                Hiển thị tất cả lịch hẹn
-              </button>
-            </div>
             <button
               onClick={() => setShowCreateModal(true)}
               className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded flex items-center"
             >
-              <span className="mr-1">+</span> Tạo lịch mới
+              <FaPlus className="mr-1" /> Tạo lịch mới
             </button>
           </div>
         </div>
@@ -529,11 +588,11 @@ const WorkSchedule = () => {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr>
-                    {getDatesInRange().map((date, index) => (
+                    {getDatesForCurrentPage().map((date, index) => (
                       <th 
                         key={date} 
                         className={`bg-gray-800 p-3 font-medium ${
-                          index < getDatesInRange().length - 1 ? 'border-r border-gray-600' : ''
+                          index < getDatesForCurrentPage().length - 1 ? 'border-r border-gray-600' : ''
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -550,7 +609,7 @@ const WorkSchedule = () => {
                 </thead>
                 <tbody>
                   <tr>
-                    {getDatesInRange().map((date, index) => {
+                    {getDatesForCurrentPage().map((date, index) => {
                       const activeData = getActiveCalendarData();
                       const appointments = activeData[date] || [];
                       const hasData = appointments.length > 0;
@@ -559,7 +618,7 @@ const WorkSchedule = () => {
                         <td 
                           key={date} 
                           className={`bg-gray-800 p-3 align-top ${
-                            index < getDatesInRange().length - 1 ? 'border-r border-gray-600' : ''
+                            index < getDatesForCurrentPage().length - 1 ? 'border-r border-gray-600' : ''
                           }`}
                         >
                           {hasData ? (
@@ -577,6 +636,22 @@ const WorkSchedule = () => {
                   </tr>
                 </tbody>
               </table>
+              <div className="flex justify-between mt-4">
+                <button 
+                  onClick={() => handlePageChange(-1)}
+                  disabled={currentPage === 0}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded"
+                >
+                  Trước
+                </button>
+                <button 
+                  onClick={() => handlePageChange(1)}
+                  disabled={(currentPage + 1) * 7 >= getDatesInRange().length}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded"
+                >
+                  Sau
+                </button>
+              </div>
             </div>
 
             {/* Mobile view - Single day schedule */}
@@ -634,16 +709,35 @@ const WorkSchedule = () => {
             <h3 className="text-xl font-bold mb-4 text-white">Tạo lịch làm việc mới</h3>
             
             <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-400 mb-2">Chọn tuần:</label>
+              <div className="grid grid-cols-1 gap-2 mb-4">
+                {weeks.map((week) => (
+                  <button
+                    key={week.id}
+                    onClick={() => handleWeekSelection(week.id)}
+                    className={`px-3 py-2 rounded-md text-left ${
+                      newAppointment.weekSelection === week.id
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                    }`}
+                  >
+                    {week.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-4">
               <label className="block text-sm font-medium text-gray-400 mb-2">Chọn ngày:</label>
               <input 
                 type="date" 
                 name="date"
-                value={newAppointment.date}
+                value={newAppointment.date || ""}
                 onChange={handleNewAppointmentChange}
-                className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+                className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm w-full"
               />
             </div>
-            
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-400 mb-2">Chọn bác sĩ:</label>
               <div className="flex justify-between mb-2">
@@ -691,6 +785,48 @@ const WorkSchedule = () => {
                 className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded"
               >
                 Tạo lịch
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal chỉnh sửa */}
+      {showEditModal && editingAppointment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4 text-white">Chỉnh sửa lịch làm việc</h3>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-400 mb-2">Chọn bác sĩ:</label>
+              <select
+                value={editingAppointment.doctor}
+                onChange={(e) => setEditingAppointment({...editingAppointment, doctor: e.target.value})}
+                className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm w-full"
+              >
+                {doctors.map(doctor => (
+                  <option key={doctor} value={doctor}>
+                    {doctor}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button 
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingAppointment(null);
+                }}
+                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded"
+              >
+                Hủy
+              </button>
+              <button 
+                onClick={handleUpdateAppointment}
+                className="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded"
+              >
+                Cập nhật
               </button>
             </div>
           </div>
