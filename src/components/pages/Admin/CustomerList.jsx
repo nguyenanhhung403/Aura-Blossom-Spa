@@ -4,7 +4,7 @@ import { FaSearch, FaTrash, FaEdit, FaCheck, FaTimes } from "react-icons/fa";
 import Sidebar from "../Admin/SideBar";
 
 const UserList = () => {
-  // Mảng người dùng mẫu với các trường: id, username, email, fullname, phone
+  // Mảng người dùng mẫu với các trường: id, username, email, fullname, phone, role
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -12,6 +12,7 @@ const UserList = () => {
       email: "john@example.com",
       fullname: "John Doe",
       phone: "0123456789",
+      role: "user",
     },
     {
       id: 2,
@@ -19,6 +20,7 @@ const UserList = () => {
       email: "jane@example.com",
       fullname: "Jane Smith",
       phone: "0987654321",
+      role: "staff",
     },
     {
       id: 3,
@@ -26,6 +28,7 @@ const UserList = () => {
       email: "tom@example.com",
       fullname: "Tom Lê",
       phone: "0909123456",
+      role: "user",
     },
     {
       id: 4,
@@ -33,6 +36,7 @@ const UserList = () => {
       email: "mary@example.com",
       fullname: "Mary Phạm",
       phone: "0978123454",
+      role: "staff",
     },
     {
       id: 5,
@@ -40,6 +44,7 @@ const UserList = () => {
       email: "anna@example.com",
       fullname: "Anna Trần",
       phone: "0912987654",
+      role: "user",
     },
   ]);
 
@@ -51,7 +56,8 @@ const UserList = () => {
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phone.includes(searchTerm)
+      user.phone.includes(searchTerm) ||
+      user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Chỉnh sửa người dùng
@@ -128,6 +134,7 @@ const UserList = () => {
                 <th className="border border-gray-600 p-2">Email</th>
                 <th className="border border-gray-600 p-2">Fullname</th>
                 <th className="border border-gray-600 p-2">Phone</th>
+                <th className="border border-gray-600 p-2">Role</th>
                 <th className="border border-gray-600 p-2">Sửa</th>
                 <th className="border border-gray-600 p-2">Xóa</th>
               </tr>
@@ -190,6 +197,21 @@ const UserList = () => {
                           className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         />
                       </td>
+                      <td className="border border-gray-600 p-1">
+                        <select
+                          value={editedUser.role}
+                          onChange={(e) =>
+                            setEditedUser((prev) => ({
+                              ...prev,
+                              role: e.target.value,
+                            }))
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                        >
+                          <option value="user">User</option>
+                          <option value="staff">Staff</option>
+                        </select>
+                      </td>
                       <td className="border border-gray-600 p-2">
                         <button
                           onClick={() => handleSaveEdit(user.id)}
@@ -213,6 +235,15 @@ const UserList = () => {
                       <td className="border border-gray-600 p-2">{user.email}</td>
                       <td className="border border-gray-600 p-2">{user.fullname}</td>
                       <td className="border border-gray-600 p-2">{user.phone}</td>
+                      <td className="border border-gray-600 p-2">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          user.role === "staff" 
+                            ? "bg-blue-900 text-blue-200" 
+                            : "bg-gray-700 text-gray-300"
+                        }`}>
+                          {user.role === "staff" ? "Staff" : "User"}
+                        </span>
+                      </td>
                       <td className="border border-gray-600 p-2">
                         <button
                           onClick={() => {
@@ -239,7 +270,7 @@ const UserList = () => {
               {filteredUsers.length === 0 && (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="8"
                     className="p-4 text-center text-red-400 font-semibold"
                   >
                     Không tìm thấy người dùng phù hợp!
