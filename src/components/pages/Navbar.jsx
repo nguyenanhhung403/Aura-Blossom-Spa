@@ -150,13 +150,13 @@ const Navbar = () => {
             </div>
           ) : (
             <>
-              <button
-                onClick={handleGuestLogin}
+              {/* <button
+                // onClick={handleGuestLogin}
                 className="px-4 py-2 text-xl font-bold border border-[#446E6A] text-[#446E6A] rounded hover:bg-[#446E6A] hover:text-white transition"
                 style={{ fontFamily: "Roboto, sans-serif" }}
               >
                 Xem với tư cách khách
-              </button>
+              </button> */}
               <Link to="/login">
                 <button
                   className="px-4 py-2 text-xl font-bold border border-[#446E6A] text-[#446E6A] rounded hover:bg-[#446E6A] hover:text-white transition"
