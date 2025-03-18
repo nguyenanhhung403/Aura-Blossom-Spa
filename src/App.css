@@ -289,6 +289,8 @@ box-shadow: 0 8px 24px rgba(20, 84, 78, 0.3);
   margin: 0; /* Loại bỏ khoảng trống */
   background-color: #8ea396; /* Màu xanh matcha */
   border-radius: 0; /* Loại bỏ bo góc để full width thực sự */
+  overflow-x: hidden; /* Ẩn thanh cuộn ngang */
+  overflow-y: hidden; /* Ẩn thanh cuộn dọc */
 }
 /* Điều chỉnh container bên ngoài nếu có */
 .quiz-slider-container {
@@ -593,6 +595,7 @@ box-shadow: 0 8px 24px rgba(20, 84, 78, 0.3);
   margin: 0; /* Loại bỏ khoảng trống */
   background-color: #8ea396; /* Màu xanh matcha */
   border-radius: 0; /* Loại bỏ bo góc để full width thực sự */
+  overflow: hidden;
 }
 /* Điều chỉnh container bên ngoài nếu có */
 .quiz-slider-container {

@@ -28,6 +28,15 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // const guestUser = {
+  //   displayName: "Khách",
+  //   email: "guest@example.com"
+  // };
+
+  // const handleGuestLogin = () => {
+  //   setUser(guestUser);
+  // };
+
   const handleLogout = async () => {
     try {
         await local.signOut();
@@ -84,52 +93,76 @@ const Navbar = () => {
               >
                 {user.displayName}
               </span>
-              <div
-                className="relative"
-                onMouseEnter={toggleDropdown}
-                onMouseLeave={toggleDropdown}
+              <button
+                onClick={toggleDropdown}
+                className="relative flex items-center focus:outline-none"
+                aria-label="Mở menu người dùng"
               >
                 <FontAwesomeIcon
                   icon={faUserCircle}
-                  className="text-3xl text-[#446E6A] hover:text-[#375955] transition cursor-pointer"
+                  className={`text-3xl ${
+                    isDropdownOpen ? 'text-[#375955]' : 'text-[#446E6A]'
+                  } hover:text-[#375955] transition-colors duration-200`}
                 />
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-1 w-48 bg-[#446E6A] border border-gray-200 rounded-lg shadow-lg z-50">
+              </button>
+              {isDropdownOpen && (
+                <div 
+                  className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 transform transition-all duration-300 ease-in-out origin-top-right z-50"
+                >                  
+                  <div className="p-2">
                     <Link
                       to="/profile"
-                      className="block px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 flex items-center space-x-3"
                     >
-                      <FontAwesomeIcon icon={faUser} />
+                      <FontAwesomeIcon icon={faUser} className="text-[#446E6A] w-5 h-5" />
                       <span>Thông tin tài khoản</span>
 
                     </Link>
+                    
                     <Link
                       to="/support"
-                      className="block px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 flex items-center space-x-3"
                     >
-                      <FontAwesomeIcon icon={faComments} />
+                      <FontAwesomeIcon icon={faComments} className="text-[#446E6A] w-5 h-5" />
                       <span>Hỗ trợ</span>
                     </Link>
+                    
                     <Link
                       to="/history"
-                      className="block px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 flex items-center space-x-3"
                     >
-                      <FontAwesomeIcon icon={faHistory} />
+                      <FontAwesomeIcon icon={faHistory} className="text-[#446E6A] w-5 h-5" />
                       <span>Lịch sử</span>
                     </Link>
+                  </div>
+
+                  <div className="border-t border-gray-100 p-2">
                     <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full px-4 py-3 text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 flex items-center space-x-3"
                     >
-                      <FontAwesomeIcon icon={faSignOutAlt} />
+                      <FontAwesomeIcon icon={faSignOutAlt} className="w-5 h-5" />
                       <span>Đăng xuất</span>
                     </button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           ) : (
             <>
+              {/* <button
+                // onClick={handleGuestLogin}
+                className="px-4 py-2 text-xl font-bold border border-[#446E6A] text-[#446E6A] rounded hover:bg-[#446E6A] hover:text-white transition"
+                style={{ fontFamily: "Roboto, sans-serif" }}
+              >
+                Xem với tư cách khách
+              </button> */}
               <Link to="/login">
                 <button
                   className="px-4 py-2 text-xl font-bold border border-[#446E6A] text-[#446E6A] rounded hover:bg-[#446E6A] hover:text-white transition"

@@ -20,24 +20,24 @@ import {
 const Services = () => {
   // Mảng dịch vụ mẫu
   const [services, setServices] = useState([
-    {
-      id: 1,
-      category: null,
-      name: "Cắt tóc",
-      thumbnail: "",
-      price: 30,
-      duration: "30 phút",
-      description: "Dịch vụ cắt tóc cơ bản.",
-    },
-    {
-      id: 2,
-      category: null,
-      name: "Chăm sóc da mặt",
-      thumbnail: "",
-      price: 50,
-      duration: "45 phút",
-      description: "Dịch vụ làm sạch da mặt và thư giãn.",
-    },
+    // {
+    //   id: 1,
+    //   category: null,
+    //   name: "Cắt tóc",
+    //   thumbnail: "",
+    //   price: 30,
+    //   duration: "30 phút",
+    //   description: "Dịch vụ cắt tóc cơ bản.",
+    // },  
+    // {
+    //   id: 2,
+    //   category: null,
+    //   name: "Chăm sóc da mặt",
+    //   thumbnail: "",
+    //   price: 50,
+    //   duration: "45 phút",
+    //   description: "Dịch vụ làm sạch da mặt và thư giãn.",
+    // },
   ]);
 
   const [categories, setCategories] = useState([]);
@@ -63,6 +63,17 @@ const Services = () => {
   const [addErrors, setAddErrors] = useState({});
   const fileInputRef = useRef(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
+
+  // State cho category
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategory, setNewCategory] = useState({
+    name: "",
+    description: "",
+    signature: false,
+  });
+  const [categoryErrors, setCategoryErrors] = useState({});
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [editedCategory, setEditedCategory] = useState({});
 
   const handleInputChange = (e, setter) => {
     const { name, value } = e.target;
@@ -182,6 +193,64 @@ const Services = () => {
     }
   };
 
+  // Thêm category mới
+  const handleAddCategory = () => {
+    const errors = {};
+    if (!newCategory.name.trim()) {
+      errors.name = "Tên category không được để trống";
+    }
+    if (!newCategory.description.trim()) {
+      errors.description = "Mô tả không được để trống";
+    }
+    if (Object.keys(errors).length > 0) {
+      setCategoryErrors(errors);
+      return;
+    }
+    const newCat = {
+      id: Date.now(),
+      name: newCategory.name,
+      description: newCategory.description,
+      signature: newCategory.signature,
+    };
+    setCategories((prev) => [...prev, newCat]);
+    setNewCategory({ name: "", description: "", signature: false });
+    setCategoryErrors({});
+    setIsAddingCategory(false);
+  };
+
+  // Bắt đầu chỉnh sửa category
+  const handleStartEditCategory = (category) => {
+    setEditingCategoryId(category.id);
+    setEditedCategory(category);
+  };
+
+  // Lưu chỉnh sửa category
+  const handleSaveEditCategory = () => {
+    setCategories((prev) =>
+      prev.map((cat) =>
+        cat.id === editingCategoryId ? editedCategory : cat
+      )
+    );
+    setEditingCategoryId(null);
+    setEditedCategory({});
+  };
+
+  // Hủy chỉnh sửa category
+  const handleCancelEditCategory = () => {
+    setEditingCategoryId(null);
+    setEditedCategory({});
+  };
+
+  // Xóa category
+  const handleDeleteCategory = (id) => {
+    const hasServices = services.some((service) => service.categoryId === id);
+    if (hasServices) {
+      alert("Không thể xóa category khi vẫn còn dịch vụ thuộc category này!");
+      return;
+    }
+    setCategories((prev) => prev.filter((cat) => cat.id !== id));
+  };
+
   useEffect(() => {
     const fetchCategories = async () => {
       const res = await getAllServiceCategories();
@@ -217,6 +286,202 @@ const Services = () => {
           >
             &larr; Trở về
           </Link>
+        </div>
+
+        {/* Quản lý Category */}
+        <div className="bg-gray-800 p-3 mt-3 border border-gray-700 rounded">
+          <div className="mb-2 font-semibold text-gray-200">Quản lý Category</div>
+          <div className="flex space-x-2 mb-2">
+            <button
+              onClick={() => setIsAddingCategory(true)}
+              className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
+            >
+              Thêm Category
+            </button>
+          </div>
+
+          {isAddingCategory && (
+            <div className="mb-2">
+              <input
+                type="text"
+                placeholder="Tên category"
+                value={newCategory.name}
+                onChange={(e) =>
+                  setNewCategory((prev) => ({ ...prev, name: e.target.value }))
+                }
+                className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+              />
+              {categoryErrors.name && (
+                <p className="text-red-400 text-sm">{categoryErrors.name}</p>
+              )}
+              <input
+                type="text"
+                placeholder="Mô tả"
+                value={newCategory.description}
+                onChange={(e) =>
+                  setNewCategory((prev) => ({ ...prev, description: e.target.value }))
+                }
+                className="border p-1 bg-gray-700 border-gray-600 text-white w-full mt-2"
+              />
+              {categoryErrors.description && (
+                <p className="text-red-400 text-sm">{categoryErrors.description}</p>
+              )}
+              <div className="flex items-center mt-2">
+                <select
+                  value={newCategory.signature ? "Có" : "Không"}
+                  onChange={(e) =>
+                    setNewCategory((prev) => ({
+                      ...prev,
+                      signature: e.target.value === "Có",
+                    }))
+                  }
+                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+                >
+                  <option value="Có">Có</option>
+                  <option value="Không">Không</option>
+                </select>
+              </div>
+              <div className="flex space-x-2 mt-2">
+                <button
+                  onClick={handleAddCategory}
+                  className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                >
+                  Lưu
+                </button>
+                <button
+                  onClick={() => {
+                    setIsAddingCategory(false);
+                    setCategoryErrors({});
+                    setNewCategory({ name: "", description: "", signature: false });
+                  }}
+                  className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          )}
+
+          <table className="w-full border-collapse border border-gray-700 text-center">
+            <thead className="bg-gray-700 text-gray-300">
+              <tr>
+                <th className="border border-gray-600 p-2">ID</th>
+                <th className="border border-gray-600 p-2">Tên Category</th>
+                <th className="border border-gray-600 p-2">Mô tả</th>
+                <th className="border border-gray-600 p-2">Signature</th>
+                <th className="border border-gray-600 p-2">Sửa</th>
+                <th className="border border-gray-600 p-2">Xóa</th>
+              </tr>
+            </thead>
+            <tbody className="bg-gray-800 text-gray-200">
+              {categories.map((cat) => (
+                <tr key={cat.id} className="hover:bg-gray-700">
+                  <td className="border border-gray-600 p-2">{cat.id}</td>
+                  {cat.id === editingCategoryId ? (
+                    <>
+                      <td className="border border-gray-600 p-1">
+                        <input
+                          type="text"
+                          value={editedCategory.name}
+                          onChange={(e) =>
+                            setEditedCategory((prev) => ({
+                              ...prev,
+                              name: e.target.value,
+                            }))
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                        />
+                      </td>
+                      <td className="border border-gray-600 p-1">
+                        <input
+                          type="text"
+                          value={editedCategory.description}
+                          onChange={(e) =>
+                            setEditedCategory((prev) => ({
+                              ...prev,
+                              description: e.target.value,
+                            }))
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                        />
+                      </td>
+                      <td className="border border-gray-600 p-1">
+                        <select
+                          value={editedCategory.signature ? "Có" : "Không"}
+                          onChange={(e) =>
+                            setEditedCategory((prev) => ({
+                              ...prev,
+                              signature: e.target.value === "Có",
+                            }))
+                          }
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
+                        >
+                          <option value="Có">Có</option>
+                          <option value="Không">Không</option>
+                        </select>
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        <button
+                          onClick={handleSaveEditCategory}
+                          className="text-green-400 hover:text-green-200"
+                        >
+                          <FaCheck />
+                        </button>
+                        <button
+                          onClick={handleCancelEditCategory}
+                          className="text-red-400 hover:text-red-200 ml-2"
+                        >
+                          <FaTimes />
+                        </button>
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        <button
+                          onClick={() => handleDeleteCategory(cat.id)}
+                          className="text-red-400 hover:text-red-200"
+                        >
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="border border-gray-600 p-2">{cat.name}</td>
+                      <td className="border border-gray-600 p-2">{cat.description}</td>
+                      <td className="border border-gray-600 p-2">
+                        {cat.signature ? "Có" : "Không"}
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        <button
+                          onClick={() => handleStartEditCategory(cat)}
+                          className="text-blue-400 hover:text-blue-200"
+                        >
+                          <FaEdit />
+                        </button>
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        <button
+                          onClick={() => handleDeleteCategory(cat.id)}
+                          className="text-red-400 hover:text-red-200"
+                        >
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+              {categories.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="p-4 text-center text-red-400 font-semibold"
+                  >
+                    Không có category nào!
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
         {/* Tiêu đề */}
@@ -292,10 +557,12 @@ const Services = () => {
                 <input
                   type="number"
                   name="price"
-                  placeholder="Giá"
+                  placeholder="Giá (VNĐ)"
                   value={newService.price}
                   onChange={(e) => handleInputChange(e, setNewService)}
                   className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+                  min="0"
+                  step="1000"
                 />
                 {addErrors.price && (
                   <p className="text-red-400 text-sm">{addErrors.price}</p>
@@ -304,12 +571,14 @@ const Services = () => {
               {/* Thời gian */}
               <div>
                 <input
-                  type="text"
+                  type="number"
                   name="duration"
-                  placeholder="Thời gian"
+                  placeholder="Thời gian (phút)"
                   value={newService.duration}
                   onChange={(e) => handleInputChange(e, setNewService)}
                   className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+                  min="0"
+                  step="5"
                 />
                 {addErrors.duration && (
                   <p className="text-red-400 text-sm">{addErrors.duration}</p>
@@ -470,7 +739,7 @@ const Services = () => {
                       </td>
                       <td className="border border-gray-600 p-1">
                         <input
-                          type="text"
+                          type="number"
                           value={editedService.duration}
                           onChange={(e) =>
                             setEditedService((prev) => ({
