@@ -97,13 +97,13 @@ const Navbar = () => {
                       <FontAwesomeIcon icon={faUser} />
                       <span>Thông tin tài khoản</span>
                     </Link>
-                    <Link
+                    {/* <Link
                       to="/support"
                       className="block px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
                     >
                       <FontAwesomeIcon icon={faComments} />
                       <span>Hỗ trợ</span>
-                    </Link>
+                    </Link> */}
                     <Link
                       to="/history"
                       className="block px-4 py-2 text-white hover:bg-[#375955] flex items-center space-x-2"
@@ -188,7 +188,7 @@ const Navbar = () => {
             <span>Trắc nghiệm</span>
           </a>
           <a
-            href="/#staff"
+            href="/therapist"
             className="hover:text-[#446E6A] transition flex items-center space-x-2"
           >
             <FontAwesomeIcon icon={faUsers} />

@@ -6,7 +6,7 @@ import AboutSection from './Sections/AboutSection';
 import ServicesSection from './Sections/ServicesSection';
 import QuizSection from './Sections/QuizSection';
 // import CTASection from './Sections/CTASection';
-import StaffSection from './Sections/StaffSection';
+// import StaffSection from './Sections/StaffSection';
 import FeedbackSection from './Sections/FeedbackSection';
 import Footer from './Footer';
 import ContactUs from './ContactUs';
@@ -26,7 +26,7 @@ const Home = () => {
                 {/* <CTASection /> */}
                 <CustomerFavorites/>
                 <ExpertStandards/>
-                <StaffSection />
+                {/* <StaffSection /> */}
                 <FeedbackSection />
                 <ContactUs />
                 {/* <QuizSection /> */}

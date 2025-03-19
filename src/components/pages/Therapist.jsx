@@ -55,7 +55,18 @@ const Therapist = () => {
               loop={true}
             >
               {therapists.map(
-                ({ img, name, experience, workplace, specialties, achievements, philosophy }, index) => (
+                (
+                  {
+                    img,
+                    name,
+                    experience,
+                    workplace,
+                    specialties,
+                    achievements,
+                    philosophy,
+                  },
+                  index
+                ) => (
                   <SwiperSlide key={index}>
                     <div className="therapist-slide">
                       <div className="therapist-img">
@@ -63,7 +74,9 @@ const Therapist = () => {
                         <h3>{name}</h3>
                       </div>
                       <div className="therapist-info">
-                        <h4>Kinh nghiệm: <span>{experience}</span></h4>
+                        <h4>
+                          Kinh nghiệm: <span>{experience}</span>
+                        </h4>
                         <h4>Nơi công tác:</h4>
                         <ul>
                           {workplace?.map((place, i) => (
