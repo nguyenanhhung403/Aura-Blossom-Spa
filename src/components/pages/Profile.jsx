@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { FaUser, FaEdit } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getMyInfor, updateUser } from "../service/userApi";
 import Navbar from "./Navbar";
 import ContactUs from "./ContactUs";
 import Footer from "./Footer";
 
 const UserProfile = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("personal");
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,31 +15,30 @@ const UserProfile = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
-   
   });
 
-  // Fetch user data
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await getMyInfor();
-        console.log("Fetched user data:", response);
-        
-        if (response && response.code === 1000) {
-          setUserData(response.result);
-          setFormData({
-            fullName: response.result.fullname || '',
-            phone: response.result.phone || ''
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setError("Không thể tải dữ liệu người dùng");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const navigate = useNavigate();
 
+  // Fetch user data
+  const fetchUserData = async () => {
+    try {
+      const response = await getMyInfor();
+      if (response && response.code === 1000) {
+        setUserData(response.result);
+        setFormData({
+          fullName: response.result.fullname || '',
+          phone: response.result.phone || ''
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError("Không thể tải dữ liệu người dùng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUserData();
   }, []);
 
@@ -63,23 +61,14 @@ const UserProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Starting update with data:", {
-        id: userData.id,
-        fullname: formData.fullName,
-        phone: formData.phone
-      });
-
       const response = await updateUser(userData.id, {
         fullName: formData.fullName,
         phone: formData.phone
       });
 
-      console.log("Update response:", response);
-
       if (response && response.code === 1000) {
         alert('Cập nhật thông tin thành công!');
-        // Refresh data ngay lập tức
-        await fetchUserData();
+        await fetchUserData(); // Refresh data ngay lập tức
         setIsEditing(false);
       } else {
         throw new Error(response?.message || 'Cập nhật thất bại');
@@ -90,20 +79,9 @@ const UserProfile = () => {
     }
   };
 
-  // Thêm hàm fetchUserData riêng
-  const fetchUserData = async () => {
-    try {
-      const response = await getMyInfor();
-      if (response && response.code === 1000) {
-        setUserData(response.result);
-        setFormData({
-          fullName: response.result.fullname || '',
-          phone: response.result.phone || ''
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
+  // Thêm hàm xử lý chuyển trang
+  const handleHistoryClick = () => {
+    navigate('/history');
   };
 
   return (
@@ -128,11 +106,11 @@ const UserProfile = () => {
           >
             <FaUser /> Thông tin cá nhân
           </button>
-          <button
+          <button 
             className={`px-6 py-2 text-lg ${
               activeTab === "history" ? "font-bold border-b-2 border-brown-500" : ""
             }`}
-            onClick={() => setActiveTab("history")}
+            onClick={handleHistoryClick}
           >
             Lịch sử
           </button>

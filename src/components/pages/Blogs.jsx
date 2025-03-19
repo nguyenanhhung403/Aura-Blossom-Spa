@@ -4,27 +4,6 @@ import ContactUs from "./ContactUs";
 import Footer from "./Footer";
 import { getAllBlogs } from "../service/blogApi.js"; // Import hàm getAllBlogs từ blogApi.js
 
-// Dữ liệu mẫu để sử dụng khi API lỗi
-const SAMPLE_BLOGS = [
-  {
-    id: 1,
-    title: "Bí quyết chăm sóc da mùa đông",
-    content: "Mùa đông làn da thường khô và thiếu nước. Hãy sử dụng kem dưỡng ẩm đậm đặc và uống nhiều nước...",
-    thumbnail: "https://placehold.co/600x400?text=Skin+Care"
-  },
-  {
-    id: 2,
-    title: "Cách chọn son môi phù hợp với tông da",
-    content: "Để chọn được màu son phù hợp, bạn cần xác định tông da của mình là nóng hay lạnh...",
-    thumbnail: "https://placehold.co/600x400?text=Lipstick"
-  },
-  {
-    id: 3,
-    title: "Bí quyết trang điểm tự nhiên cho công sở",
-    content: "Trang điểm nhẹ nhàng, tự nhiên là xu hướng được nhiều cô gái văn phòng yêu thích...",
-    thumbnail: "https://placehold.co/600x400?text=Office+Makeup"
-  }
-];
 
 const BeautyTips = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,28 +14,31 @@ const BeautyTips = () => {
   const fetchBlogs = async () => {
     try {
       const data = await getAllBlogs();
-      // Kiểm tra dữ liệu trước khi đặt vào state
-      if (Array.isArray(data)) {
-        setBlogs(data);
-      } else if (data && Array.isArray(data.result)) {
-        setBlogs(data.result);
-      } else {
-        console.error("Dữ liệu không đúng định dạng:", data);
+      console.log("Dữ liệu API trả về:", data);
+  
+      if (!data || typeof data !== "object") {
+        console.error("Dữ liệu API không hợp lệ:", data);
         setBlogs([]);
+        return;
       }
+  
+      if (!Array.isArray(data.result)) {
+        console.error("Dữ liệu blogs không phải mảng:", data.result);
+        setBlogs([]);
+        return;
+      }
+  
+      setBlogs(data.result);
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu blog:", error);
+      console.error("Lỗi khi lấy dữ liệu blogs:", error);
       setBlogs([]);
     }
   };
+  
 
   useEffect(() => {
-    // Xóa dòng sử dụng dữ liệu mẫu
-    // setBlogs(SAMPLE_BLOGS);
-    
-    // Gọi API để lấy dữ liệu thật
-    fetchBlogs();
-  }, []);
+    console.log("Danh sách blogs sau khi cập nhật state:", blogs);
+  }, [blogs]);
 
   // Nếu có nhiều hơn 6 blog thì chia trang, ngược lại hiển thị tất cả
   const itemsPerPage = 6;

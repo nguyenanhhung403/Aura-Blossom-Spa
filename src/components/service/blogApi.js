@@ -38,19 +38,35 @@ export const createBlog = async (blogData, thumbnail) => {
 
 export const updateBlog = async (id, blogData, thumbnail) => {
     try {
+        if (!id) {
+            throw new Error("ID blog không được để trống");
+        }
+
+        console.log("Calling updateBlog API with ID:", id);
+        console.log("Blog data:", blogData);
+        
         const formData = new FormData();
-        formData.append("blog", new Blob([JSON.stringify(blogData)], { type: "application/json" }));
-        if (thumbnail) formData.append("thumbnail", thumbnail);
+        formData.append("blog", new Blob([JSON.stringify({
+            title: blogData.title,
+            content: blogData.content
+        })], { type: "application/json" }));
+        
+        if (thumbnail) {
+            formData.append("thumbnail", thumbnail);
+        }
 
         const response = await api.put(`/api/blogs/update/${id}`, formData, {
-            headers: { "Content-Type": "multipart/form-data" }
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
         });
+        
         return response.data;
     } catch (error) {
-        handleError(error);
-        return null; // hoặc throw error tùy use case
+        console.error("Error in updateBlog API:", error);
+        throw error;
     }
-};
+}; 
 
 export const deleteBlog = async (id) => {
     try {

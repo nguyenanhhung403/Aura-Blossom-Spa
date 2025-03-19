@@ -7,10 +7,10 @@ import HistoryBanner from "../images/HistoryImg/history-banner.jpg";
 const History = () => {
   const navigate = useNavigate();
 
-  if (!localStorage.getItem("isLoggedIn")) {
-    window.location.href = "/login"; 
-    return null;
-  }
+  // if (!localStorage.getItem("isLoggedIn")) {
+  //   window.location.href = "/login"; 
+  //   return null;
+  // }
 
   const [activeTable, setActiveTable] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,31 +20,31 @@ const History = () => {
   const [previousServices, setPreviousServices] = useState([]);
   const itemsPerPage = 3;
 
-  useEffect(() => {
-    // Giả định API sẽ được gắn vào đây
-    const fetchUpcomingAppointments = async () => {
-      try {
-        const response = await fetch("API_URL_UPCOMING");
-        const data = await response.json();
-        setUpcomingAppointments(data);
-      } catch (error) {
-        console.error("Lỗi khi lấy lịch hẹn sắp tới:", error);
-      }
-    };
+  // useEffect(() => {
+  //   // Giả định API sẽ được gắn vào đây
+  //   // const fetchUpcomingAppointments = async () => {
+  //   //   try {
+  //   //     const response = await fetch("API_URL_UPCOMING");
+  //   //     const data = await response.json();
+  //   //     setUpcomingAppointments(data);
+  //   //   } catch (error) {
+  //   //     console.error("Lỗi khi lấy lịch hẹn sắp tới:", error);
+  //   //   }
+  //   // };
 
-    const fetchPreviousServices = async () => {
-      try {
-        const response = await fetch("API_URL_PREVIOUS");
-        const data = await response.json();
-        setPreviousServices(data);
-      } catch (error) {
-        console.error("Lỗi khi lấy dịch vụ trước đó:", error);
-      }
-    };
+  //   // const fetchPreviousServices = async () => {
+  //   //   try {
+  //   //     const response = await fetch("API_URL_PREVIOUS");
+  //   //     const data = await response.json();
+  //   //     setPreviousServices(data);
+  //   //   } catch (error) {
+  //   //     console.error("Lỗi khi lấy dịch vụ trước đó:", error);
+  //   //   }
+  //   // };
 
-    fetchUpcomingAppointments();
-    fetchPreviousServices();
-  }, []);
+  //   fetchUpcomingAppointments();
+  //   fetchPreviousServices();
+  // }, []);
 
   const getCurrentItems = () => {
     let data = activeTable === "upcoming" ? upcomingAppointments : previousServices;
