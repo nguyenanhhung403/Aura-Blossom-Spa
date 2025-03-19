@@ -39,7 +39,7 @@ const StarRating = ({ rating }) => (
 
 const FeedbackSection = () => {
     return (
-        <section id="feedback" className="w-full py-16 px-4 animate__animated animate__fadeInUp animate__delay-2s" style={{ backgroundColor: 'rgb(88, 137, 133)' }}>
+        <section id="feedback" className="w-full py-16 px-4 animate__animated animate__fadeInUp animate__delay-2s" style={{ backgroundColor: 'rgb(142, 163, 150)' }}>
             <div className="max-w-7xl mx-auto text-center">
                 <h2 className="text-3xl font-bold text-white mb-8">Feedback của khách hàng</h2>
                 <p className="text-center text-gray-200 max-w-2xl mx-auto mb-12">
@@ -59,12 +59,12 @@ const FeedbackSection = () => {
                 </div>
                 
                 <div className="mt-10 flex justify-center space-x-4">
-                    <Link 
+                    {/* <Link 
                         to="/rate-service" 
                         className="bg-white text-[rgb(88,137,133)] hover:bg-gray-100 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg"
                     >
                         Đánh giá dịch vụ
-                    </Link>
+                    </Link> */}
                     <Link 
                         to="/view-feedbacks" 
                         className="bg-transparent text-white border-2 border-white hover:bg-white hover:text-[rgb(88,137,133)] px-6 py-3 rounded-full font-medium transition-all duration-300"
