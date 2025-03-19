@@ -119,16 +119,7 @@ const Navbar = () => {
                       <span>Thông tin tài khoản</span>
 
                     </Link>
-                    
-                    <Link
-                      to="/support"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 flex items-center space-x-3"
-                    >
-                      <FontAwesomeIcon icon={faComments} className="text-[#446E6A] w-5 h-5" />
-                      <span>Hỗ trợ</span>
-                    </Link>
-                    
+
                     <Link
                       to="/history"
                       onClick={() => setIsDropdownOpen(false)}
@@ -227,7 +218,7 @@ const Navbar = () => {
             <span>Trắc nghiệm</span>
           </a>
           <a
-            href="/#staff"
+            href="/therapist"
             className="hover:text-[#446E6A] transition flex items-center space-x-2"
           >
             <FontAwesomeIcon icon={faUsers} />

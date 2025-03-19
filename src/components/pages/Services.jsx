@@ -10,6 +10,7 @@ import axios from "axios";
 import "../../App.css";
 import { getAllServices } from "../service/serviceApi";
 import { getAllServiceCategories } from "../service/serviceCategoryApi";
+import ServicesCarousel from "../Carousle";
 
 const ServicesTable = () => {
   const [services, setServices] = useState([]);
@@ -191,6 +192,11 @@ const ServicesTable = () => {
           </button>
         </div>
       </div>
+      <div>
+        <ServicesCarousel />
+      </div>
+      <br />
+      <br />
       <Footer />
     </>
   );

@@ -37,7 +37,8 @@ import StaffAppointments from './components/staff/StaffAppointments';
 import StaffHistory from './components/staff/StaffHistory';
 import StaffFeedback from './components/staff/StaffFeedback';
 import StaffSettings from './components/staff/StaffSettings';
-
+// Import therapist2 components
+import TherapistDashboard from './components/pages/therapist2/therapistDashboard';
 function App() {
     return (
         <Router>
@@ -57,6 +58,7 @@ function App() {
                     <Route path="/quiz" element={<Quiz />} />
                     <Route path='/history' element={<History/>}/>
                     <Route path='/therapist' element={<Therapist/>}/>
+
                     {/* Admin Routes */}
                     <Route path="/admin/*" element={<AminDashboard />} />
                     <Route path="/admin/services" element={<ServiceManagement />} />
@@ -81,6 +83,8 @@ function App() {
                         <Route path="feedback" element={<StaffFeedback />} />
                         <Route path="settings" element={<StaffSettings />} />
                     </Route>
+                    {/* therapist 2 routes */}
+                    <Route path="/therapist2" element={<TherapistDashboard />} />
                 </Routes>
             </UserProvider>
         </Router>
