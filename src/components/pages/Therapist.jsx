@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 import TherapistBanner from "../images/TherapistImg/TherapistBanner.jpg";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
-import axios from "axios";
+import { getAllTherapists } from "../service/therapistsApi";
 import "../../App.css";
 
 const Therapist = () => {
@@ -13,95 +13,92 @@ const Therapist = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("https://your-api-endpoint.com/api/therapists") // 🔹 Thay bằng API thật từ backend
-      .then((response) => {
-        setTherapists(response.data); // 🔹 Gán dữ liệu từ API vào state
+    const fetchTherapists = async () => {
+      try {
+        const response = await getAllTherapists();
+        if (response.result) {
+          setTherapists(response.result);
+        }
         setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
-        setError("Không thể tải danh sách bác sĩ");
+        setError("Không thể tải danh sách chuyên viên");
         setLoading(false);
-      });
+      }
+    };
+
+    fetchTherapists();
   }, []);
 
   return (
     <>
       <Navbar />
-      <div className="container">
-        {/* 🔹 Giữ nguyên phần banner */}
-        <div className="therapist-banner">
-          <img src={TherapistBanner} alt="therapist-banner" />
-          <h1>Bác sĩ điều trị</h1>
+      <div className="container mx-auto px-4 py-8">
+        <div className="therapist-banner relative mb-8">
+          <img 
+            src={TherapistBanner} 
+            alt="therapist-banner"
+            className="w-full h-[300px] object-cover rounded-lg" 
+          />
+          <h1 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-white">
+            Đội ngũ chuyên viên
+          </h1>
         </div>
 
-        {/* 🔹 Xử lý trạng thái tải dữ liệu */}
         {loading ? (
-          <p>Đang tải dữ liệu...</p>
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4">Đang tải dữ liệu...</p>
+          </div>
         ) : error ? (
-          <p>{error}</p>
+          <div className="text-center text-red-500 py-8">{error}</div>
         ) : therapists.length === 0 ? (
-          <p>Không có dữ liệu bác sĩ.</p>
+          <div className="text-center text-gray-500 py-8">Không có dữ liệu chuyên viên.</div>
         ) : (
           <div className="therapist-slider">
             <Swiper
               modules={[Navigation, Pagination, Autoplay]}
-              spaceBetween={20}
+              spaceBetween={30}
               slidesPerView={1}
               navigation
               pagination={{ clickable: true }}
-              autoplay={{ delay: 3000, disableOnInteraction: false }}
+              autoplay={{ delay: 5000, disableOnInteraction: false }}
               loop={true}
+              className="rounded-lg shadow-lg"
             >
-              {therapists.map(
-                (
-                  {
-                    img,
-                    name,
-                    experience,
-                    workplace,
-                    specialties,
-                    achievements,
-                    philosophy,
-                  },
-                  index
-                ) => (
-                  <SwiperSlide key={index}>
-                    <div className="therapist-slide">
-                      <div className="therapist-img">
-                        <img src={img} alt={name} />
-                        <h3>{name}</h3>
-                      </div>
-                      <div className="therapist-info">
-                        <h4>
-                          Kinh nghiệm: <span>{experience}</span>
+              {therapists.map((therapist) => (
+                <SwiperSlide key={therapist.id}>
+                  <div className="therapist-slide flex flex-col md:flex-row bg-white p-6 gap-8">
+                    <div className="therapist-img md:w-1/3">
+                      <img 
+                        src={therapist.image || "https://via.placeholder.com/300"} 
+                        alt={therapist.fullname}
+                        className="w-full h-[300px] object-cover rounded-lg shadow-md" 
+                      />
+                      <h3 className="text-2xl font-semibold text-center mt-4">{therapist.fullname}</h3>
+                    </div>
+                    <div className="therapist-info md:w-2/3">
+                      <div className="mb-4">
+                        <h4 className="text-lg font-semibold text-gray-700">
+                          Kinh nghiệm: <span className="font-normal">{therapist.experience} năm</span>
                         </h4>
-                        <h4>Nơi công tác:</h4>
-                        <ul>
-                          {workplace?.map((place, i) => (
-                            <li key={i}>{place}</li>
-                          ))}
-                        </ul>
-                        <h4>Chuyên môn:</h4>
-                        <ul>
-                          {specialties?.map((specialty, i) => (
-                            <li key={i}>{specialty}</li>
-                          ))}
-                        </ul>
-                        <h4>Thành tựu:</h4>
-                        <ul>
-                          {achievements?.map((achievement, i) => (
-                            <li key={i}>{achievement}</li>
-                          ))}
-                        </ul>
-                        <h4>Phương châm:</h4>
-                        <p>{philosophy}</p>
+                      </div>
+                      <div className="mb-4">
+                        <h4 className="text-lg font-semibold text-gray-700">Email:</h4>
+                        <p className="text-gray-600">{therapist.email}</p>
+                      </div>
+                      <div className="mb-4">
+                        <h4 className="text-lg font-semibold text-gray-700">Số điện thoại:</h4>
+                        <p className="text-gray-600">{therapist.phone}</p>
+                      </div>
+                      <div className="mb-4">
+                        <h4 className="text-lg font-semibold text-gray-700">Mô tả:</h4>
+                        <p className="text-gray-600">{therapist.description || "Chưa có mô tả"}</p>
                       </div>
                     </div>
-                  </SwiperSlide>
-                )
-              )}
+                  </div>
+                </SwiperSlide>
+              ))}
             </Swiper>
           </div>
         )}

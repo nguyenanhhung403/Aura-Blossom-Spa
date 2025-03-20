@@ -1,5 +1,6 @@
 import api, { handleError } from "./api.js";
 
+// Get all categories
 export const getAllServiceCategories = async () => {
     try {
         const response = await api.get('/api/categories');
@@ -9,6 +10,7 @@ export const getAllServiceCategories = async () => {
     }
 };
 
+// Get category by ID 
 export const getServiceCategoryById = async (id) => {
     try {
         const response = await api.get(`/api/categories/${id}`);
@@ -18,24 +20,35 @@ export const getServiceCategoryById = async (id) => {
     }
 };
 
-export const createServiceCategory = async (data) => {
+// Create new category
+export const createServiceCategory = async (categoryData) => {
     try {
-        const response = await api.post('/api/categories/create', data);
+        const response = await api.post('/api/categories/create', {
+            name: categoryData.name,
+            description: categoryData.description,
+            signature: categoryData.signature
+        });
         return response.data;
     } catch (error) {
         handleError(error);
     }
 };
 
-export const updateServiceCategory = async (id, data) => {
+// Update category
+export const updateServiceCategory = async (id, categoryData) => {
     try {
-        const response = await api.put(`/api/categories/update/${id}`, data);
+        const response = await api.put(`/api/categories/update/${id}`, {
+            name: categoryData.name,
+            description: categoryData.description, 
+            signature: categoryData.signature
+        });
         return response.data;
     } catch (error) {
         handleError(error);
     }
 };
 
+// Delete category
 export const deleteServiceCategory = async (id) => {
     try {
         const response = await api.delete(`/api/categories/delete/${id}`);
