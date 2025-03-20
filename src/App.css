@@ -1119,7 +1119,7 @@ td {
   margin-top: 5px;
 }
 
-.cancel-btn, .update-btn {
+.cancel-btn, .update-btn, .settime-btn {
   padding: 6px 10px;
   border: none;
   border-radius: 5px;
@@ -1160,7 +1160,7 @@ td {
 }
 
 
-.confirm-btn, .cancel-btn {
+.confirm-btn, .cancel-btn, .settime-btn {
   margin: 5px;
   padding: 5px 10px;
   border: none;
@@ -1174,6 +1174,10 @@ td {
 
 .cancel-btn {
   background: red;
+  color: white;
+}
+.settime-btn {
+  background: blue;
   color: white;
 }
 .review-btn{

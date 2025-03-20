@@ -39,8 +39,9 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-        await local.signOut();
+        // await local.signOut();
         localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
         localStorage.clear();
         sessionStorage.clear();
         setUser(null);

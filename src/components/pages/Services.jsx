@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Footer from "./Footer";
 import bannerserImg from "../images/SevivceImg/BannerServices.jpg";
 import Tech1Img from "../images/SevivceImg/tech1.jpg";
@@ -10,9 +10,11 @@ import axios from "axios";
 import "../../App.css";
 import { getAllServices } from "../service/serviceApi";
 import { getAllServiceCategories } from "../service/serviceCategoryApi";
-import ServicesCarousel from "../Carousle";
+import { useParams } from "react-router-dom";
 
 const ServicesTable = () => {
+  const { id } = useParams();
+
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true); // Trạng thái loading
@@ -52,8 +54,7 @@ const ServicesTable = () => {
   useEffect(() => {
     const fetchServices = async () => {
       const response = await getAllServices();
-      // Giới hạn chỉ lấy 4 dịch vụ đầu tiên
-      setServices(response.result.slice(0, 4));
+      setServices(response.result);
     };
     const fetchCategories = async () => {
       const response = await getAllServiceCategories();
@@ -62,6 +63,14 @@ const ServicesTable = () => {
     fetchCategories();
     fetchServices();
   }, []);
+
+  useEffect(() => {
+    if (id) {
+      const service = services.find((service) => service.id == id);
+      console.log(services);
+      setSelectedCategory(service?.category?.id);
+    }
+  }, [id, services]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const itemsPerPage = 3;
@@ -192,11 +201,6 @@ const ServicesTable = () => {
           </button>
         </div>
       </div>
-      <div>
-        <ServicesCarousel />
-      </div>
-      <br />
-      <br />
       <Footer />
     </>
   );

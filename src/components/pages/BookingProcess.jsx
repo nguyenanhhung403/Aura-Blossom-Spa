@@ -7,11 +7,12 @@ import QR from "../images/QRBanking/QR.jpg";
 import ContactUs from "./ContactUs";
 import { getAllTherapists } from "../service/therapistsApi";
 import { getAllServices } from "../service/serviceApi";
-import { getSlotsByDateAndTherapist } from "../service/slotApi";
+import { getAvailableSlotsByDate, getSlotsByDateAndTherapist } from "../service/slotApi";
 import { createAppointment } from "../service/appointmentApi";
 import { createVnPayPayment } from "../service/paymentApi";
 const BookingProcess = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState({});
 
   // Quản lý bước hiện tại: 1 - Thông tin đặt lịch, 2 - Chú ý, 3 - Thanh toán
   const [currentStep, setCurrentStep] = useState(1);
@@ -52,32 +53,66 @@ const BookingProcess = () => {
         console.error("Error fetching services:", error);
       }
     };
+    const fetchMyInfo = async () => {
+      if (
+        !localStorage.getItem("access_token") ||
+        !localStorage.getItem("user")
+      ) {
+        navigate("/login");
+        return;
+      }
+      setUser(JSON.parse(localStorage.getItem("user")));
+      setBookingData((prev) => ({
+        ...prev,
+        fullName: JSON.parse(localStorage.getItem("user")).fullname,
+        phone: JSON.parse(localStorage.getItem("user")).phone,
+      }));
+    };
+    fetchMyInfo();
     fetchServices();
     fetchTherapists();
   }, []);
 
   useEffect(() => {
     const fetchSlots = async () => {
-      if (bookingData.date) {
+      if (bookingData.date && bookingData.therapistId !== "") {
         try {
           const response = await getSlotsByDateAndTherapist(
             bookingData.date,
             bookingData.therapistId
           );
           const unsortedSlots = response.result || [];
-          if(unsortedSlots.length>0){
+          if (unsortedSlots.length > 0) {
             unsortedSlots.sort((a, b) => {
               let timeA = new Date(`1970-01-01T${a.time}`);
               let timeB = new Date(`1970-01-01T${b.time}`);
               return timeA - timeB;
             });
           }
-          setSlots(unsortedSlots)
+          setSlots(unsortedSlots);
         } catch (error) {
           console.error("Error fetching slots:", error);
           setSlots([]);
         }
-      } else {
+      } else if (bookingData.therapistId === "") {
+        try {
+          const response = await getAvailableSlotsByDate(
+            bookingData.date
+          );
+          const unsortedSlots = response.result || [];
+          if (unsortedSlots.length > 0) {
+            unsortedSlots.sort((a, b) => {
+              let timeA = new Date(`1970-01-01T${a.time}`);
+              let timeB = new Date(`1970-01-01T${b.time}`);
+              return timeA - timeB;
+            });
+          }
+          setSlots(unsortedSlots);
+        } catch (error) {
+          console.error("Error fetching slots:", error);
+          setSlots([]);
+        }
+      }else{
         setSlots([]);
       }
     };
@@ -98,7 +133,9 @@ const BookingProcess = () => {
         price: selectedService ? selectedService.price : "",
       }));
     } else if (name === "therapistId") {
-      const selectedTherapist = therapists.find((therapist) => therapist.id == value);
+      const selectedTherapist = therapists.find(
+        (therapist) => therapist.id == value
+      );
       setBookingData((prev) => ({
         ...prev,
         [name]: value,
@@ -124,10 +161,6 @@ const BookingProcess = () => {
 
   // Bước 1: Khi người dùng nhấn "Tiếp tục"
   const handleGoToPayment = () => {
-    if (!bookingData.fullName || !bookingData.phone) {
-      alert("Vui lòng nhập đầy đủ Họ và Tên, Số điện thoại!");
-      return;
-    }
     setCurrentStep(2);
   };
 
@@ -140,11 +173,11 @@ const BookingProcess = () => {
   const handleConfirmPaymentFinal = async () => {
     const appointmentResponse = await createAppointment(bookingData);
     const paymentRequest = {
-      amount: bookingData.price*0.3,
+      amount: bookingData.price * 0.3,
       appointmentId: appointmentResponse.result.id,
-    }
+    };
     const paymentResponse = await createVnPayPayment(paymentRequest);
-    window.location.href=paymentResponse.result.paymentUrl;
+    window.location.href = paymentResponse.result.paymentUrl;
   };
 
   return (
@@ -223,8 +256,8 @@ const BookingProcess = () => {
                   <input
                     type="text"
                     name="fullName"
-                    value={bookingData.fullName}
-                    onChange={handleInputChange}
+                    value={user.fullname}
+                    disabled
                     className="
                       w-full border rounded px-3 py-2 
                       focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
@@ -237,7 +270,8 @@ const BookingProcess = () => {
                   <input
                     type="tel"
                     name="phone"
-                    value={bookingData.phone}
+                    value={user.phone}
+                    disabled
                     onChange={handleInputChange}
                     className="
                       w-full border rounded px-3 py-2 
@@ -330,9 +364,13 @@ const BookingProcess = () => {
                         </button>
                       ))
                     ) : bookingData.date && bookingData.therapistId ? (
-                      <p className="text-gray-500">Hiện tại chưa có khung giờ phù hợp</p>
+                      <p className="text-gray-500">
+                        Hiện tại chưa có khung giờ phù hợp
+                      </p>
                     ) : (
-                      <p className="text-gray-500">Vui lòng chọn ngày và chuyên viên để xem khung giờ</p>
+                      <p className="text-gray-500">
+                        Vui lòng chọn ngày và chuyên viên để xem khung giờ
+                      </p>
                     )}
                   </div>
                 </div>
@@ -382,13 +420,16 @@ const BookingProcess = () => {
                     Một số dịch vụ có thể yêu cầu xác nhận qua điện thoại.
                   </li>
                   <li>
-                    <strong>Đặt cọc 30%:</strong> Để xác nhận lịch hẹn, quý khách vui lòng đặt cọc trước 30% giá trị dịch vụ.
+                    <strong>Đặt cọc 30%:</strong> Để xác nhận lịch hẹn, quý
+                    khách vui lòng đặt cọc trước 30% giá trị dịch vụ.
                   </li>
                   <li>
-                    Số tiền cọc sẽ được khấu trừ vào tổng hóa đơn khi quý khách sử dụng dịch vụ.
+                    Số tiền cọc sẽ được khấu trừ vào tổng hóa đơn khi quý khách
+                    sử dụng dịch vụ.
                   </li>
                   <li className="text-red-500 font-semibold">
-                    <strong>Lưu ý quan trọng:</strong> Trong trường hợp quý khách hủy lịch, số tiền cọc sẽ không được hoàn trả.
+                    <strong>Lưu ý quan trọng:</strong> Trong trường hợp quý
+                    khách hủy lịch, số tiền cọc sẽ không được hoàn trả.
                   </li>
                 </ul>
               </div>
@@ -433,7 +474,8 @@ const BookingProcess = () => {
                   <strong>Phí dịch vụ:</strong> {bookingData.price}
                 </p>
                 <p>
-                  <strong>Số tiền cọc cần thanh toán (30%):</strong> {bookingData.price*0.3}
+                  <strong>Số tiền cọc cần thanh toán (30%):</strong>{" "}
+                  {bookingData.price * 0.3}
                 </p>
                 <div className="flex flex-col items-center mt-4">
                   <div className="mt-4 text-center text-gray-700">

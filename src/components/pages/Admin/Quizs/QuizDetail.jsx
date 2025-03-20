@@ -1,110 +1,45 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FaEdit, FaTrash, FaCheck, FaTimes, FaPlus } from "react-icons/fa";
 import Sidebar from "../SideBar";
-
-/**
- * Dữ liệu gốc cho nhiều ID quiz:
- *  - key: ID (chuỗi) hoặc số
- *  - value: mảng câu hỏi
- */
-const initialData = {
-  "1": [
-    {
-      id: 1,
-      question: "Bạn thích thời gian thư giãn vào lúc nào?",
-      options: [
-        { text: "Sáng sớm", score: 10 },
-        { text: "Trưa", score: 12 },
-        { text: "Chiều", score: 15 },
-        { text: "Tối", score: 20 },
-      ],
-    },
-    {
-      id: 2,
-      question: "Mức độ căng thẳng của bạn hiện tại như thế nào?",
-      options: [
-        { text: "Rất căng thẳng", score: 20 },
-        { text: "Khá căng thẳng", score: 15 },
-        { text: "Bình thường", score: 12 },
-        { text: "Rất thư giãn", score: 10 },
-      ],
-    },
-    {
-      id: 3,
-      question: "Bạn ưu tiên dịch vụ spa nào?",
-      options: [
-        { text: "Massage thư giãn", score: 12 },
-        { text: "Chăm sóc da chuyên sâu", score: 15 },
-        { text: "Gói toàn thân cao cấp", score: 20 },
-        { text: "Liệu trình làm đẹp nhẹ nhàng", score: 10 },
-      ],
-    },
-  ],
-  "2": [
-    {
-      id: 1,
-      question: "Bạn thích đi spa cùng ai?",
-      options: [
-        { text: "Một mình", score: 10 },
-        { text: "Bạn bè", score: 12 },
-        { text: "Gia đình", score: 15 },
-        { text: "Đồng nghiệp", score: 20 },
-      ],
-    },
-    {
-      id: 2,
-      question: "Tần suất bạn đến spa?",
-      options: [
-        { text: "1 lần/tháng", score: 10 },
-        { text: "2 lần/tháng", score: 12 },
-        { text: "1 lần/tuần", score: 15 },
-        { text: "2-3 lần/tuần", score: 20 },
-      ],
-    },
-    {
-      id: 3,
-      question: "Bạn thường chọn spa vì lý do nào?",
-      options: [
-        { text: "Giảm stress", score: 20 },
-        { text: "Chăm sóc da", score: 15 },
-        { text: "Cải thiện sức khỏe", score: 12 },
-        { text: "Theo trend", score: 10 },
-      ],
-    },
-  ],
-};
+import { getQuizById } from "../../../service/quizApi";
+import {
+  createQuestionWithAnswers,
+  deleteQuestion,
+  updateQuestion,
+} from "../../../service/questionApi";
 
 const QuizDetail = () => {
   const { id } = useParams();
 
-  // Lấy danh sách câu hỏi của quiz từ initialData (nếu không có thì là mảng rỗng)
-  const initialQuestions = initialData[id] || [];
+  const [questions, setQuestions] = useState([]);
 
-  // State chứa danh sách câu hỏi và hỗ trợ CRUD
-  const [questions, setQuestions] = useState(initialQuestions);
+  useEffect(() => {
+    const fetchQuizSetById = async (id) => {
+      const response = await getQuizById(id);
+      console.log(response.result);
+      setQuestions(response.result.questions || []);
+    };
+    fetchQuizSetById(id);
+  }, [id]);
 
   // Tìm kiếm
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredQuestions = questions.filter((q) =>
-    q.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||  // Thêm điều kiện tìm theo ID
-    q.question.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredQuestions = questions.filter(
+    (q) =>
+      q.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.question.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Trạng thái mở form thêm
   const [isAdding, setIsAdding] = useState(false);
-  // Form thêm câu hỏi (thay đổi UI - sắp xếp dọc, nhóm input)
-  const [newQuestion, setNewQuestion] = useState({
-    question: "",
-    option1Text: "",
-    option1Score: "",
-    option2Text: "",
-    option2Score: "",
-    option3Text: "",
-    option3Score: "",
-    option4Text: "",
-    option4Score: "",
-  });
+
+  const [newQuestion, setNewQuestion] = useState({ question: "" });
+  const [newAnswers, setNewAnswers] = useState([
+    { answer: "", score: 0 },
+    { answer: "", score: 0 },
+    { answer: "", score: 0 },
+    { answer: "", score: 0 },
+  ]);
   const [addErrors, setAddErrors] = useState({});
 
   const handleNewInputChange = (e) => {
@@ -112,17 +47,25 @@ const QuizDetail = () => {
     setNewQuestion((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Thêm câu hỏi
-  const handleAddQuestion = () => {
+  const handleAnswerChange = (index, e) => {
+    const { name, value } = e.target;
+    setNewAnswers((prev) =>
+      prev.map((answer, i) =>
+        i === index ? { ...answer, [name]: value } : answer
+      )
+    );
+  };
+
+  const handleAddQuestion = async () => {
     const errors = {};
     if (!newQuestion.question.trim()) {
       errors.question = "Câu hỏi không được để trống";
     }
-    for (let i = 1; i <= 4; i++) {
-      if (!newQuestion[`option${i}Text`].trim()) {
+    for (let i = 0; i <= 3; i++) {
+      if (!newAnswers[i].answer.trim()) {
         errors[`option${i}Text`] = `Option ${i} không được để trống`;
       }
-      const score = parseInt(newQuestion[`option${i}Score`], 10);
+      const score = parseInt(newAnswers[i].score, 10);
       if (isNaN(score) || score < 10 || score > 20) {
         errors[`option${i}Score`] = `Điểm Option ${i} phải từ 10 đến 20`;
       }
@@ -131,45 +74,17 @@ const QuizDetail = () => {
       setAddErrors(errors);
       return;
     }
-
-    // Tạo câu hỏi mới
-    const newId =
-      questions.length > 0 ? Math.max(...questions.map((q) => q.id)) + 1 : 1;
-    const questionToAdd = {
-      id: newId,
+    const requestBody = {
       question: newQuestion.question,
-      options: [
-        {
-          text: newQuestion.option1Text,
-          score: parseInt(newQuestion.option1Score, 10),
-        },
-        {
-          text: newQuestion.option2Text,
-          score: parseInt(newQuestion.option2Score, 10),
-        },
-        {
-          text: newQuestion.option3Text,
-          score: parseInt(newQuestion.option3Score, 10),
-        },
-        {
-          text: newQuestion.option4Text,
-          score: parseInt(newQuestion.option4Score, 10),
-        },
-      ],
+      answerRequestList: newAnswers,
     };
-    setQuestions((prev) => [...prev, questionToAdd]);
-    // Reset form
-    setNewQuestion({
-      question: "",
-      option1Text: "",
-      option1Score: "",
-      option2Text: "",
-      option2Score: "",
-      option3Text: "",
-      option3Score: "",
-      option4Text: "",
-      option4Score: "",
-    });
+    try {
+      const response = await createQuestionWithAnswers(requestBody, id);
+      console.log(response.result);
+      setQuestions((prev) => [...prev, response.result]);
+    } catch (error) {
+      console.error("Lỗi thêm câu hỏi:", error);
+    }
     setAddErrors({});
     setIsAdding(false);
   };
@@ -182,18 +97,18 @@ const QuizDetail = () => {
     setEditingId(q.id);
     setEditedQuestion({
       question: q.question,
-      option1Text: q.options[0].text,
-      option1Score: q.options[0].score,
-      option2Text: q.options[1].text,
-      option2Score: q.options[1].score,
-      option3Text: q.options[2].text,
-      option3Score: q.options[2].score,
-      option4Text: q.options[3].text,
-      option4Score: q.options[3].score,
+      option1Text: q.answers[0].answer,
+      option1Score: q.answers[0].score,
+      option2Text: q.answers[1].answer,
+      option2Score: q.answers[1].score,
+      option3Text: q.answers[2].answer,
+      option3Score: q.answers[2].score,
+      option4Text: q.answers[3].answer,
+      option4Score: q.answers[3].score,
     });
   };
 
-  const handleSaveEdit = (idQ) => {
+  const handleSaveEdit = async (idQ) => {
     // Kiểm tra lỗi tương tự khi thêm
     const errors = {};
     if (!editedQuestion.question.trim()) {
@@ -213,36 +128,42 @@ const QuizDetail = () => {
       return;
     }
 
-    setQuestions((prev) =>
-      prev.map((q) =>
-        q.id === idQ
-          ? {
-              id: idQ,
-              question: editedQuestion.question,
-              options: [
-                {
-                  text: editedQuestion.option1Text,
-                  score: parseInt(editedQuestion.option1Score, 10),
-                },
-                {
-                  text: editedQuestion.option2Text,
-                  score: parseInt(editedQuestion.option2Score, 10),
-                },
-                {
-                  text: editedQuestion.option3Text,
-                  score: parseInt(editedQuestion.option3Score, 10),
-                },
-                {
-                  text: editedQuestion.option4Text,
-                  score: parseInt(editedQuestion.option4Score, 10),
-                },
-              ],
-            }
-          : q
-      )
-    );
-    setEditingId(null);
-    setEditedQuestion({});
+    // Chuẩn bị dữ liệu gửi API
+    const updatedQuestion = {
+      id: idQ,
+      question: editedQuestion.question,
+      answers: [
+        {
+          answer: editedQuestion.option1Text,
+          score: parseInt(editedQuestion.option1Score, 10),
+        },
+        {
+          answer: editedQuestion.option2Text,
+          score: parseInt(editedQuestion.option2Score, 10),
+        },
+        {
+          answer: editedQuestion.option3Text,
+          score: parseInt(editedQuestion.option3Score, 10),
+        },
+        {
+          answer: editedQuestion.option4Text,
+          score: parseInt(editedQuestion.option4Score, 10),
+        },
+      ],
+    };
+
+    try {
+      const response = await updateQuestion(idQ, updatedQuestion);
+      console.log(response.result);
+      setQuestions((prev) =>
+        prev.map((q) => (q.id === idQ ? updatedQuestion : q))
+      );
+      setEditingId(null);
+      setEditedQuestion({});
+      alert("Cập nhật thành công!");
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -251,14 +172,18 @@ const QuizDetail = () => {
   };
 
   // Xóa câu hỏi
-  const handleDelete = (idQ) => {
+  const handleDelete = async (idQ) => {
     if (window.confirm("Bạn có chắc muốn xóa câu hỏi này?")) {
-      setQuestions((prev) => prev.filter((q) => q.id !== idQ));
+      try {
+        await deleteQuestion(idQ);
+        setQuestions((prev) => prev.filter((q) => q.id !== idQ));
+      } catch (error) {
+        console.error("Lỗi xóa câu hỏi:", error);
+      }
     }
   };
 
-  // Nếu ID quiz không tồn tại trong dữ liệu
-  if (!initialData[id]) {
+  if (questions.length == 0) {
     return (
       <div className="flex min-h-screen bg-gray-900">
         <Sidebar />
@@ -322,7 +247,9 @@ const QuizDetail = () => {
             <div className="flex flex-col space-y-3">
               {/* Câu hỏi */}
               <div>
-                <label className="block text-gray-300 mb-1">Nội dung câu hỏi</label>
+                <label className="block text-gray-300 mb-1">
+                  Nội dung câu hỏi
+                </label>
                 <input
                   type="text"
                   name="question"
@@ -334,130 +261,39 @@ const QuizDetail = () => {
                   <p className="text-red-400 text-sm">{addErrors.question}</p>
                 )}
               </div>
-              {/* Option 1 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-gray-300 mb-1">Option 1</label>
-                  <input
-                    type="text"
-                    name="option1Text"
-                    placeholder="Nội dung Option 1"
-                    value={newQuestion.option1Text}
-                    onChange={handleNewInputChange}
-                    className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
-                  />
-                  {addErrors.option1Text && (
-                    <p className="text-red-400 text-sm">{addErrors.option1Text}</p>
-                  )}
+              {newAnswers.map((answer, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-2"
+                >
+                  <div>
+                    <label className="block text-gray-300 mb-1">
+                      Option {index + 1}
+                    </label>
+                    <input
+                      type="text"
+                      name="answer"
+                      placeholder={`Nội dung Option ${index + 1}`}
+                      value={answer.answer}
+                      onChange={(e) => handleAnswerChange(index, e)}
+                      className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">
+                      Điểm (10-20)
+                    </label>
+                    <input
+                      type="number"
+                      name="score"
+                      placeholder="10-20"
+                      value={answer.score}
+                      onChange={(e) => handleAnswerChange(index, e)}
+                      className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Điểm (10-20)</label>
-                  <input
-                    type="number"
-                    name="option1Score"
-                    placeholder="10-20"
-                    value={newQuestion.option1Score}
-                    onChange={handleNewInputChange}
-                    className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
-                  />
-                  {addErrors.option1Score && (
-                    <p className="text-red-400 text-sm">{addErrors.option1Score}</p>
-                  )}
-                </div>
-              </div>
-              {/* Option 2 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-gray-300 mb-1">Option 2</label>
-                  <input
-                    type="text"
-                    name="option2Text"
-                    placeholder="Nội dung Option 2"
-                    value={newQuestion.option2Text}
-                    onChange={handleNewInputChange}
-                    className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
-                  />
-                  {addErrors.option2Text && (
-                    <p className="text-red-400 text-sm">{addErrors.option2Text}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Điểm (10-20)</label>
-                  <input
-                    type="number"
-                    name="option2Score"
-                    placeholder="10-20"
-                    value={newQuestion.option2Score}
-                    onChange={handleNewInputChange}
-                    className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
-                  />
-                  {addErrors.option2Score && (
-                    <p className="text-red-400 text-sm">{addErrors.option2Score}</p>
-                  )}
-                </div>
-              </div>
-              {/* Option 3 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-gray-300 mb-1">Option 3</label>
-                  <input
-                    type="text"
-                    name="option3Text"
-                    placeholder="Nội dung Option 3"
-                    value={newQuestion.option3Text}
-                    onChange={handleNewInputChange}
-                    className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
-                  />
-                  {addErrors.option3Text && (
-                    <p className="text-red-400 text-sm">{addErrors.option3Text}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Điểm (10-20)</label>
-                  <input
-                    type="number"
-                    name="option3Score"
-                    placeholder="10-20"
-                    value={newQuestion.option3Score}
-                    onChange={handleNewInputChange}
-                    className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
-                  />
-                  {addErrors.option3Score && (
-                    <p className="text-red-400 text-sm">{addErrors.option3Score}</p>
-                  )}
-                </div>
-              </div>
-              {/* Option 4 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-gray-300 mb-1">Option 4</label>
-                  <input
-                    type="text"
-                    name="option4Text"
-                    placeholder="Nội dung Option 4"
-                    value={newQuestion.option4Text}
-                    onChange={handleNewInputChange}
-                    className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
-                  />
-                  {addErrors.option4Text && (
-                    <p className="text-red-400 text-sm">{addErrors.option4Text}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Điểm (10-20)</label>
-                  <input
-                    type="number"
-                    name="option4Score"
-                    placeholder="10-20"
-                    value={newQuestion.option4Score}
-                    onChange={handleNewInputChange}
-                    className="w-full p-2 bg-gray-700 border border-gray-600 text-white rounded"
-                  />
-                  {addErrors.option4Score && (
-                    <p className="text-red-400 text-sm">{addErrors.option4Score}</p>
-                  )}
-                </div>
-              </div>
+              ))}
             </div>
             {/* Nút Lưu / Hủy */}
             <div className="flex space-x-3 mt-4">
@@ -489,7 +325,9 @@ const QuizDetail = () => {
               <tr>
                 <th className="border border-gray-600 p-2">ID</th>
                 <th className="border border-gray-600 p-2">Câu hỏi</th>
-                <th className="border border-gray-600 p-2">Lựa chọn (Text | Điểm)</th>
+                <th className="border border-gray-600 p-2">
+                  Lựa chọn (Text | Điểm)
+                </th>
                 <th className="border border-gray-600 p-2">Sửa</th>
                 <th className="border border-gray-600 p-2">Xóa</th>
               </tr>
@@ -570,11 +408,13 @@ const QuizDetail = () => {
                     </>
                   ) : (
                     <>
-                      <td className="border border-gray-600 p-2">{q.question}</td>
                       <td className="border border-gray-600 p-2">
-                        {q.options.map((opt, i) => (
+                        {q.question}
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        {q.answers.map((opt, i) => (
                           <div key={i}>
-                            {opt.text} | {opt.score}
+                            {opt.answer} | {opt.score}
                           </div>
                         ))}
                       </td>
@@ -600,7 +440,10 @@ const QuizDetail = () => {
               ))}
               {filteredQuestions.length === 0 && (
                 <tr>
-                  <td colSpan="5" className="p-4 text-center text-red-400 font-semibold">
+                  <td
+                    colSpan="5"
+                    className="p-4 text-center text-red-400 font-semibold"
+                  >
                     Không tìm thấy câu hỏi phù hợp!
                   </td>
                 </tr>

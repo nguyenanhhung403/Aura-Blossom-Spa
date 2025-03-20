@@ -199,9 +199,9 @@ const Services = () => {
     if (!newCategory.name.trim()) {
       errors.name = "Tên category không được để trống";
     }
-    if (!newCategory.description.trim()) {
-      errors.description = "Mô tả không được để trống";
-    }
+    // if (!newCategory.description.trim()) {
+    //   errors.description = "Mô tả không được để trống";
+    // }
     if (Object.keys(errors).length > 0) {
       setCategoryErrors(errors);
       return;
@@ -209,11 +209,12 @@ const Services = () => {
     const newCat = {
       id: Date.now(),
       name: newCategory.name,
-      description: newCategory.description,
-      signature: newCategory.signature,
+      // description: newCategory.description,
+      // signature: newCategory.signature,
     };
     setCategories((prev) => [...prev, newCat]);
-    setNewCategory({ name: "", description: "", signature: false });
+   // setNewCategory({ name: "", description: "", signature: false });
+    setNewCategory({ name: ""});
     setCategoryErrors({});
     setIsAddingCategory(false);
   };
@@ -314,7 +315,7 @@ const Services = () => {
               {categoryErrors.name && (
                 <p className="text-red-400 text-sm">{categoryErrors.name}</p>
               )}
-              <input
+              {/* <input
                 type="text"
                 placeholder="Mô tả"
                 value={newCategory.description}
@@ -340,7 +341,7 @@ const Services = () => {
                   <option value="Có">Có</option>
                   <option value="Không">Không</option>
                 </select>
-              </div>
+              </div> */}
               <div className="flex space-x-2 mt-2">
                 <button
                   onClick={handleAddCategory}
@@ -352,7 +353,8 @@ const Services = () => {
                   onClick={() => {
                     setIsAddingCategory(false);
                     setCategoryErrors({});
-                    setNewCategory({ name: "", description: "", signature: false });
+                  //  setNewCategory({ name: "", description: "", signature: false });
+                  setNewCategory({ name: ""});
                   }}
                   className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
                 >
@@ -367,8 +369,8 @@ const Services = () => {
               <tr>
                 <th className="border border-gray-600 p-2">ID</th>
                 <th className="border border-gray-600 p-2">Tên Category</th>
-                <th className="border border-gray-600 p-2">Mô tả</th>
-                <th className="border border-gray-600 p-2">Signature</th>
+                {/* <th className="border border-gray-600 p-2">Mô tả</th> */}
+                {/* <th className="border border-gray-600 p-2">Signature</th> */}
                 <th className="border border-gray-600 p-2">Sửa</th>
                 <th className="border border-gray-600 p-2">Xóa</th>
               </tr>
@@ -405,7 +407,7 @@ const Services = () => {
                           className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         />
                       </td>
-                      <td className="border border-gray-600 p-1">
+                      {/* <td className="border border-gray-600 p-1">
                         <select
                           value={editedCategory.signature ? "Có" : "Không"}
                           onChange={(e) =>
@@ -419,7 +421,7 @@ const Services = () => {
                           <option value="Có">Có</option>
                           <option value="Không">Không</option>
                         </select>
-                      </td>
+                      </td> */}
                       <td className="border border-gray-600 p-2">
                         <button
                           onClick={handleSaveEditCategory}
@@ -552,22 +554,26 @@ const Services = () => {
                   <p className="text-red-400 text-sm">{addErrors.name}</p>
                 )}
               </div>
-              {/* Giá */}
-              <div>
-                <input
-                  type="number"
-                  name="price"
-                  placeholder="Giá (VNĐ)"
-                  value={newService.price}
-                  onChange={(e) => handleInputChange(e, setNewService)}
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                  min="0"
-                  step="1000"
-                />
-                {addErrors.price && (
-                  <p className="text-red-400 text-sm">{addErrors.price}</p>
-                )}
-              </div>
+            {/* Giá */}
+<div>
+  <input
+    type="text" // Thay đổi từ "number" sang "text"
+    name="price"
+    placeholder="Giá (VNĐ)"
+    value={newService.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+    onChange={(e) => {
+      const value = e.target.value.replace(/\./g, ""); // Loại bỏ dấu chấm
+      setNewService((prev) => ({
+        ...prev,
+        price: value ? parseInt(value, 10) : 0, // Chuyển đổi thành số
+      }));
+    }}
+    className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+  />
+  {addErrors.price && (
+    <p className="text-red-400 text-sm">{addErrors.price}</p>
+  )}
+</div>
               {/* Thời gian */}
               <div>
                 <input

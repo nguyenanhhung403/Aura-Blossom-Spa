@@ -9,6 +9,15 @@ export const getAllQuizzes = async () => {
     }
 };
 
+export const getAllQuizzesByCategoryId = async (categoryId) => {
+    try {
+        const response = await api.get(`/api/quizzes/byCategory/${categoryId}`);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+}
+
 export const getQuizById = async (quizId) => {
     try {
         const response = await api.get(`/api/quizzes/${quizId}`);

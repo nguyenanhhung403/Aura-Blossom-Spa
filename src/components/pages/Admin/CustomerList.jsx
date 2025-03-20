@@ -210,6 +210,7 @@ const UserList = () => {
                         >
                           <option value="user">User</option>
                           <option value="staff">Staff</option>
+                          <option value="staff">Therapist</option>
                         </select>
                       </td>
                       <td className="border border-gray-600 p-2">

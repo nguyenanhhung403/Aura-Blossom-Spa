@@ -20,7 +20,7 @@ export const getAppointmentById = async (id) => {
 
 export const getMyUpcomingAppointments = async () => {
     try {
-        const response = await api.get('/api/appointments/my-upcoming');
+        const response = await api.get('/api/appointments/my-upcoming-appointment');
         return response.data;
     } catch (error) {
         handleError(error);
@@ -29,16 +29,17 @@ export const getMyUpcomingAppointments = async () => {
 
 export const getMyHistoricalAppointments = async () => {
     try {
-        const response = await api.get('/api/appointments/my-history');
+        const response = await api.get('/api/appointments/my-historical-appointment');
         return response.data;
     } catch (error) {
         handleError(error);
     }
 };
 
+
 export const createAppointment = async (data) => {
     try {
-        const response = await api.post('/api/appointments', data);
+        const response = await api.post('/api/appointments/create', data);
         return response.data;
     } catch (error) {
         handleError(error);
