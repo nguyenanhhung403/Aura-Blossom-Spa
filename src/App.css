@@ -1253,11 +1253,18 @@ body {
 .user-info {
   display: flex;
   align-items: center;
-  padding: 10px;
+  gap: 8px;
+  padding: 10px 0;
 }
 
-.user-info .icon {
+.user-icon {
   font-size: 20px;
+  color: white;
+}
+.user-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
 }
 
 .logout a {
@@ -1335,6 +1342,28 @@ body {
 .card .btn:hover {
   background-color: #357bd8;
 }
+.user-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.home-link, .logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.logout-btn {
+  color: red;
+}
 
 
 
@@ -1345,7 +1374,7 @@ body {
 }
 
 .dashboard-title {
-  background-color: #1e293b;
+  background-color: #111837;
   padding: 16px;
   border-radius: 8px;
   color: white;
@@ -1360,7 +1389,7 @@ body {
 }
 
 .dashboard-card {
-  background-color: #1e293b;
+  background-color: #111837;
   padding: 20px;
   border-radius: 10px;
   text-align: center;
@@ -1395,4 +1424,364 @@ body {
   text-decoration: none;
 }
 
+/* appoiment của therapist */
+.appointment-container {
+  background-color: #111827;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  margin: auto;
+}
+
+.appointment-title {
+  font-size: 25px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Tổng quan */
+.appointment-summary {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  flex: 1;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: bold;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 180px;
+  height: 100px;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.summary-card span {
+  font-size: 24px;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.purple {
+  background: linear-gradient(to right, #6d28d9, #4c1d95);
+}
+
+.green {
+  background: linear-gradient(to right, #166534, #065f46);
+}
+
+.blue {
+  background: linear-gradient(to right, #1e40af, #075985);
+}
+
+.brown {
+  background: linear-gradient(to right, #b76c21, #9d6702);
+}
+
+/* Thanh lọc */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  background: #1f2937;
+  padding: 10px;
+  border-radius: 8px;
+  justify-content: space-between;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-grow: 1;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #4b5563;
+  border-radius: 5px;
+  background: #111827;
+  color: white;
+}
+
+.filter-icon {
+  position: absolute;
+  right: 10px;
+  color: #9ca3af;
+  cursor: pointer;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Bảng dữ liệu */
+.appointment-container{
+  font-family: Arial, Helvetica, sans-serif;
+}
+.appointment-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1f2937;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.appointment-table th,
+.appointment-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.appointment-table th {
+  background: #374151;
+  color: #9ca3af;
+  font-weight: bold;
+}
+
+.appointment-table tbody tr {
+  border-bottom: 1px solid #4b5563;
+}
+
+.appointment-table tbody tr:nth-child(even) {
+  background: #111827;
+}
+
+/* Trạng thái lịch hẹn */
+.status {
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 5px;
+  text-align: center;
+  display: inline-block;
+}
+
+/* Màu sắc cho từng trạng thái */
+.status.completed {
+  color: #16a34a; /* Xanh lá */
+  
+}
+.status.ongoing {
+  color:  #eab308; /* Vang */
+ 
+}
+
+.status.cancelled {
+  color: #e71616; /* do */
+  
+}
+
+
+.action-icon {
+  color: white;
+  cursor: pointer;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.pagination button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* phan setting therapist */
+/* Tổng thể container */
+.settings-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #111827;
+  color: white;
+  border-radius: 8px;
+}
+
+/* Sidebar */
+.therapist-sidebar {
+  width: 250px;
+  background-color: #2e2e3a;
+  padding: 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.profile-section {
+  width: 100%;
+}
+
+.info-box {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+
+/* Form cập nhật thông tin */
+.settings-form {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.settings-form h2,h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 30px;
+}
+.avatar img {
+  width: 250px;  
+  height: 250px;
+  object-fit: cover; /* Cắt ảnh để giữ tỉ lệ, không bị méo */
+  border: 2px solid #ccc; /* Viền ảnh */
+  border-radius: 15px;
+}
+
+
+.input-group {
+  margin-bottom: 15px;
+}
+.input-group input {
+  color: black; /* Chữ màu đen */
+}
+
+
+.input-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.input-icon {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px;
+  background-color: #ffffff;
+}
+
+.input-icon-element {
+  margin-right: 10px;
+  color: #666;
+}
+
+.input-icon input {
+  flex: 1;
+  border: none;
+  outline: none;
+}
+
+/* Button */
+.update-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #ff4d4d;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.update-button:hover {
+  background-color: #cc0000;
+}
+
+/* schedule cua therapist */
+.calendar-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  background: #ffffff;
+  color: black;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+.calendar-container h2{
+  font-size: 25px;
+}
+
+
+.rbc-calendar {
+  border-radius: 8px;
+  font-family: 'Arial', sans-serif;
+}
+
+.rbc-toolbar {
+  background: #f5f5f5;
+  padding: 10px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rbc-time-view {
+  border: 1px solid black;
+}
+
+.rbc-time-gutter {
+  color: black;
+  text-align: center;
+  padding: 5px;
+}
+
+.rbc-today {
+  background: #e3f2fd !important;
+}
+
+.rbc-time-slot {
+  border-bottom: 1px solid #ddd;
+}
+
+.rbc-day-bg:hover {
+  background: #f0f8ff;
+}
+
+.rbc-event-label {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.event-normal {
+  background-color: #28a745 !important; /* Xanh lá */
+  color: white !important;
+  border-radius: 6px !important;
+  padding: 4px !important;
+  font-size: 14px !important;
+}
+
+.event-canceled {
+  background-color: red !important; /* Đỏ nếu bị hủy */
+  color: white !important;
+  border-radius: 6px !important;
+  padding: 4px !important;
+  font-size: 14px !important;
+  border: 2px solid darkred !important;
+}
 

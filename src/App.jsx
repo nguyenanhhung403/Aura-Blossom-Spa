@@ -40,6 +40,10 @@ import StaffSettings from './components/staff/StaffSettings';
 // Import therapist2 components
 import TherapistDashboard from './components/pages/therapist2/therapistDashboard';
 import TherapistLayout from './components/pages/therapist2/therapistLayout';
+import TherapistAppointments from './components/pages/therapist2/therapistAppoiment';
+import TherapistSettings from './components/pages/therapist2/therapistSetting';
+import TherapistSchedule from './components/pages/therapist2/therapistSchedule';
+
 function App() {
     return (
         <Router>
@@ -88,10 +92,9 @@ function App() {
                     <Route path="/therapist2" element={<TherapistLayout  />} >
                     
                         <Route index element={<TherapistDashboard />} />
-                        {/* <Route path="schedule" element={<TherapistSchedule />} />
+                        <Route path="schedule" element={<TherapistSchedule />} />
                         <Route path="appointments" element={<TherapistAppointments />} />
-                        <Route path="feedback" element={<TherapistFeedback />} />
-                        <Route path="settings" element={<TherapistSettings />} /> */}
+                        <Route path="settings" element={<TherapistSettings />} />
                     </Route>
                 </Routes>
             </UserProvider>
