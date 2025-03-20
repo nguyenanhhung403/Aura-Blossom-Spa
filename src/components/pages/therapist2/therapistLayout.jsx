@@ -1,63 +1,72 @@
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
-import { 
-  FaHome, FaCalendarAlt, FaHistory, FaCommentDots, 
-  FaUserCircle, FaSignOutAlt, FaCog
+import "../../../App.css";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import {
+  FaHome,
+  FaCalendarAlt,
+  FaHistory,
+  FaCommentDots,
+  FaUserCircle,
+  FaSignOutAlt,
+  FaCog,
 } from "react-icons/fa";
-import "./TherapistLayout.css"; // Import CSS
 
-const therapistLayout = () => {
+const TherapistLayout = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate("/login");
+  };
+
   return (
     <div className="layout-container">
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <h2>Bác Sĩ</h2>
+          <h2>Chuyên viên</h2>
         </div>
 
         <ul className="menu">
           <li>
-            <Link to="/therapist">
+            <Link to="/therapist2">
               <FaHome className="icon" />
               Trang Chủ
             </Link>
           </li>
           <li>
-            <Link to="/therapist/schedule">
+            <Link to="/therapist2/schedule">
               <FaCalendarAlt className="icon" />
               Lịch làm việc cá nhân
             </Link>
           </li>
           <li>
-            <Link to="/therapist/appointments">
+            <Link to="/therapist2/appointments">
               <FaHistory className="icon" />
               Lịch hẹn
             </Link>
           </li>
+
           <li>
-            <Link to="/therapist/feedback">
-              <FaCommentDots className="icon" />
-              Đánh giá
-            </Link>
-          </li>
-          <li>
-            <Link to="/therapist/settings">
+            <Link to="/therapist2/settings">
               <FaCog className="icon" />
               Cài đặt tài khoản
             </Link>
           </li>
         </ul>
 
+        {/* Thêm phần Trang Home và Đăng xuất ngay chỗ user info */}
         <div className="sidebar-footer">
           <div className="user-info">
-            <FaUserCircle className="icon" />
-            <span>Bác sĩ</span>
+            <FaUserCircle className="user-icon" />
+            <span className="user-name">Chuyên viên</span>
           </div>
-          <div className="logout">
-            <Link to="/login">
-              <FaSignOutAlt className="icon" />
-              Đăng xuất
+          <div className="user-actions">
+            <Link to="/" className="home-link">
+              <FaHome className="icon" /> Trang Chủ
             </Link>
+            <button className="logout-btn" onClick={handleLogout}>
+              <FaSignOutAlt className="icon" /> Đăng xuất
+            </button>
           </div>
         </div>
       </aside>
@@ -72,4 +81,4 @@ const therapistLayout = () => {
   );
 };
 
-export default therapistLayout;
+export default TherapistLayout;
