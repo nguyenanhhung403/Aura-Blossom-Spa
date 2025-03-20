@@ -1,52 +1,51 @@
 import React from "react";
-import { FaCalendarAlt, FaHistory, FaComments, FaUserCog } from "react-icons/fa";
-
+import { Link } from "react-router-dom";
+import { FaCalendarAlt, FaClipboardList, FaComments, FaUserCog } from "react-icons/fa";
+const menuItems = [
+  {
+    name: "Lịch làm việc cá nhân",
+    path: "/staff/personalschedule",
+    icon: <FaCalendarAlt />,
+    count: "12"
+  },
+  {
+    name: "Lịch hẹn",
+    path: "/staff/appointments",
+    icon: <FaClipboardList />,
+    count: "45"
+  },
+  {
+    name: "Đánh giá",
+    path: "/staff/feedback",
+    icon: <FaComments />,
+    count: "28"
+  },
+  {
+    name: "Cài đặt",
+    path: "/staff/settings",
+    icon: <FaUserCog />,
+    count: "1"
+  }
+];
 
 const TherapistDashboard = () => {
   return (
     <div className="dashboard-container">
-      <aside className="sidebar">
-        <h2>Bác Sĩ</h2>
-        <ul>
-          <li><FaCalendarAlt /> Lịch làm việc cá nhân</li>
-          <li><FaHistory /> Lịch hẹn</li>
-          <li><FaComments /> Đánh giá</li>
-          <li><FaUserCog /> Cài đặt account</li>
-        </ul>
-        <div className="bottom-section">
-          <span>Bác sĩ</span>
-          <span>Đăng xuất</span>
-        </div>
-      </aside>
-      <main className="main-content">
-        <h1>Trang Chủ Bác Sĩ</h1>
-        <div className="card-container">
-          <div className="card">
-            <FaCalendarAlt className="card-icon" />
-            <h3>50</h3>
-            <p>Lịch làm việc cá nhân</p>
-            <button>Chi tiết</button>
+      <h1 className="dashboard-title">Trang Chủ Chuyên Viên</h1>
+
+      {/* Grid of Cards */}
+      <div className="dashboard-grid">
+        {menuItems.map((item, index) => (
+          <div key={index} className="dashboard-card">
+            <div className="dashboard-icon">{item.icon}</div>
+            <p className="dashboard-count">{item.count}</p>
+            <p className="dashboard-text">{item.name}</p>
+            <Link to={item.path} className="dashboard-link">
+              Chi tiết
+            </Link>
           </div>
-          <div className="card">
-            <FaHistory className="card-icon" />
-            <h3>50</h3>
-            <p>Lịch hẹn</p>
-            <button>Chi tiết</button>
-          </div>
-          <div className="card">
-            <FaComments className="card-icon" />
-            <h3>50</h3>
-            <p>Đánh giá</p>
-            <button>Chi tiết</button>
-          </div>
-          <div className="card">
-            <FaUserCog className="card-icon" />
-            <h3>50</h3>
-            <p>Cài đặt account</p>
-            <button>Chi tiết</button>
-          </div>
-        </div>
-      </main>
+        ))}
+      </div>
     </div>
   );
 };

@@ -1193,3 +1193,206 @@ body {
   background: transparent;
 }
 
+
+
+/* layout */
+
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #1a1e31;
+  color: #1a1e31;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.sidebar-header h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  padding: 10px 0;
+}
+
+.menu a {
+  text-decoration: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.menu a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.icon {
+  margin-right: 10px;
+}
+
+/* Footer trong sidebar */
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.user-info .icon {
+  font-size: 20px;
+}
+
+.logout a {
+  color: red;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Main layout */
+.layout-container {
+  display: flex;
+  
+}
+
+.main-content {
+  margin-left: 250px; /* Để tránh sidebar đè lên nội dung */
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #22243d;
+  min-height: 100vh;
+}
+
+/* Thẻ chứa nội dung chính */
+.content-wrapper {
+  background: #22243d;
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+}
+
+/* Các thẻ card trong layout */
+.card-container {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: #1a1e31;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 220px;
+  color: white;
+}
+
+.card .icon {
+  font-size: 30px;
+  color: #4a90e2;
+}
+
+.card h3 {
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+.card p {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* Button trong card */
+.card .btn {
+  background-color: #4a90e2;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.card .btn:hover {
+  background-color: #357bd8;
+}
+
+
+
+/* dashboard */
+
+.dashboard-container {
+  padding: 20px;
+}
+
+.dashboard-title {
+  background-color: #1e293b;
+  padding: 16px;
+  border-radius: 8px;
+  color: white;
+  text-align: center;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.dashboard-card {
+  background-color: #1e293b;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: 0.3s;
+}
+
+.dashboard-icon {
+  color: #60a5fa;
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.dashboard-count {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.dashboard-text {
+  margin-top: 8px;
+  color: #ccc;
+}
+
+.dashboard-link {
+  display: inline-block;
+  background-color: #2563eb;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+

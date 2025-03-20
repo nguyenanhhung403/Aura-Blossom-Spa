@@ -1,23 +1,24 @@
 import React from "react";
+import "../../../App.css"
 import { Link, Outlet } from "react-router-dom";
 import { 
   FaHome, FaCalendarAlt, FaHistory, FaCommentDots, 
   FaUserCircle, FaSignOutAlt, FaCog
 } from "react-icons/fa";
-import "./TherapistLayout.css"; // Import CSS
 
-const therapistLayout = () => {
+
+const TherapistLayout = () => {
   return (
     <div className="layout-container">
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <h2>Bác Sĩ</h2>
+          <h2>Chuyên viên</h2>
         </div>
 
         <ul className="menu">
           <li>
-            <Link to="/therapist">
+            <Link to="/therapist2">
               <FaHome className="icon" />
               Trang Chủ
             </Link>
@@ -72,4 +73,4 @@ const therapistLayout = () => {
   );
 };
 
-export default therapistLayout;
+export default TherapistLayout;
