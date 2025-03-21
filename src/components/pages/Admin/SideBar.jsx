@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   FaHome, 
   FaServicestack, 
@@ -10,10 +10,19 @@ import {
   FaBlog, 
   FaCommentDots, 
   FaChartBar,
-  FaUserMd
+  FaUserMd,
+  FaSignOutAlt
 } from 'react-icons/fa';
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
   return (
     <div className="w-64 bg-[#0e1726] min-h-screen text-white p-4">
       {/* Logo / Tiêu đề */}
@@ -91,6 +100,16 @@ const Sidebar = () => {
             <FaChartBar className="mr-3" />
             Báo cáo
           </Link>
+        </li>
+
+        <li className="mt-auto">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center py-2 px-4 hover:bg-gray-700 rounded text-red-400 hover:text-red-300"
+          >
+            <FaSignOutAlt className="mr-2" />
+            Đăng xuất
+          </button>
         </li>
       </ul>
     </div>

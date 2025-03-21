@@ -42,6 +42,8 @@ export const createTherapist = async (therapistData, thumbnailFile) => {
 export const updateTherapist = async (id, therapistData, thumbnailFile) => {
     try {
         const formData = new FormData();
+        
+        // Đảm bảo gửi đúng format dữ liệu và loại bỏ username khỏi request
         const dataToSend = {
             fullname: therapistData.fullname,
             phone: therapistData.phone,
@@ -49,6 +51,9 @@ export const updateTherapist = async (id, therapistData, thumbnailFile) => {
             experience: Number(therapistData.experience),
             description: therapistData.description || ""
         };
+
+        // Log để debug
+        console.log("Data being sent to API:", dataToSend);
 
         formData.append("therapist", new Blob([JSON.stringify(dataToSend)], {
             type: "application/json"
@@ -65,6 +70,7 @@ export const updateTherapist = async (id, therapistData, thumbnailFile) => {
         });
         return response.data;
     } catch (error) {
+        console.error("API Error:", error.response?.data);
         if (error.response?.status === 409) {
             throw new Error("Email hoặc số điện thoại đã tồn tại trong hệ thống!");
         }

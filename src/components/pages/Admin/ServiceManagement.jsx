@@ -75,6 +75,9 @@ const Services = () => {
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [editedCategory, setEditedCategory] = useState({});
 
+  // Thêm state errors vào cùng với các state khác ở đầu component
+  const [errors, setErrors] = useState({});
+
   const handleInputChange = (e, setter) => {
     const { name, value } = e.target;
     setter((prev) => ({ ...prev, [name]: value }));
@@ -165,18 +168,69 @@ const Services = () => {
     console.log(service);
   };
 
-  const handleSaveEdit = async (id) => {
-    const response = await updateService(id, editedService, thumbnailFile);
-    console.log("Update response:", response);
-    setServices((prevServices) =>
-      prevServices.map((service) =>
-        service.id === id ? response.result : service
-      )
-    );
-    setEditedService({});
-    setEditingId(null);
-    setThumbnailFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  const handleSaveEdit = async () => {
+    try {
+        // Validate dữ liệu
+        const validationErrors = {};
+        if (!editedService.name?.trim()) {
+            validationErrors.name = "Tên dịch vụ không được để trống";
+        }
+        if (!editedService.price) {
+            validationErrors.price = "Giá dịch vụ không được để trống";
+        }
+        if (!editedService.duration) {
+            validationErrors.duration = "Thời gian không được để trống";
+        }
+        if (!editedService.category?.id) {
+            validationErrors.categoryId = "Danh mục không được để trống";
+        }
+
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
+        // Chuẩn bị dữ liệu gửi đi
+        const serviceData = {
+            name: editedService.name,
+            description: editedService.description || "",
+            price: Number(editedService.price),
+            duration: Number(editedService.duration),
+            categoryId: editedService.category.id
+        };
+
+        // Log để debug
+        console.log("Sending data:", serviceData);
+        console.log("Thumbnail file:", thumbnailFile);
+
+        const response = await updateService(
+            editingId,
+            serviceData,
+            thumbnailFile
+        );
+
+        if (response.result) {
+            // Refresh lại danh sách
+            const servicesRes = await getAllServices();
+            if (servicesRes.result) {
+                setServices(servicesRes.result);
+            }
+            
+            // Reset các state
+            setEditingId(null);
+            setEditedService({});
+            setThumbnailFile(null);
+            setErrors({});
+            alert("Cập nhật dịch vụ thành công!");
+        }
+    } catch (error) {
+        if (error.message === "Không tìm thấy dịch vụ này!") {
+            alert(error.message);
+        } else {
+            alert("Có lỗi xảy ra khi cập nhật dịch vụ!");
+            console.error(error);
+        }
+    }
   };
 
   const handleCancelEdit = () => {
@@ -732,7 +786,7 @@ const Services = () => {
                       </td>
                       <td className="border border-gray-600 p-2">
                         <button
-                          onClick={() => handleSaveEdit(s.id)}
+                          onClick={handleSaveEdit}
                           className="text-green-400 hover:text-green-200"
                         >
                           <FaCheck />

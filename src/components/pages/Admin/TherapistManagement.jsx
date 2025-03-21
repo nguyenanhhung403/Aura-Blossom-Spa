@@ -129,6 +129,7 @@ const TherapistManagement = () => {
   // Xử lý cập nhật therapist
   const handleUpdateTherapist = async (id) => {
     try {
+        // Validate dữ liệu
         const validationErrors = {};
         if (!editedTherapist.fullname?.trim()) {
             validationErrors.fullname = "Tên không được để trống";
@@ -148,15 +149,20 @@ const TherapistManagement = () => {
             return;
         }
 
+        // Chuẩn bị dữ liệu gửi đi
         const therapistData = {
             fullname: editedTherapist.fullname,
             phone: editedTherapist.phone,
             email: editedTherapist.email,
-            experience: parseInt(editedTherapist.experience),
+            experience: Number(editedTherapist.experience),
             description: editedTherapist.description || ""
         };
 
+        // Log để debug
+        console.log("Sending update data:", therapistData);
+
         const response = await updateTherapist(id, therapistData, thumbnailFile);
+
         if (response.result) {
             await fetchTherapists();
             setEditingId(null);
@@ -166,11 +172,8 @@ const TherapistManagement = () => {
             alert("Cập nhật thông tin thành công!");
         }
     } catch (error) {
-        if (error.message === "Email hoặc số điện thoại đã tồn tại trong hệ thống!") {
-            alert(error.message);
-        } else {
-            alert("Có lỗi xảy ra khi cập nhật chuyên viên!");
-        }
+        console.error("Update error:", error);
+        alert(error.message || "Có lỗi xảy ra khi cập nhật thông tin!");
     }
   };
 
@@ -387,29 +390,41 @@ const TherapistManagement = () => {
                           />
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="border border-gray-600 p-1">
                         <input
                           type="text"
                           value={editedTherapist.fullname || ''}
-                          onChange={(e) => setEditedTherapist(prev => ({...prev, fullname: e.target.value}))}
-                          className="w-full border rounded px-2 py-1"
+                          onChange={(e) => setEditedTherapist(prev => ({
+                              ...prev,
+                              fullname: e.target.value
+                          }))}
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         />
+                        {errors.fullname && <p className="text-red-500 text-sm">{errors.fullname}</p>}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="border border-gray-600 p-1">
                         <input
                           type="text"
                           value={editedTherapist.phone || ''}
-                          onChange={(e) => setEditedTherapist(prev => ({...prev, phone: e.target.value}))}
-                          className="w-full border rounded px-2 py-1"
+                          onChange={(e) => setEditedTherapist(prev => ({
+                              ...prev,
+                              phone: e.target.value
+                          }))}
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         />
+                        {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="border border-gray-600 p-1">
                         <input
                           type="email"
                           value={editedTherapist.email || ''}
-                          onChange={(e) => setEditedTherapist(prev => ({...prev, email: e.target.value}))}
-                          className="w-full border rounded px-2 py-1"
+                          onChange={(e) => setEditedTherapist(prev => ({
+                              ...prev,
+                              email: e.target.value
+                          }))}
+                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         />
+                        {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input
@@ -467,7 +482,13 @@ const TherapistManagement = () => {
                         <button
                           onClick={() => {
                             setEditingId(therapist.id);
-                            setEditedTherapist(therapist);
+                            setEditedTherapist({
+                              fullname: therapist.fullname,
+                              phone: therapist.phone,
+                              email: therapist.email,
+                              experience: therapist.experience,
+                              description: therapist.description || ""
+                            });
                           }}
                           className="text-blue-600 hover:text-blue-900 mr-3"
                         >
