@@ -1,16 +1,112 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import Footer from "./Footer";
-import bannerserImg from "../images/SevivceImg/BannerServices.jpg";
-import Tech1Img from "../images/SevivceImg/tech1.jpg";
-import Tech2Img from "../images/SevivceImg/tech2.jpg";
-import Tech3Img from "../images/SevivceImg/tech3.png";
-import Tech4Img from "../images/SevivceImg/tech4.jpg";
 import Navbar from "./Navbar";
-import "../../App.css";
 import { getAllServices } from "../service/serviceApi";
 import { getAllServiceCategories } from "../service/serviceCategoryApi";
-import ServicesCarousel from "../Carousle";
-import { motion } from "framer-motion";
+
+const StarRating = ({ rating }) => {
+  return (
+    <div className="flex">
+      {[...Array(5)].map((_, i) => (
+        <svg 
+          key={i} 
+          className={`w-5 h-5 ${i < rating ? "text-yellow-400" : "text-gray-300"}`} 
+          fill="currentColor" 
+          viewBox="0 0 20 20"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
+};
+
+const ServiceCard = ({ service }) => {
+  return (
+    <motion.div 
+      whileHover={{ y: -10, boxShadow: "0 20px 30px rgba(0,0,0,0.15)" }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 flex flex-col"
+    >
+      <div className="relative h-56">
+        <img 
+          src={service.thumbnail} 
+          alt={service.name} 
+          className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-6 flex items-center justify-center">
+          <h3 className="text-white text-xl text-center" style={{ fontFamily: 'Arial, sans-serif' }}>{service.name}</h3>
+        </div>
+      </div>
+      <div className="p-6 flex flex-col flex-grow">
+        <div className="mb-3 text-sm text-emerald-600 font-medium text-center">{service.category.name}</div>
+        <p className="text-gray-600 text-base mb-4 text-center flex-grow" style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>{service.description}</p>
+        <div className="flex justify-center items-center flex-col gap-4">
+          <span className="text-emerald-600 text-xl">{service.price} VND</span>
+          <button className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl text-sm transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg w-full">
+            Đặt lịch ngay
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const TechnologyCard = ({ tech }) => {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.03 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="relative rounded-2xl overflow-hidden h-96 group shadow-xl"
+    >
+      <img 
+        src={tech.image} 
+        alt={tech.title}
+        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent flex flex-col justify-end items-center text-center p-8">
+        <h3 className="text-white text-2xl mb-3" style={{ fontFamily: 'Arial, sans-serif' }}>{tech.title}</h3>
+        <p className="text-gray-200 text-base opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
+          {tech.description}
+        </p>
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          className="mt-6 bg-white text-emerald-600 px-8 py-3 rounded-xl text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-500 shadow-lg hover:shadow-xl w-3/4"
+        >
+          Tìm hiểu thêm
+        </motion.button>
+      </div>
+    </motion.div>
+  );
+};
+
+const TestimonialCard = ({ testimonial }) => {
+  return (
+    <motion.div 
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white p-6 rounded-lg shadow-md"
+    >
+      <div className="flex items-center mb-4">
+        <img 
+          src={testimonial.avatar} 
+          alt={testimonial.name} 
+          className="w-12 h-12 rounded-full mr-4"
+        />
+        <div>
+          <h4 className="font-medium text-gray-800">{testimonial.name}</h4>
+          <StarRating rating={testimonial.rating} />
+        </div>
+      </div>
+      <p className="text-gray-600 italic">"{testimonial.comment}"</p>
+    </motion.div>
+  );
+};
 
 const ServicesPage = () => {
   const [services, setServices] = useState([]);
@@ -18,42 +114,17 @@ const ServicesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [technologies, setTechnologies] = useState([
-    {
-      title: "CÔNG NGHỆ HYDRAFACIAL",
-      description:
-        "Thanh lọc sâu, giảm mụn, kiểm dầu. Sạch thoáng làn da, sạch mát tinh thần",
-      image: Tech1Img,
-      color: "#F3E9DC",
-    },
-    {
-      title: "ÁNH SÁNG SINH HỌC BIO LED",
-      description:
-        "Làm dịu, giảm viêm, mờ thâm. Phục hồi vẻ tươi sáng cho làn da",
-      image: Tech2Img,
-      color: "#E2D6C5",
-    },
-    {
-      title: "CÔNG NGHỆ HIGH PRESSURE MESO THERAPY",
-      description:
-        "Dịu lành, an toàn, không đau. Không kim, không xâm lấn, không cần nghỉ dưỡng",
-      image: Tech3Img,
-      color: "#D0C3AE",
-    },
-    {
-      title: "CÔNG NGHỆ RADIO FREQUENCY LIFTING & EMS",
-      description:
-        "Săn chắc da, chống lão hóa. Tăng sinh collagen, tăng độ đàn hồi. Giảm nhăn, giảm quần thâm mắt",
-      image: Tech4Img,
-      color: "#BEB197",
-    },
-  ]);
+  const [technologies, setTechnologies] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const servicesResponse = await getAllServices();
         const categoriesResponse = await getAllServiceCategories();
+        
+        // Ở đây bạn có thể thêm API call để lấy dữ liệu technologies
+        // const technologiesResponse = await getAllTechnologies();
+        // setTechnologies(technologiesResponse.result);
         
         setServices(servicesResponse.result);
         setCategories(categoriesResponse.result);
@@ -67,302 +138,133 @@ const ServicesPage = () => {
     fetchData();
   }, []);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerPage = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
-
-  const nextSlide = () => {
-    if (currentIndex + itemsPerPage < technologies.length) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
-
-  const prevSlide = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-
-  const toggleCategory = (index) => {
-    setSelectedCategory(selectedCategory === index ? null : index);
-  };
-
-  if (loading) {
-    return (
-      <>
-        <Navbar />
-        <div className="min-h-screen flex justify-center items-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-teal-600"></div>
-        </div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <Navbar />
-        <div className="min-h-screen flex justify-center items-center">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            <p>Đã xảy ra lỗi: {error}</p>
-          </div>
-        </div>
-      </>
-    );
-  }
+  const filteredServices = selectedCategory 
+    ? services.filter(service => service.category.id === selectedCategory) 
+    : services;
 
   return (
-    <>
+    <div className="bg-gray-50 min-h-screen">
       <Navbar />
-      <div className="mt-20 bg-[#f5f0e8]">
-        {/* Banner Section */}
-        <section className="relative w-full h-[50vh] overflow-hidden">
-          <div className="absolute inset-0">
-            <img
-              src={bannerserImg}
-              alt="Banner Services"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30"></div>
+      
+      {/* Hero Banner */}
+      <section className="relative h-screen">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1560750588-73207b1ef5b8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+            alt="Spa Banner"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
+        </div>
+        
+        <div className="relative container mx-auto px-4 h-full flex items-center justify-center text-center">
+          <div className="max-w-2xl text-white">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-5xl md:text-6xl mb-4"
+            >
+              Tận Hưởng Trải Nghiệm Spa Đẳng Cấp
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-xl mb-8"
+            >
+              Khám phá các dịch vụ chăm sóc da và thư giãn cao cấp với công nghệ hiện đại nhất
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="flex justify-center"
+            >
+              <a href="#services" className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-full text-lg inline-block mr-4 transition-colors duration-300">
+                Dịch Vụ Của Chúng Tôi
+              </a>
+            </motion.div>
           </div>
+        </div>
+        
+        <div className="absolute bottom-10 left-0 right-0 flex justify-center">
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
+            animate={{ y: [0, 10, 0] }} 
+            transition={{ repeat: Infinity, duration: 1.5 }}
+          >
+            <a href="#services" className="text-white">
+              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+              </svg>
+            </a>
+          </motion.div>
+        </div>
+      </section>
+      
+      {/* Services Section */}
+      <section id="services" className="py-20 bg-gradient-to-b from-white to-gray-50">
+        <div className="container mx-auto px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="absolute inset-0 flex flex-col items-center justify-center text-center p-6"
+            className="text-center mb-16"
           >
-            <h1 className="text-white text-4xl md:text-6xl font-bold tracking-wider mb-4">
-              Dịch Vụ Của Chúng Tôi
-            </h1>
-            <p className="text-white/90 text-base md:text-xl max-w-2xl">
-              Khám phá các dịch vụ chăm sóc da cao cấp được thiết kế riêng để mang lại trải nghiệm thư giãn và làn da khỏe mạnh
+            <h2 className="text-4xl md:text-5xl mb-6" style={{ fontFamily: 'Arial, sans-serif' }}>Dịch Vụ Của Chúng Tôi</h2>
+            <div className="w-24 h-1 bg-emerald-500 mx-auto mb-8"></div>
+            <p className="text-gray-600 max-w-3xl mx-auto text-lg" style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.8' }}>
+              Khám phá các dịch vụ spa cao cấp được thiết kế riêng cho nhu cầu của bạn với công nghệ tiên tiến và sản phẩm tự nhiên
             </p>
           </motion.div>
-        </section>
-
-        {/* Services Section */}
-        <section className="py-16 px-4 md:px-8 max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="mb-12 text-center"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-teal-800 mb-4">Danh Mục Dịch Vụ</h2>
-            <div className="w-20 h-1 bg-teal-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Chúng tôi cung cấp các dịch vụ chăm sóc spa cao cấp được thiết kế để làm đẹp và trẻ hóa làn da của bạn
-            </p>
-          </motion.div>
-
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden mb-16">
-            {categories.length > 0 && categories.map((category, index) => (
-              <motion.div 
-                key={index}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="mb-4"
+          
+          {/* Category Filter */}
+          <div className="flex flex-wrap justify-center mb-16">
+            <div className="bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-lg flex flex-wrap justify-center gap-2 max-w-3xl mx-auto">
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedCategory(null)}
+                className={`px-5 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+                  selectedCategory === null 
+                    ? 'bg-emerald-500 text-white shadow-emerald-200 shadow-md' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               >
-                <div
-                  onClick={() => toggleCategory(category.id)}
-                  className={`cursor-pointer transition-all duration-300 p-4 ${
+                Tất Cả
+              </motion.button>
+              
+              {categories.map(category => (
+                <motion.button
+                  key={category.id}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-5 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
                     selectedCategory === category.id 
-                      ? "bg-teal-700 text-white" 
-                      : "bg-teal-50 hover:bg-teal-100 text-teal-800"
+                      ? 'bg-emerald-500 text-white shadow-emerald-200 shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-semibold">{category.name}</h3>
-                    <svg 
-                      className={`w-6 h-6 transition-transform duration-300 ${selectedCategory === category.id ? "rotate-180" : ""}`} 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-
-                {selectedCategory === category.id && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-                      {services
-                        .filter((service) => service.category?.id === category.id)
-                        .map((service, idx) => (
-                          <div
-                            key={`${category.id}-${service.id}`}
-                            className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
-                          >
-                            <div className="relative h-48 overflow-hidden">
-                              {service.thumbnail ? (
-                                <img
-                                  src={service.thumbnail}
-                                  alt={service.name}
-                                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-teal-100 flex items-center justify-center">
-                                  <span className="text-teal-700">Chưa có hình ảnh</span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="p-4">
-                              <h4 className="text-lg font-semibold text-teal-800 mb-2">{service.name}</h4>
-                              <p className="text-gray-600 text-sm mb-4">{service.description}</p>
-                              <div className="flex justify-between items-center">
-                                <span className="text-teal-700 font-bold">{service.price} VND</span>
-                                <button className="bg-teal-600 hover:bg-teal-700 text-white py-1 px-3 rounded-full text-sm transition duration-300">
-                                  Đặt lịch
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </motion.div>
-                )}
-              </motion.div>
+                  {category.name}
+                </motion.button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Services Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredServices.map(service => (
+              <ServiceCard key={service.id} service={service} />
             ))}
           </div>
-        </section>
-
-        {/* Technology Section */}
-        <section className="py-16 bg-[#f0e6d8]">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-teal-800 mb-4">Công Nghệ Spa Hiện Đại</h2>
-              <div className="w-20 h-1 bg-teal-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Chúng tôi sử dụng những công nghệ tiên tiến nhất để mang lại kết quả tốt nhất cho khách hàng
-              </p>
-            </motion.div>
-
-            <div className="relative">
-              <div className="flex justify-center items-center">
-                <button
-                  onClick={prevSlide}
-                  disabled={currentIndex === 0}
-                  className="absolute left-0 z-10 bg-white/80 hover:bg-white text-teal-700 w-10 h-10 rounded-full flex items-center justify-center shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition duration-300"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-10">
-                  {technologies
-                    .slice(currentIndex, currentIndex + itemsPerPage)
-                    .map((tech, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: i * 0.1 }}
-                        className="relative bg-white rounded-lg shadow-lg overflow-hidden"
-                        style={{ backgroundColor: tech.color }}
-                      >
-                        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-white rounded-full p-1 shadow-lg overflow-hidden border-4 border-teal-50">
-                          <img 
-                            src={tech.image} 
-                            alt={tech.title} 
-                            className="w-full h-full object-cover rounded-full"
-                          />
-                        </div>
-                        <div className="pt-14 p-6">
-                          <h3 className="text-center text-teal-800 font-bold mb-3 text-base">{tech.title}</h3>
-                          <p className="text-center text-gray-600 text-sm">{tech.description}</p>
-                          <div className="mt-4 text-center">
-                            <button className="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-full text-sm transition duration-300">
-                              Tìm hiểu thêm
-                            </button>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                </div>
-                
-                <button
-                  onClick={nextSlide}
-                  disabled={currentIndex + itemsPerPage >= technologies.length}
-                  className="absolute right-0 z-10 bg-white/80 hover:bg-white text-teal-700 w-10 h-10 rounded-full flex items-center justify-center shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition duration-300"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div className="flex justify-center mt-8">
-                {technologies.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentIndex(i)}
-                    className={`w-3 h-3 mx-1 rounded-full transition-colors duration-300 ${
-                      i >= currentIndex && i < currentIndex + itemsPerPage 
-                        ? "bg-teal-600" 
-                        : "bg-teal-200"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Services Carousel */}
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-teal-800 mb-4">Khám Phá Thêm</h2>
-              <div className="w-20 h-1 bg-teal-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Đa dạng dịch vụ spa để bạn có thể lựa chọn trải nghiệm phù hợp nhất
-              </p>
-            </motion.div>
-            
-            <div className="service-carousel-container">
-              <ServicesCarousel />
-            </div>
-          </div>
-        </section>
-
-        {/* Call to Action */}
-        <section className="py-16 bg-teal-700 text-white">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Sẵn Sàng Để Trải Nghiệm?</h2>
-              <p className="text-xl mb-8 max-w-2xl mx-auto">
-                Đặt lịch ngay hôm nay để có trải nghiệm spa tuyệt vời và nhận ưu đãi đặc biệt cho lần đầu trải nghiệm
-              </p>
-              <button className="bg-white text-teal-700 hover:bg-teal-50 font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg">
-                Đặt Lịch Ngay
-              </button>
-            </motion.div>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
+      
+      
+      
       <Footer />
-    </>
+    </div>
   );
 };
 
