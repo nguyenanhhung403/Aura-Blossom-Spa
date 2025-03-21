@@ -20,24 +20,24 @@ import {
 const Services = () => {
   // Mảng dịch vụ mẫu
   const [services, setServices] = useState([
-    {
-      id: 1,
-      category: null,
-      name: "Cắt tóc",
-      thumbnail: "",
-      price: 30,
-      duration: "30 phút",
-      description: "Dịch vụ cắt tóc cơ bản.",
-    },  
-    {
-      id: 2,
-      category: null,
-      name: "Chăm sóc da mặt",
-      thumbnail: "",
-      price: 50,
-      duration: "45 phút",
-      description: "Dịch vụ làm sạch da mặt và thư giãn.",
-    },
+    // {
+    //   id: 1,
+    //   category: null,
+    //   name: "Cắt tóc",
+    //   thumbnail: "",
+    //   price: 30,
+    //   duration: "30 phút",
+    //   description: "Dịch vụ cắt tóc cơ bản.",
+    // },  
+    // {
+    //   id: 2,
+    //   category: null,
+    //   name: "Chăm sóc da mặt",
+    //   thumbnail: "",
+    //   price: 50,
+    //   duration: "45 phút",
+    //   description: "Dịch vụ làm sạch da mặt và thư giãn.",
+    // },
   ]);
 
   const [categories, setCategories] = useState([]);
