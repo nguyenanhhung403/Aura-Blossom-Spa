@@ -4,7 +4,7 @@ import Footer from "./Footer";
 import Navbar from "./Navbar";
 import { getAllServices } from "../service/serviceApi";
 import { getAllServiceCategories } from "../service/serviceCategoryApi";
-
+import ContactUs from "./ContactUs";
 const StarRating = ({ rating }) => {
   return (
     <div className="flex">
@@ -263,7 +263,7 @@ const ServicesPage = () => {
       
       
       
-      <Footer />
+      <ContactUs/>
     </div>
   );
 };
