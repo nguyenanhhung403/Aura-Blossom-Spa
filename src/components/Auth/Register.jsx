@@ -44,9 +44,9 @@ const Register = () => {
     setLoading(true);
     try {
       const registerObj = {
-        fullname: name,
+        fullName: name,
         email,
-        phone, // gửi số điện thoại
+        phone,
         password,
         username,
         confirmPassword,

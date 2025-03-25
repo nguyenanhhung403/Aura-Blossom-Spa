@@ -9,7 +9,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import Sidebar from "../Admin/SideBar";
-import { getAllServiceCategories } from "../../service/serviceCategoryApi";
+import { getAllServiceCategories, createServiceCategory, updateServiceCategory, deleteServiceCategory } from "../../service/serviceCategoryApi";
 import {
   createService,
   deleteService,
@@ -74,6 +74,9 @@ const Services = () => {
   const [categoryErrors, setCategoryErrors] = useState({});
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [editedCategory, setEditedCategory] = useState({});
+
+  // Thêm state errors vào cùng với các state khác ở đầu component
+  const [errors, setErrors] = useState({});
 
   const handleInputChange = (e, setter) => {
     const { name, value } = e.target;
@@ -165,18 +168,69 @@ const Services = () => {
     console.log(service);
   };
 
-  const handleSaveEdit = async (id) => {
-    const response = await updateService(id, editedService, thumbnailFile);
-    console.log("Update response:", response);
-    setServices((prevServices) =>
-      prevServices.map((service) =>
-        service.id === id ? response.result : service
-      )
-    );
-    setEditedService({});
-    setEditingId(null);
-    setThumbnailFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  const handleSaveEdit = async () => {
+    try {
+        // Validate dữ liệu
+        const validationErrors = {};
+        if (!editedService.name?.trim()) {
+            validationErrors.name = "Tên dịch vụ không được để trống";
+        }
+        if (!editedService.price) {
+            validationErrors.price = "Giá dịch vụ không được để trống";
+        }
+        if (!editedService.duration) {
+            validationErrors.duration = "Thời gian không được để trống";
+        }
+        if (!editedService.category?.id) {
+            validationErrors.categoryId = "Danh mục không được để trống";
+        }
+
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
+        // Chuẩn bị dữ liệu gửi đi
+        const serviceData = {
+            name: editedService.name,
+            description: editedService.description || "",
+            price: Number(editedService.price),
+            duration: Number(editedService.duration),
+            categoryId: editedService.category.id
+        };
+
+        // Log để debug
+        console.log("Sending data:", serviceData);
+        console.log("Thumbnail file:", thumbnailFile);
+
+        const response = await updateService(
+            editingId,
+            serviceData,
+            thumbnailFile
+        );
+
+        if (response.result) {
+            // Refresh lại danh sách
+            const servicesRes = await getAllServices();
+            if (servicesRes.result) {
+                setServices(servicesRes.result);
+            }
+            
+            // Reset các state
+            setEditingId(null);
+            setEditedService({});
+            setThumbnailFile(null);
+            setErrors({});
+            alert("Cập nhật dịch vụ thành công!");
+        }
+    } catch (error) {
+        if (error.message === "Không tìm thấy dịch vụ này!") {
+            alert(error.message);
+        } else {
+            alert("Có lỗi xảy ra khi cập nhật dịch vụ!");
+            console.error(error);
+        }
+    }
   };
 
   const handleCancelEdit = () => {
@@ -194,28 +248,28 @@ const Services = () => {
   };
 
   // Thêm category mới
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     const errors = {};
     if (!newCategory.name.trim()) {
       errors.name = "Tên category không được để trống";
-    }
-    if (!newCategory.description.trim()) {
-      errors.description = "Mô tả không được để trống";
     }
     if (Object.keys(errors).length > 0) {
       setCategoryErrors(errors);
       return;
     }
-    const newCat = {
-      id: Date.now(),
-      name: newCategory.name,
-      description: newCategory.description,
-      signature: newCategory.signature,
-    };
-    setCategories((prev) => [...prev, newCat]);
-    setNewCategory({ name: "", description: "", signature: false });
-    setCategoryErrors({});
-    setIsAddingCategory(false);
+
+    try {
+      const response = await createServiceCategory(newCategory);
+      if (response.result) {
+        setCategories(prev => [...prev, response.result]);
+        setNewCategory({ name: "", description: "", signature: false });
+        setCategoryErrors({});
+        setIsAddingCategory(false);
+      }
+    } catch (error) {
+      console.error("Error creating category:", error);
+      alert("Có lỗi xảy ra khi thêm category!");
+    }
   };
 
   // Bắt đầu chỉnh sửa category
@@ -225,14 +279,22 @@ const Services = () => {
   };
 
   // Lưu chỉnh sửa category
-  const handleSaveEditCategory = () => {
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat.id === editingCategoryId ? editedCategory : cat
-      )
-    );
-    setEditingCategoryId(null);
-    setEditedCategory({});
+  const handleSaveEditCategory = async () => {
+    try {
+      const response = await updateServiceCategory(editingCategoryId, editedCategory);
+      if (response.result) {
+        setCategories(prev =>
+          prev.map(cat =>
+            cat.id === editingCategoryId ? response.result : cat
+          )
+        );
+        setEditingCategoryId(null);
+        setEditedCategory({});
+      }
+    } catch (error) {
+      console.error("Error updating category:", error);
+      alert("Có lỗi xảy ra khi cập nhật category!");
+    }
   };
 
   // Hủy chỉnh sửa category
@@ -242,19 +304,35 @@ const Services = () => {
   };
 
   // Xóa category
-  const handleDeleteCategory = (id) => {
-    const hasServices = services.some((service) => service.categoryId === id);
+  const handleDeleteCategory = async (id) => {
+    const hasServices = services.some(service => service.categoryId === id);
     if (hasServices) {
       alert("Không thể xóa category khi vẫn còn dịch vụ thuộc category này!");
       return;
     }
-    setCategories((prev) => prev.filter((cat) => cat.id !== id));
+
+    if (window.confirm("Bạn có chắc muốn xóa category này?")) {
+      try {
+        await deleteServiceCategory(id);
+        setCategories(prev => prev.filter(cat => cat.id !== id));
+      } catch (error) {
+        console.error("Error deleting category:", error);
+        alert("Có lỗi xảy ra khi xóa category!");
+      }
+    }
   };
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await getAllServiceCategories();
-      setCategories(res.result);
+      try {
+        const res = await getAllServiceCategories();
+        if (res.result) {
+          setCategories(res.result);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setCategories([]);
+      }
     };
     const fetchServices = async () => {
       try {
@@ -314,33 +392,6 @@ const Services = () => {
               {categoryErrors.name && (
                 <p className="text-red-400 text-sm">{categoryErrors.name}</p>
               )}
-              <input
-                type="text"
-                placeholder="Mô tả"
-                value={newCategory.description}
-                onChange={(e) =>
-                  setNewCategory((prev) => ({ ...prev, description: e.target.value }))
-                }
-                className="border p-1 bg-gray-700 border-gray-600 text-white w-full mt-2"
-              />
-              {categoryErrors.description && (
-                <p className="text-red-400 text-sm">{categoryErrors.description}</p>
-              )}
-              <div className="flex items-center mt-2">
-                <select
-                  value={newCategory.signature ? "Có" : "Không"}
-                  onChange={(e) =>
-                    setNewCategory((prev) => ({
-                      ...prev,
-                      signature: e.target.value === "Có",
-                    }))
-                  }
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                >
-                  <option value="Có">Có</option>
-                  <option value="Không">Không</option>
-                </select>
-              </div>
               <div className="flex space-x-2 mt-2">
                 <button
                   onClick={handleAddCategory}
@@ -352,7 +403,7 @@ const Services = () => {
                   onClick={() => {
                     setIsAddingCategory(false);
                     setCategoryErrors({});
-                    setNewCategory({ name: "", description: "", signature: false });
+                    setNewCategory({ name: "" });
                   }}
                   className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
                 >
@@ -367,8 +418,6 @@ const Services = () => {
               <tr>
                 <th className="border border-gray-600 p-2">ID</th>
                 <th className="border border-gray-600 p-2">Tên Category</th>
-                <th className="border border-gray-600 p-2">Mô tả</th>
-                <th className="border border-gray-600 p-2">Signature</th>
                 <th className="border border-gray-600 p-2">Sửa</th>
                 <th className="border border-gray-600 p-2">Xóa</th>
               </tr>
@@ -391,34 +440,6 @@ const Services = () => {
                           }
                           className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         />
-                      </td>
-                      <td className="border border-gray-600 p-1">
-                        <input
-                          type="text"
-                          value={editedCategory.description}
-                          onChange={(e) =>
-                            setEditedCategory((prev) => ({
-                              ...prev,
-                              description: e.target.value,
-                            }))
-                          }
-                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
-                        />
-                      </td>
-                      <td className="border border-gray-600 p-1">
-                        <select
-                          value={editedCategory.signature ? "Có" : "Không"}
-                          onChange={(e) =>
-                            setEditedCategory((prev) => ({
-                              ...prev,
-                              signature: e.target.value === "Có",
-                            }))
-                          }
-                          className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
-                        >
-                          <option value="Có">Có</option>
-                          <option value="Không">Không</option>
-                        </select>
                       </td>
                       <td className="border border-gray-600 p-2">
                         <button
@@ -446,10 +467,6 @@ const Services = () => {
                   ) : (
                     <>
                       <td className="border border-gray-600 p-2">{cat.name}</td>
-                      <td className="border border-gray-600 p-2">{cat.description}</td>
-                      <td className="border border-gray-600 p-2">
-                        {cat.signature ? "Có" : "Không"}
-                      </td>
                       <td className="border border-gray-600 p-2">
                         <button
                           onClick={() => handleStartEditCategory(cat)}
@@ -552,22 +569,26 @@ const Services = () => {
                   <p className="text-red-400 text-sm">{addErrors.name}</p>
                 )}
               </div>
-              {/* Giá */}
-              <div>
-                <input
-                  type="number"
-                  name="price"
-                  placeholder="Giá (VNĐ)"
-                  value={newService.price}
-                  onChange={(e) => handleInputChange(e, setNewService)}
-                  className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
-                  min="0"
-                  step="1000"
-                />
-                {addErrors.price && (
-                  <p className="text-red-400 text-sm">{addErrors.price}</p>
-                )}
-              </div>
+            {/* Giá */}
+<div>
+  <input
+    type="text" // Thay đổi từ "number" sang "text"
+    name="price"
+    placeholder="Giá (VNĐ)"
+    value={newService.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+    onChange={(e) => {
+      const value = e.target.value.replace(/\./g, ""); // Loại bỏ dấu chấm
+      setNewService((prev) => ({
+        ...prev,
+        price: value ? parseInt(value, 10) : 0, // Chuyển đổi thành số
+      }));
+    }}
+    className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
+  />
+  {addErrors.price && (
+    <p className="text-red-400 text-sm">{addErrors.price}</p>
+  )}
+</div>
               {/* Thời gian */}
               <div>
                 <input
@@ -765,7 +786,7 @@ const Services = () => {
                       </td>
                       <td className="border border-gray-600 p-2">
                         <button
-                          onClick={() => handleSaveEdit(s.id)}
+                          onClick={handleSaveEdit}
                           className="text-green-400 hover:text-green-200"
                         >
                           <FaCheck />

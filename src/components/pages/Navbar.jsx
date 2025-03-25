@@ -39,13 +39,19 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await auth.signOut();
-      setUser(null);
-      navigate("/");
+        // await local.signOut();
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
+        localStorage.clear();
+        sessionStorage.clear();
+        setUser(null);
+        window.location.href = "/login";
+        window.location.reload();
     } catch (error) {
-      console.error(error);
+        console.error("Logout error:", error);
     }
-  };
+};
+
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });

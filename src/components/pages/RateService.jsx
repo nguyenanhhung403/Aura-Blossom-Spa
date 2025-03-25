@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { getAllServices } from '../service/serviceApi';
 import { getAllTherapists } from '../service/therapistsApi';
+import { createRating } from '../service/ratingApi';
 
 const RateService = () => {
     const { user } = useContext(UserContext);
@@ -22,11 +23,6 @@ const RateService = () => {
     });
 
     useEffect(() => {
-        // Bỏ qua đăng nhập tạm thời
-        // if (!user) {
-        //     navigate('/login');
-        // }
-
         // Fetch services
         const fetchServices = async () => {
             try {
@@ -34,14 +30,6 @@ const RateService = () => {
                 setServices(response.result || []);
             } catch (error) {
                 console.error('Error fetching services:', error);
-                // Sử dụng dữ liệu mẫu nếu không fetch được
-                setServices([
-                    { id: 1, name: 'Dịch vụ chăm sóc da' },
-                    { id: 2, name: 'Massage toàn thân' },
-                    { id: 3, name: 'Tẩy tế bào chết' },
-                    { id: 4, name: 'Tẩy lông' },
-                    { id: 5, name: 'Nặn mụn' }
-                ]);
             }
         };
 
@@ -52,19 +40,12 @@ const RateService = () => {
                 setTherapists(response.result || []);
             } catch (error) {
                 console.error('Error fetching therapists:', error);
-                // Sử dụng dữ liệu mẫu nếu không fetch được
-                setTherapists([
-                    { id: 1, fullName: 'Chuyên viên A' },
-                    { id: 2, fullName: 'Chuyên viên B' },
-                    { id: 3, fullName: 'Chuyên viên C' },
-                    { id: 4, fullName: 'Chuyên viên D' }
-                ]);
             }
         };
 
         fetchServices();
         fetchTherapists();
-    }, [navigate]); // Bỏ user dependency tạm thời
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -86,21 +67,20 @@ const RateService = () => {
         setIsSubmitting(true);
 
         try {
-            // Bỏ qua gọi API, luôn hiển thị thành công
-            // await submitFeedback(formData);
-            
+            // Gọi API để tạo đánh giá
+            await createRating(formData.appointmentId, {
+                stars: formData.rating,
+                feedback: formData.comment
+            });
+
             // Hiển thị thông báo thành công
-            setTimeout(() => {
-                alert('Cảm ơn bạn đã gửi đánh giá!');
-                navigate('/');
-            }, 1000);
+            alert('Cảm ơn bạn đã gửi đánh giá!');
+            navigate('/');
         } catch (error) {
             console.error('Error submitting feedback:', error);
             alert('Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.');
         } finally {
-            setTimeout(() => {
-                setIsSubmitting(false);
-            }, 1000);
+            setIsSubmitting(false);
         }
     };
 
@@ -245,4 +225,4 @@ const RateService = () => {
     );
 };
 
-export default RateService; 
+export default RateService;

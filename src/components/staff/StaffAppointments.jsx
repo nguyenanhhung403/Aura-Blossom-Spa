@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   FaSearch, 
   FaEye, 
@@ -7,6 +7,7 @@ import {
   FaCheck, 
   FaTimes 
 } from "react-icons/fa";
+import { getAllAppointments, updateAppointment } from "../service/appointmentApi";
 
 const StaffAppointments = () => {
   // Các trạng thái có thể có
@@ -16,74 +17,68 @@ const StaffAppointments = () => {
     "Đã hủy",
   ];
 
-  // Dữ liệu mẫu cho danh sách đặt lịch
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      name: "Nguyễn Văn A",
-      phone: "0123456789",
-      email: "nguyenvana@gmail.com",
-      gender: "Nam",
-      service: "Dịch vụ chăm sóc da",
-      dateTime: "2023-12-01 14:00",
-      staffName: "Chuyên viên Minh",
-      docNote: "Kiểm tra da, đề xuất liệu trình 3 tháng",
-      custNote: "Muốn tư vấn thêm về sản phẩm dưỡng da",
-      status: "Đã hoàn thành",
-    },
-    {
-      id: 2,
-      name: "Trần Thị B",
-      phone: "0987654321",
-      email: "tranthib@gmail.com",
-      gender: "Nữ",
-      service: "Trị mụn chuyên sâu",
-      dateTime: "2023-12-02 09:30",
-      staffName: "Chuyên viên Hương",
-      docNote: "Xem xét dị ứng, đề xuất sản phẩm phù hợp",
-      custNote: "Có tiền sử dị ứng với benzoyl peroxide",
-      status: "Chờ xác nhận",
-    },
-    {
-      id: 3,
-      name: "Lê Văn C",
-      phone: "0909123456",
-      email: "levanc@gmail.com",
-      gender: "Nam",
-      service: "Điều trị sẹo",
-      dateTime: "2023-12-05 15:30",
-      staffName: "Chuyên viên Thanh",
-      docNote: "Sẹo lõm, cần liệu trình laser kết hợp lăn kim",
-      custNote: "Quan tâm đến chi phí và thời gian phục hồi",
-      status: "Đã hoàn thành",
-    },
-    {
-      id: 4,
-      name: "Phạm Thị D",
-      phone: "0978123654",
-      email: "phamthid@gmail.com",
-      gender: "Nữ",
-      service: "Tắm trắng cao cấp",
-      dateTime: "2023-12-07 10:00",
-      staffName: "Chuyên viên Lan",
-      docNote: "Da sạm màu do tiếp xúc ánh nắng nhiều",
-      custNote: "Muốn làm trắng trước kỳ nghỉ lễ",
-      status: "Đã hủy",
-    },
-    {
-      id: 5,
-      name: "Hoàng Minh E",
-      phone: "0912987654",
-      email: "hoangminhe@gmail.com",
-      gender: "Nam",
-      service: "Trị rụng tóc",
-      dateTime: "2023-12-10 13:45",
-      staffName: "Chuyên viên Tùng",
-      docNote: "Rụng tóc theo mùa, cần bổ sung dinh dưỡng",
-      custNote: "Lo lắng về tác dụng phụ của thuốc mọc tóc",
-      status: "Đã hoàn thành",
-    },
-  ]);
+  // Map API status sang trạng thái hiển thị
+  const mapApiStatus = (status) => {
+    switch(status) {
+      case "COMPLETED": return "Đã hoàn thành";
+      case "PENDING": return "Chờ xác nhận";
+      case "CANCELLED": return "Đã hủy";
+      default: return "Chờ xác nhận";
+    }
+  };
+
+  // Map trạng thái hiển thị sang API status
+  const mapToApiStatus = (status) => {
+    switch(status) {
+      case "Đã hoàn thành": return "COMPLETED";
+      case "Chờ xác nhận": return "PENDING";
+      case "Đã hủy": return "CANCELLED";
+      default: return "PENDING";
+    }
+  };
+
+  // State cho danh sách đặt lịch
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Lấy danh sách đặt lịch từ API
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getAllAppointments();
+        if (data && data.result) {
+          // Chuyển đổi dữ liệu từ API sang định dạng phù hợp với component
+          const formattedData = data.result.map(item => ({
+            id: item.id,
+            name: item.therapist?.fullname || "Không có tên",
+            phone: item.therapist?.phone || "",
+            email: item.therapist?.email || "",
+            gender: "", // API không cung cấp thông tin này
+            service: item.service?.name || "Không có dịch vụ",
+            dateTime: `${item.date} ${item.time}`,
+            staffName: item.therapist?.fullname || "Không có tên",
+            docNote: item.note || "",
+            custNote: "",
+            status: mapApiStatus(item.appointmentStatus),
+            originalStatus: item.appointmentStatus
+          }));
+          setAppointments(formattedData);
+        } else {
+          throw new Error("Dữ liệu không hợp lệ");
+        }
+      } catch (err) {
+        setError("Không thể tải danh sách lịch hẹn. Vui lòng thử lại sau.");
+        console.error("Error fetching appointments:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
 
   // Tìm kiếm và lọc theo trạng thái
   const [searchTerm, setSearchTerm] = useState("");
@@ -93,7 +88,7 @@ const StaffAppointments = () => {
     const matchesSearch =
       a.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
       a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.phone.includes(searchTerm);
+      (a.phone && a.phone.includes(searchTerm));
     const matchesStatus =
       filterStatus === "Tất cả" || a.status === filterStatus;
     return matchesSearch && matchesStatus;
@@ -113,18 +108,35 @@ const StaffAppointments = () => {
   // Chỉnh sửa trạng thái
   const [editingId, setEditingId] = useState(null);
   const [editingStatus, setEditingStatus] = useState("");
+  const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
 
   const startEditStatus = (appointment) => {
     setEditingId(appointment.id);
     setEditingStatus(appointment.status);
   };
 
-  const saveEditStatus = (id) => {
-    setAppointments((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: editingStatus } : a))
-    );
-    setEditingId(null);
-    setEditingStatus("");
+  const saveEditStatus = async (id) => {
+    setStatusUpdateLoading(true);
+    try {
+      const appointment = appointments.find(a => a.id === id);
+      if (!appointment) throw new Error("Không tìm thấy lịch hẹn");
+      
+      const apiStatus = mapToApiStatus(editingStatus);
+      const updatedData = await updateAppointment(id, { appointmentStatus: apiStatus });
+      
+      if (updatedData) {
+        setAppointments((prev) =>
+          prev.map((a) => (a.id === id ? { ...a, status: editingStatus, originalStatus: apiStatus } : a))
+        );
+      }
+    } catch (err) {
+      console.error("Error updating appointment status:", err);
+      alert("Không thể cập nhật trạng thái. Vui lòng thử lại.");
+    } finally {
+      setStatusUpdateLoading(false);
+      setEditingId(null);
+      setEditingStatus("");
+    }
   };
 
   const cancelEdit = () => {
@@ -145,6 +157,24 @@ const StaffAppointments = () => {
         return "text-gray-400 bg-gray-900/30";
     }
   };
+
+  // Hiển thị loading
+  if (loading && appointments.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-white text-lg">Đang tải dữ liệu...</div>
+      </div>
+    );
+  }
+
+  // Hiển thị lỗi
+  if (error && appointments.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-red-400 text-lg">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -246,12 +276,16 @@ const StaffAppointments = () => {
                   </td>
                   <td className="p-3">{appointment.service}</td>
                   <td className="p-3">
-                    <div className="font-medium">
-                      {appointment.dateTime.split(" ")[0]}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {appointment.dateTime.split(" ")[1]}
-                    </div>
+                    {appointment.dateTime && (
+                      <>
+                        <div className="font-medium">
+                          {appointment.dateTime.split(" ")[0]}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {appointment.dateTime.split(" ")[1]}
+                        </div>
+                      </>
+                    )}
                   </td>
                   <td className="p-3">{appointment.staffName}</td>
                   <td className="p-3">
@@ -261,6 +295,7 @@ const StaffAppointments = () => {
                           value={editingStatus}
                           onChange={(e) => setEditingStatus(e.target.value)}
                           className="bg-[#0f172a] border border-gray-600 rounded text-white py-1 px-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          disabled={statusUpdateLoading}
                         >
                           {statusOptions.map((option) => (
                             <option key={option} value={option}>
@@ -272,6 +307,7 @@ const StaffAppointments = () => {
                           onClick={() => saveEditStatus(appointment.id)}
                           className="text-green-400 hover:text-green-300"
                           title="Lưu"
+                          disabled={statusUpdateLoading}
                         >
                           <FaCheck />
                         </button>
@@ -279,6 +315,7 @@ const StaffAppointments = () => {
                           onClick={cancelEdit}
                           className="text-red-400 hover:text-red-300"
                           title="Hủy"
+                          disabled={statusUpdateLoading}
                         >
                           <FaTimes />
                         </button>
@@ -373,11 +410,11 @@ const StaffAppointments = () => {
                 Sau
               </button>
             </div>
-          </div>
+          </div>  
         )}
       </div>
     </div>
   );
 };
 
-export default StaffAppointments; 
+export default StaffAppointments;

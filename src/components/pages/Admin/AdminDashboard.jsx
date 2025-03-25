@@ -1,11 +1,11 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "./SideBar";
 
 const menuItems = [
   { name: "Dịch vụ", path: "/admin/services" },
   { name: "Lịch hẹn", path: "/admin/appointments" },
-  { name: "Nhân viên", path: "/admin/employees" },
+  { name: "Nhân viên", path: "/admin/therapists" },
   { name: "Khách hàng", path: "/admin/customers" },
   { name: "Lịch làm việc", path: "/admin/schedules" },
   { name: "Quiz", path: "/admin/quizlist" },

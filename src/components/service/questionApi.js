@@ -26,6 +26,14 @@ export const createQuestion = async (request) => {
         handleError(error);
     }
 };
+export const createQuestionWithAnswers = async (request, id) => {
+    try {
+        const response = await api.post('/api/questions/createWithAnswers/'+id, request);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
 
 export const updateQuestion = async (questionId, questionUpdateRequest) => {
     try {

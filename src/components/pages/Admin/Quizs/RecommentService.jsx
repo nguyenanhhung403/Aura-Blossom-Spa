@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaSearch,
@@ -9,71 +9,65 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import Sidebar from "../SideBar";
-
-// Danh sách các Quiz Category (danh mục Quiz)
-const quizCategories = [
-  "Mặt",
-  "Body",
-  "Trị sẹo",
-  "Sáng da",
-  "Trị thâm",
-];
-
-// Danh sách các dịch vụ (theo ví dụ từ hình)
-const allServices = [
-  "Soi da & tư vấn phác đồ trị mụn",
-  "Laser Pico trị nám",
-  "Nặn mụn oxy tèo bề bề",
-  "Điện di Collagen tăng sinh elastin",
-  "Laser Fractional CO2 trị sẹo",
-  "RF Lifting trẻ hóa da",
-  "Lấy nhân mụn y khoa",
-];
+import { getAllServiceCategories } from "../../../service/serviceCategoryApi";
+import { getAllServices } from "../../../service/serviceApi";
+import {
+  createServiceRecommendation,
+  deleteServiceRecommendation,
+  getAllServiceRecommendations,
+  updateServiceRecommendation,
+} from "../../../service/servicerecommendation";
+import { getAllQuizzes } from "../../../service/quizApi";
 
 const RecommendService = () => {
-  // Dữ liệu mẫu
-  const [recommendServices, setRecommendServices] = useState([
-    {
-      id: 1,
-      quizCategory: "Mặt",
-      service: "Soi da & tư vấn phác đồ trị mụn",
-      minScore: 0,
-      maxScore: 10,
-    },
-    {
-      id: 2,
-      quizCategory: "Trị sẹo",
-      service: "Laser Fractional CO2 trị sẹo",
-      minScore: 5,
-      maxScore: 15,
-    },
-    {
-      id: 3,
-      quizCategory: "Sáng da",
-      service: "Điện di Collagen tăng sinh elastin",
-      minScore: 8,
-      maxScore: 20,
-    },
-  ]);
+  const [quizes, setQuizes] = useState([]);
+  const [allServices, setAllServices] = useState([]);
+  const [recommendServices, setRecommendServices] = useState([]);
+  useEffect(() => {
+    const fetchAllQuizes = async () => {
+      const response = await getAllQuizzes();
+      setQuizes(response.result);
+    };
+    const fetchAllServices = async () => {
+      const response = await getAllServices();
+      setAllServices(response.result);
+    };
+    const fetchAllServiceRecommendations = async () => {
+      const response = await getAllServiceRecommendations();
+      setRecommendServices(
+        response.result.map((item) => ({
+          ...item,
+          serviceId: item.service_id,
+          quizId: item.quiz_id,
+        }))
+      );
+      console.log(response.result);
+    };
+    fetchAllServiceRecommendations();
+    fetchAllServices();
+    fetchAllQuizes();
+  }, []);
 
   // State tìm kiếm
   const [searchTerm, setSearchTerm] = useState("");
 
   // Lọc theo searchTerm (tìm kiếm theo id, quizCategory, service)
-  const filteredRecommendServices = recommendServices.filter((item) => {
+  const filteredRecommendServices = recommendServices?.filter((item) => {
     const search = searchTerm.toLowerCase();
     return (
       item.id.toString().toLowerCase().includes(search) ||
-      item.quizCategory.toLowerCase().includes(search) ||
-      item.service.toLowerCase().includes(search)
+      item.quiz_title.toLowerCase().includes(search) ||
+      item.service_name.toLowerCase().includes(search)
     );
   });
 
   // State điều khiển form Thêm mới
   const [isAdding, setIsAdding] = useState(false);
   const [newRecommend, setNewRecommend] = useState({
-    quizCategory: "",
-    service: "",
+    quizId: "",
+    quiz_title: "",
+    serviceId: "",
+    service_name: "",
     minScore: "",
     maxScore: "",
   });
@@ -86,13 +80,13 @@ const RecommendService = () => {
   };
 
   // Thêm Recommend Service
-  const handleAddRecommend = () => {
+  const handleAddRecommend = async () => {
     const errors = {};
     // Kiểm tra các trường
-    if (!newRecommend.quizCategory.trim()) {
-      errors.quizCategory = "Vui lòng chọn Category";
+    if (!newRecommend.quizId.trim()) {
+      errors.quiz = "Vui lòng chọn Category";
     }
-    if (!newRecommend.service.trim()) {
+    if (!newRecommend.serviceId.trim()) {
       errors.service = "Vui lòng chọn Dịch vụ";
     }
     if (newRecommend.minScore === "") {
@@ -115,22 +109,27 @@ const RecommendService = () => {
       return;
     }
 
-    // Nếu không có lỗi -> thêm vào danh sách
-    const newId =
-      recommendServices.length > 0
-        ? Math.max(...recommendServices.map((s) => s.id)) + 1
-        : 1;
-    const recommendToAdd = {
-      ...newRecommend,
-      id: newId,
-      minScore: Number(newRecommend.minScore),
-      maxScore: Number(newRecommend.maxScore),
-    };
-    setRecommendServices((prev) => [...prev, recommendToAdd]);
-    // Reset form
-    setNewRecommend({ quizCategory: "", service: "", minScore: "", maxScore: "" });
-    setAddErrors({});
-    setIsAdding(false);
+    try {
+      const response = await createServiceRecommendation(newRecommend);
+
+      setRecommendServices((prev) => [...prev, response.result]);
+      setNewRecommend({
+        quizId: "",
+        quiz_title: "",
+        serviceId: "",
+        service_name: "",
+        minScore: "",
+        maxScore: "",
+      });
+      setAddErrors({});
+      setIsAdding(false);
+    } catch (error) {
+      console.error("Error adding recommend service:", error);
+      if (error.response.data.code == 2006) {
+        alert("Recommend Service đã tồn tại");
+        return;
+      }
+    }
   };
 
   // State điều khiển chỉnh sửa
@@ -140,9 +139,10 @@ const RecommendService = () => {
   const handleStartEdit = (item) => {
     setEditingId(item.id);
     setEditedRecommend(item);
+    console.log(item);
   };
 
-  const handleSaveEdit = (id) => {
+  const handleSaveEdit = async (id) => {
     // Kiểm tra logic min/max
     const errors = {};
     if (editedRecommend.minScore === "") {
@@ -164,11 +164,29 @@ const RecommendService = () => {
       return;
     }
 
-    setRecommendServices((prev) =>
-      prev.map((s) => (s.id === id ? editedRecommend : s))
-    );
-    setEditingId(null);
-    setEditedRecommend({});
+    try {
+      console.log(editedRecommend);
+      const response = await updateServiceRecommendation(
+        editingId,
+        editedRecommend
+      );
+      setRecommendServices((prev) =>
+        prev.map((s) =>
+          s.id === id
+            ? {
+                ...response.result,
+                quizId: response.result?.quiz_id,
+                serviceId: response.result?.service_id,
+              }
+            : s
+        )
+      );
+      setEditingId(null);
+      setEditedRecommend(null);
+    } catch (error) {
+      console.error("Error updating recommend service:", error);
+      alert("Có lỗi xảy ra, vui lòng thử lại");
+    }
   };
 
   const handleCancelEdit = () => {
@@ -177,9 +195,14 @@ const RecommendService = () => {
   };
 
   // Xóa
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc muốn xóa Recommend Service này?")) {
-      setRecommendServices((prev) => prev.filter((item) => item.id !== id));
+      try {
+        await deleteServiceRecommendation(id);
+        setRecommendServices((prev) => prev.filter((item) => item.id !== id));
+      } catch (error) {
+        console.error("Error deleting recommend service:", error);
+      }
     }
   };
 
@@ -239,35 +262,37 @@ const RecommendService = () => {
               {/* Quiz Category */}
               <div>
                 <select
-                  name="quizCategory"
-                  value={newRecommend.quizCategory}
+                  name="quizId"
+                  value={newRecommend.quizId}
                   onChange={(e) => handleInputChange(e, setNewRecommend)}
                   className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
                 >
-                  <option value="">-- Chọn Category --</option>
-                  {quizCategories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
+                  <option value="">-- Chọn Quiz --</option>
+                  {quizes.map((quiz) => (
+                    <option key={quiz.id} value={quiz.id}>
+                      {quiz.title}
                     </option>
                   ))}
                 </select>
-                {addErrors.quizCategory && (
-                  <p className="text-red-400 text-sm">{addErrors.quizCategory}</p>
+                {addErrors.quiz && (
+                  <p className="text-red-400 text-sm">
+                    {addErrors.quizCategory}
+                  </p>
                 )}
               </div>
 
               {/* Service */}
               <div>
                 <select
-                  name="service"
-                  value={newRecommend.service}
+                  name="serviceId"
+                  value={newRecommend.serviceId}
                   onChange={(e) => handleInputChange(e, setNewRecommend)}
                   className="border p-1 bg-gray-700 border-gray-600 text-white w-full"
                 >
                   <option value="">-- Chọn Dịch vụ --</option>
                   {allServices.map((svc) => (
-                    <option key={svc} value={svc}>
-                      {svc}
+                    <option key={svc.id} value={svc.id}>
+                      {svc.name}
                     </option>
                   ))}
                 </select>
@@ -345,7 +370,7 @@ const RecommendService = () => {
             <thead className="bg-gray-700 text-gray-300">
               <tr>
                 <th className="border border-gray-600 p-2">ID</th>
-                <th className="border border-gray-600 p-2">Quiz Category</th>
+                <th className="border border-gray-600 p-2">Quiz Title</th>
                 <th className="border border-gray-600 p-2">Service</th>
                 <th className="border border-gray-600 p-2">Min Score</th>
                 <th className="border border-gray-600 p-2">Max Score</th>
@@ -355,7 +380,10 @@ const RecommendService = () => {
             </thead>
             <tbody className="bg-gray-800 text-gray-200">
               {filteredRecommendServices.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-700">
+                <tr
+                  key={item.id + "-" + item.serviceId}
+                  className="hover:bg-gray-700"
+                >
                   <td className="border border-gray-600 p-2">{item.id}</td>
 
                   {editingId === item.id ? (
@@ -363,18 +391,18 @@ const RecommendService = () => {
                       {/* Quiz Category edit */}
                       <td className="border border-gray-600 p-1">
                         <select
-                          value={editedRecommend.quizCategory}
+                          value={editedRecommend.quizId}
                           onChange={(e) =>
                             setEditedRecommend((prev) => ({
                               ...prev,
-                              quizCategory: e.target.value,
+                              quizId: e.target.value,
                             }))
                           }
                           className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         >
-                          {quizCategories.map((cat) => (
-                            <option key={cat} value={cat}>
-                              {cat}
+                          {quizes.map((quiz) => (
+                            <option key={quiz.id} value={quiz.id}>
+                              {quiz.title}
                             </option>
                           ))}
                         </select>
@@ -383,18 +411,18 @@ const RecommendService = () => {
                       {/* Service edit */}
                       <td className="border border-gray-600 p-1">
                         <select
-                          value={editedRecommend.service}
+                          value={editedRecommend.serviceId}
                           onChange={(e) =>
                             setEditedRecommend((prev) => ({
                               ...prev,
-                              service: e.target.value,
+                              serviceId: e.target.value,
                             }))
                           }
                           className="border p-1 w-full bg-gray-700 border-gray-600 text-white"
                         >
                           {allServices.map((svc) => (
-                            <option key={svc} value={svc}>
-                              {svc}
+                            <option key={svc.id} value={svc.id}>
+                              {svc.name}
                             </option>
                           ))}
                         </select>
@@ -456,10 +484,10 @@ const RecommendService = () => {
                   ) : (
                     <>
                       <td className="border border-gray-600 p-2">
-                        {item.quizCategory}
+                        {item.quiz_title}
                       </td>
                       <td className="border border-gray-600 p-2">
-                        {item.service}
+                        {item.service_name}
                       </td>
                       <td className="border border-gray-600 p-2">
                         {item.minScore}

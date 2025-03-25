@@ -1,5 +1,5 @@
-// import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from './components/context/UserContext';
 import './App.css';
 import Login from './components/Auth/Login';
@@ -11,11 +11,9 @@ import EmailCheck from './components/Auth/EmailCheck';
 import Profile from './components/pages/Profile';
 import BookingProcess from './components/pages/BookingProcess';
 import AminDashboard from './components/pages/Admin/AdminDashboard';
-import ServiceManagement from './components/pages/Admin/ServiceManagement';
-import AppointmentManagement from './components/pages/Admin/AppointmentManagement';
-import StaffManagerment from './components/pages/Admin/Employees/StaffManagement';
-import StaffList from './components/pages/Admin/Employees/StaffList';
-import TherapistList from './components/pages/Admin/Employees/therapistList';
+import ServiceManagement from "./components/pages/Admin/ServiceManagement";
+import AppointmentManagement from "./components/pages/Admin/AppointmentManagement";
+import TherapistManagement from "./components/pages/Admin/TherapistManagement";
 import CustomerList from './components/pages/Admin/CustomerList'; 
 import Schedule from './components/pages/Admin/Schedules';
 import BlogList from './components/pages/Admin/BlogsList';
@@ -46,8 +44,8 @@ import TherapistSchedule from './components/pages/therapist2/therapistSchedule';
 
 function App() {
     return (
-        <Router>
-            <UserProvider>``
+        <BrowserRouter>
+            <UserProvider>
                 <Routes>
                     <Route path='/booking' element={<BookingProcess/>}/>
                     <Route path="/profile" element={<Profile />} />
@@ -68,9 +66,7 @@ function App() {
                     <Route path="/admin/*" element={<AminDashboard />} />
                     <Route path="/admin/services" element={<ServiceManagement />} />
                     <Route path="/admin/appointments" element={<AppointmentManagement />} />
-                    <Route path="/admin/employees" element={<StaffManagerment />} />
-                    <Route path="/admin/employees/staff" element={<StaffList />} />
-                    <Route path="/admin/employees/specialists" element={<TherapistList />} />
+                    <Route path="/admin/therapists" element={<TherapistManagement />} />
                     <Route path="/admin/customers" element={<CustomerList />} />
                     <Route path="/admin/schedules" element={<Schedule />} />
                     <Route path="/admin/blogs" element={<BlogList />} />
@@ -98,7 +94,7 @@ function App() {
                     </Route>
                 </Routes>
             </UserProvider>
-        </Router>
+        </BrowserRouter>
     );
 }
 

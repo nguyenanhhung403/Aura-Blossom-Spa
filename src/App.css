@@ -1119,7 +1119,7 @@ td {
   margin-top: 5px;
 }
 
-.cancel-btn, .update-btn {
+.cancel-btn, .update-btn, .settime-btn {
   padding: 6px 10px;
   border: none;
   border-radius: 5px;
@@ -1160,7 +1160,7 @@ td {
 }
 
 
-.confirm-btn, .cancel-btn {
+.confirm-btn, .cancel-btn, .settime-btn {
   margin: 5px;
   padding: 5px 10px;
   border: none;
@@ -1174,6 +1174,10 @@ td {
 
 .cancel-btn {
   background: red;
+  color: white;
+}
+.settime-btn {
+  background: blue;
   color: white;
 }
 .review-btn{
@@ -1194,6 +1198,28 @@ body {
 ::-webkit-scrollbar {
   width: 0px;
   background: transparent;
+}
+
+/* Thêm vào file App.css */
+.therapist-slider .swiper-button-next,
+.therapist-slider .swiper-button-prev {
+  color: #3B82F6;
+}
+
+.therapist-slider .swiper-pagination-bullet-active {
+  background: #3B82F6;
+}
+
+.therapist-slider .swiper {
+  padding: 20px 0 40px;
+}
+
+.therapist-banner {
+  position: relative;
+}
+
+.therapist-banner h1 {
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
 

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch, FaThList, FaThLarge, FaSort, FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import Sidebar from "./SideBar";
+import { getAllBlogs, createBlog, deleteBlog, getBlogById, updateBlog } from "../../service/blogApi.js";
+import axios from "axios";
+
 
 const BlogList = () => {
   const [blogs, setBlogs] = useState([]);
@@ -11,28 +14,33 @@ const BlogList = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentBlog, setCurrentBlog] = useState(null);
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    thumbnail: null, // Chứa file ảnh khi chọn
+    title: '',
+    content: '',
+    thumbnail: null
   });
 
   // Lấy dữ liệu blog từ API
-  const fetchBlogs = async () => {
-    try {
-      const response = await fetch("/api/blogs");
-      if (response.ok) {
-        const data = await response.json();
-        setBlogs(data);
-      }
-    } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu blog:", error);
-    }
-  };
-
   useEffect(() => {
     fetchBlogs();
   }, []);
 
+  const fetchBlogs = async () => {
+    try {
+      const data = await getAllBlogs();
+      console.log("Dữ liệu blogs nhận được:", data);
+      
+      if (!Array.isArray(data)) {
+        console.error("Dữ liệu không hợp lệ:", data);
+        setBlogs([]);
+      } else {
+        setBlogs(data);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu blogs:", error);
+      setBlogs([]);
+    }
+  };
+  
   // Xử lý chọn file ảnh cho thumbnail
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
@@ -42,70 +50,125 @@ const BlogList = () => {
   // Xóa blog
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/api/blogs/${id}`, { method: "DELETE" });
-      if (response.ok) {
-        setBlogs(blogs.filter((blog) => blog.id !== id));
-      }
+      await deleteBlog(id);
+      setBlogs(blogs.filter((blog) => blog.id !== id));
     } catch (error) {
       console.error("Lỗi khi xóa blog:", error);
     }
   };
 
-  // Chuyển sang chế độ chỉnh sửa
+  // Handle update blog
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      if (!currentBlog || !currentBlog.id) {
+        console.error("Không có blog ID để cập nhật");
+        return;
+      }
+
+      // Log để debug
+      console.log("Đang cập nhật blog với ID:", currentBlog.id);
+      console.log("Dữ liệu cập nhật:", formData);
+
+      // Gọi API update với ID của blog hiện tại
+      await updateBlog(
+        currentBlog.id,  // ID của blog cần update
+        {
+          title: formData.title,
+          content: formData.content
+        },
+        formData.thumbnail
+      );
+      
+      // Reset states
+      setIsEditing(false);
+      setCurrentBlog(null);
+      setFormData({
+        title: '',
+        content: '',
+        thumbnail: null
+      });
+      
+      // Refresh blog list
+      fetchBlogs();
+      alert('Cập nhật bài viết thành công!');
+    } catch (error) {
+      console.error("Lỗi khi cập nhật bài viết:", error);
+      alert('Có lỗi xảy ra khi cập nhật bài viết!');
+    }
+  };
+
+  // Handle edit (khi click vào nút Edit)
   const handleEdit = (blog) => {
+    console.log("Blog được chọn để edit:", blog);
+    setCurrentBlog({...blog}); // Clone blog object
     setIsEditing(true);
-    setCurrentBlog(blog);
     setFormData({
-      title: blog.title,
-      content: blog.content,
-      thumbnail: null, // Để chọn file mới nếu cần
+      title: blog.title || '',
+      content: blog.content || '',
+      thumbnail: null
     });
   };
 
-  // Xử lý submit form cho cả tạo mới và cập nhật
-  const handleFormSubmit = async (e) => {
+  // Hàm reset form
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      content: '',
+      thumbnail: null
+    });
+    setIsEditing(false);
+    setCurrentBlog(null);
+  };
+
+  // Sửa lại phần form submit
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Sử dụng FormData để gửi file ảnh và các trường khác
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("content", formData.content);
-    // Nếu có file ảnh được chọn, thêm vào FormData
-    if (formData.thumbnail) {
-      data.append("thumbnail", formData.thumbnail);
-    }
-
     try {
-      let response;
-      if (isEditing) {
-        response = await fetch(`/api/blogs/${currentBlog.id}`, {
-          method: "PUT",
-          body: data,
-        });
-      } else {
-        response = await fetch("/api/blogs", {
-          method: "POST",
-          body: data,
-        });
-      }
-      if (response.ok) {
-        const result = await response.json();
-        if (isEditing) {
-          setBlogs(blogs.map((blog) => (blog.id === result.id ? result : blog)));
+      if (isEditing && currentBlog) {
+        console.log("Đang cập nhật blog với ID:", currentBlog.id);
+        
+        // Gọi API update với data đơn giản
+        const response = await updateBlog(
+          currentBlog.id,
+          {
+            title: formData.title,
+            content: formData.content
+          },
+          formData.thumbnail
+        );
+        
+        console.log("Kết quả update:", response);
+        
+        if (response.code === 1000) {
+          alert('Cập nhật bài viết thành công!');
+          await fetchBlogs(); // Fetch lại data mới
+          
+          // Reset form và state
+          setFormData({
+            title: '',
+            content: '',
+            thumbnail: null
+          });
           setIsEditing(false);
           setCurrentBlog(null);
-        } else {
-          setBlogs([...blogs, result]);
         }
-        // Reset form
-        setFormData({
-          title: "",
-          content: "",
-          thumbnail: null,
-        });
+      } else {
+        // Xử lý tạo mới
+        const response = await createBlog(formData, formData.thumbnail);
+        if (response.code === 1000) {
+          alert('Tạo bài viết thành công!');
+          await fetchBlogs();
+          setFormData({
+            title: '',
+            content: '',
+            thumbnail: null
+          });
+        }
       }
     } catch (error) {
-      console.error("Lỗi khi gửi form:", error);
+      console.error("Lỗi:", error);
+      alert('Có lỗi xảy ra: ' + error.message);
     }
   };
 
@@ -129,6 +192,9 @@ const BlogList = () => {
     }
     return 0;
   });
+
+  // Trong phần render, thêm log để kiểm tra currentBlog
+  console.log("Current blog state:", currentBlog);
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-900 text-gray-200">
@@ -201,9 +267,7 @@ const BlogList = () => {
             <button
               className="flex items-center border rounded-lg px-3 py-2 bg-green-600 text-white"
               onClick={() => {
-                setIsEditing(false);
-                setCurrentBlog(null);
-                setFormData({ title: "", content: "", thumbnail: null });
+                resetForm();
               }}
             >
               <FaPlus className="mr-1" /> Thêm mới
@@ -212,7 +276,7 @@ const BlogList = () => {
         </div>
 
         {/* Form tạo / cập nhật blog */}
-        <form onSubmit={handleFormSubmit} className="mb-6 bg-gray-800 p-4 rounded-lg" encType="multipart/form-data">
+        <form onSubmit={handleSubmit} className="mb-6 bg-gray-800 p-4 rounded-lg" encType="multipart/form-data">
           <h2 className="text-xl font-bold mb-4">
             {isEditing ? "Cập nhật Blog" : "Tạo Blog mới"}
           </h2>
@@ -221,10 +285,11 @@ const BlogList = () => {
             <input
               type="text"
               className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              value={formData.title || ''}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                title: e.target.value
+              }))}
               required
             />
           </div>
@@ -232,10 +297,11 @@ const BlogList = () => {
             <label className="block mb-1">Nội dung</label>
             <textarea
               className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200"
-              value={formData.content}
-              onChange={(e) =>
-                setFormData({ ...formData, content: e.target.value })
-              }
+              value={formData.content || ''}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                content: e.target.value
+              }))}
               required
             ></textarea>
           </div>
@@ -244,7 +310,10 @@ const BlogList = () => {
             <input
               type="file"
               accept="image/*"
-              onChange={handleThumbnailChange}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                thumbnail: e.target.files[0] || null
+              }))}
               className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200"
               // Nếu tạo mới thì bắt buộc chọn file, còn cập nhật có thể giữ lại ảnh cũ
               required={!isEditing || (isEditing && formData.thumbnail)}

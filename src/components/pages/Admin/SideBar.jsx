@@ -1,140 +1,117 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
-  FaHome, FaServicestack, FaCalendarAlt, FaUserTie, FaUsers, 
-  FaClock, FaQuestionCircle, FaBlog, FaCommentDots, FaChartBar, 
-  FaUserCircle, FaSignOutAlt 
+  FaHome, 
+  FaServicestack, 
+  FaCalendarAlt, 
+  FaUsers, 
+  FaClock, 
+  FaQuestionCircle, 
+  FaBlog, 
+  FaCommentDots, 
+  FaChartBar,
+  FaUserMd,
+  FaSignOutAlt
 } from 'react-icons/fa';
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
   return (
-    <div className="w-64 bg-[#0e1726] min-h-screen text-white p-4 relative">
+    <div className="w-64 bg-[#0e1726] min-h-screen text-white p-4">
       {/* Logo / Tiêu đề */}
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold font-[Segoe_Script]">Quản Lý</h2>
+        <h2 className="text-2xl font-semibold font-[Segoe_Script]">Trang Chủ</h2>
       </div>
 
       {/* Danh sách menu */}
-      <ul className="space-y-3">
+      <ul className="space-y-2">
         <li>
-          <Link
-            to="/admin/Home"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaHome className="mr-2" />
+          <Link to="/admin/trang-chu" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaHome className="mr-3" />
             Trang Chủ
           </Link>
         </li>
+
         <li>
-          <Link
-            to="/admin/services"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaServicestack className="mr-2" />
+          <Link to="/admin/services" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaServicestack className="mr-3" />
             Dịch vụ
           </Link>
         </li>
+
         <li>
-          <Link
-            to="/admin/appointments"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaCalendarAlt className="mr-2" />
+          <Link to="/admin/appointments" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaCalendarAlt className="mr-3" />
             Lịch hẹn
           </Link>
         </li>
+
         <li>
-          <Link
-            to="/admin/employees"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaUserTie className="mr-2" />
+          <Link to="/admin/therapists" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaUserMd className="mr-3" />
             Nhân viên
           </Link>
         </li>
+
         <li>
-          <Link
-            to="/admin/customers"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaUsers className="mr-2" />
+          <Link to="/admin/customers" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaUsers className="mr-3" />
             Khách hàng
           </Link>
         </li>
+
         <li>
-          <Link
-            to="/admin/schedules"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaClock className="mr-2" />
+          <Link to="/admin/schedules" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaClock className="mr-3" />
             Lịch làm việc
           </Link>
         </li>
+
         <li>
-          <Link
-            to="/admin/quizlist"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaQuestionCircle className="mr-2" />
+          <Link to="/admin/quiz" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaQuestionCircle className="mr-3" />
             Quiz
           </Link>
         </li>
+
         <li>
-          <Link
-            to="/admin/blogs"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaBlog className="mr-2" />
+          <Link to="/admin/blogs" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaBlog className="mr-3" />
             Blogs
           </Link>
         </li>
+
         <li>
-          <Link
-            to="/admin/feedback"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaCommentDots className="mr-2" />
+          <Link to="/admin/feedback" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaCommentDots className="mr-3" />
             Feedback
           </Link>
         </li>
+
         <li>
-          <Link
-            to="/admin/dashboard"
-            className="flex items-center px-3 py-2 rounded transition-colors duration-200 hover:bg-[#1c2a3d]"
-          >
-            <FaChartBar className="mr-2" />
+          <Link to="/admin/reports" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+            <FaChartBar className="mr-3" />
             Báo cáo
           </Link>
         </li>
-      </ul>
 
-      {/* Phần hiển thị thông tin Admin, nút "Trang Home" và "Đăng xuất" */}
-      <div className="absolute bottom-4 left-4 right-4 border-t border-gray-700 pt-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <FaUserCircle className="mr-2 text-xl" />
-            <span className="text-base font-medium">Admin</span>
-          </div>
-        </div>
-        <div className="flex space-x-3">
-          <Link
-            to="/"
-            className="flex items-center text-sm text-indigo-400 hover:text-indigo-300"
-            title="Trang Home"
+        <li className="mt-auto">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center py-2 px-4 hover:bg-gray-700 rounded text-red-400 hover:text-red-300"
           >
-            <FaHome className="mr-1" />
-            <span>Trang Home</span>
-          </Link>
-          <Link
-            to="/login"
-            className="flex items-center text-sm text-red-400 hover:text-red-300"
-            title="Đăng xuất"
-          >
-            <FaSignOutAlt className="mr-1" />
-            <span>Đăng xuất</span>
-          </Link>
-        </div>
-      </div>
+            <FaSignOutAlt className="mr-2" />
+            Đăng xuất
+          </button>
+        </li>
+      </ul>
     </div>
   );
 };

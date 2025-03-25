@@ -3,16 +3,26 @@ import { useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import HistoryBanner from "../images/HistoryImg/history-banner.jpg";
+import {
+  getAllAppointments,
+  getMyHistoricalAppointments,
+  getMyUpcomingAppointments,
+} from "../service/appointmentApi";
 
 const History = () => {
   const navigate = useNavigate();
 
-  if (!localStorage.getItem("isLoggedIn")) {
-    window.location.href = "/login"; 
-    return null;
-  }
+  useEffect(() => {
+    if (
+      !localStorage.getItem("access_token") &&
+      !localStorage.getItem("user")
+    ) {
+      window.location.href = "/login";
+      return null;
+    }
+  }, []);
 
-  const [activeTable, setActiveTable] = useState(null);
+  const [activeTable, setActiveTable] = useState("upcoming");
   const [currentPage, setCurrentPage] = useState(1);
   const [dropdownIndex, setDropdownIndex] = useState(null);
   const [cancelConfirmIndex, setCancelConfirmIndex] = useState(null);
@@ -24,9 +34,9 @@ const History = () => {
     // Giả định API sẽ được gắn vào đây
     const fetchUpcomingAppointments = async () => {
       try {
-        const response = await fetch("API_URL_UPCOMING");
-        const data = await response.json();
-        setUpcomingAppointments(data);
+        const response = await getMyUpcomingAppointments();
+        setUpcomingAppointments(response.result || []);
+        console.log(response.result);
       } catch (error) {
         console.error("Lỗi khi lấy lịch hẹn sắp tới:", error);
       }
@@ -34,27 +44,28 @@ const History = () => {
 
     const fetchPreviousServices = async () => {
       try {
-        const response = await fetch("API_URL_PREVIOUS");
-        const data = await response.json();
-        setPreviousServices(data);
+        const response = await getMyHistoricalAppointments();
+        setPreviousServices(response.result || []);
+        console.log(response.result);
       } catch (error) {
         console.error("Lỗi khi lấy dịch vụ trước đó:", error);
       }
     };
-
     fetchUpcomingAppointments();
     fetchPreviousServices();
   }, []);
 
   const getCurrentItems = () => {
-    let data = activeTable === "upcoming" ? upcomingAppointments : previousServices;
+    let data =
+      activeTable === "upcoming" ? upcomingAppointments : previousServices;
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     return data.slice(indexOfFirstItem, indexOfLastItem);
   };
 
   const totalPages = () => {
-    let data = activeTable === "upcoming" ? upcomingAppointments : previousServices;
+    let data =
+      activeTable === "upcoming" ? upcomingAppointments : previousServices;
     return Math.ceil(data.length / itemsPerPage);
   };
 
@@ -62,7 +73,9 @@ const History = () => {
     try {
       await fetch(`API_URL_CANCEL/${id}`, { method: "DELETE" });
       alert("Đã hủy lịch hẹn thành công!");
-      setUpcomingAppointments(upcomingAppointments.filter(item => item.id !== id));
+      setUpcomingAppointments(
+        upcomingAppointments.filter((item) => item.id !== id)
+      );
     } catch (error) {
       console.error("Lỗi khi hủy lịch hẹn:", error);
     }
@@ -87,10 +100,22 @@ const History = () => {
         </div>
 
         <div className="history-buttons">
-          <button className="history-btn" onClick={() => { setActiveTable("upcoming"); setCurrentPage(1); }}>
+          <button
+            className="history-btn"
+            onClick={() => {
+              setActiveTable("upcoming");
+              setCurrentPage(1);
+            }}
+          >
             LỊCH HẸN SẮP TỚI
           </button>
-          <button className="history-btn" onClick={() => { setActiveTable("previous"); setCurrentPage(1); }}>
+          <button
+            className="history-btn"
+            onClick={() => {
+              setActiveTable("previous");
+              setCurrentPage(1);
+            }}
+          >
             DỊCH VỤ TRƯỚC ĐÓ
           </button>
         </div>
@@ -114,26 +139,40 @@ const History = () => {
                 </tr>
               </thead>
               <tbody>
-                {getCurrentItems().map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.date}</td>
-                    <td>{item.time}</td>
-                    <td>{item.service}</td>
-                    <td>{item.staff}</td>
-                    <td>{item.price}</td>
-                    <td>{item.deposit}</td>
-                    <td>{item.paymentMethod}</td>
-                    <td>{item.remaining}</td>
-                    <td>
-                      {item.status === "ĐÃ ĐẶT LỊCH" && (
-                        <button className="cancel-btn" onClick={() => handleCancelAppointment(item.id)}>
-                          Hủy
-                        </button>
-                      )}
-                    </td>
-                    <td>{item.note || "-"}</td>
-                  </tr>
-                ))}
+                {upcomingAppointments.length > 0 &&
+                  upcomingAppointments.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.date}</td>
+                      <td>{item.time}</td>
+                      <td>{item.service.name}</td>
+                      <td>{item.therapist.fullname}</td>
+                      <td>{item.price}</td>
+                      <td>{item.depositAmount}</td>
+                      <td>{item.paymentMethod || "VNPAY"}</td>
+                      <td>{item.price - item.depositAmount}</td>
+                      <td>
+                        {(item.appointmentStatus === "PENDING" ||
+                          item.appointmentStatus === "APPROVED") && (
+                            <>
+                            <div style={{textAlign: "center"}}>Đã đặt lịch</div>
+                          <button
+                            className="cancel-btn"
+                            onClick={() => handleCancelAppointment(item.id)}
+                          >
+                            Hủy
+                          </button>
+                          <button
+                            className="settime-btn"
+                            onClick={() => handleCancelAppointment(item.id)}
+                          >
+                            Dời lịch
+                          </button>
+                          </>
+                        )}
+                      </td>
+                      <td>{item.note || "-"}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -150,24 +189,32 @@ const History = () => {
                   <th>DỊCH VỤ</th>
                   <th>NGƯỜI PHỤ TRÁCH</th>
                   <th>ĐÁNH GIÁ</th>
-                  <th>PHẢN HỒI</th>
+                  <th>GHI CHÚ</th>
                 </tr>
               </thead>
               <tbody>
-                {getCurrentItems().map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.date}</td>
-                    <td>{item.time}</td>
-                    <td>{item.service}</td>
-                    <td>{item.staff}</td>
-                    <td>
-                      {item.rating ? "⭐".repeat(item.rating) : (
-                        <button className="review-btn" onClick={handleReviewClick}>Đánh giá ngay</button>
-                      )}
-                    </td>
-                    <td>{item.feedback}</td>
-                  </tr>
-                ))}
+                {previousServices.length > 0 &&
+                  previousServices.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.date}</td>
+                      <td>{item.time}</td>
+                      <td>{item.service.name}</td>
+                      <td>{item.therapist.fullname}</td>
+                      <td>
+                        {item.rating ? (
+                          "⭐".repeat(item.rating)
+                        ) : (
+                          <button
+                            className="review-btn"
+                            onClick={handleReviewClick}
+                          >
+                            Đánh giá ngay
+                          </button>
+                        )}
+                      </td>
+                      <td>{item.note || "-"}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
