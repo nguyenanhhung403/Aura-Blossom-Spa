@@ -76,7 +76,7 @@ const Navbar = () => {
             className="font-bold text-3xl text-[#2F4F4F] font-serif"
             style={{ fontFamily: "Roboto, sans-serif" }}
           >
-            Aura Blossom
+            <Link to="/" onClick={scrollToTop}>Aura Blossom</Link>
           </span>
         </div>
         <div className="hidden md:flex items-center space-x-6 whitespace-nowrap">

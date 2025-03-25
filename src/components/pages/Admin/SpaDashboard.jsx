@@ -62,57 +62,55 @@ const SpaDashboard = () => {
     }).format(value);
   };
 
-  // Định nghĩa font chữ và style chung
-  const fontStyles = {
-    fontFamily: "'Montserrat', 'Roboto', sans-serif",
-  };
-
   return (
-    <div className="flex min-h-screen bg-gray-900 text-white" style={fontStyles}>
+    <div className="flex min-h-screen bg-gray-900 text-white font-montserrat">
       <Sidebar />
       <div className="flex-1 p-4">
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h1 style={{ fontSize: "24px", fontWeight: "bold", fontFamily: "'Montserrat', sans-serif" }}>Báo Cáo Doanh Thu Quán Spa</h1>
+        <div className="max-w-7xl mx-auto p-5">
+          <div className="flex justify-between items-center mb-5">
+            <h1 className="text-2xl font-bold">Báo Cáo Doanh Thu Quán Spa</h1>
             <select 
               value={year} 
               onChange={(e) => setYear(e.target.value)}
-              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #ccc", backgroundColor: "#333", color: "white", fontFamily: "'Montserrat', sans-serif" }}
+              className="p-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="2023">2023</option>
               <option value="2024">2024</option>
             </select>
           </div>
           
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", marginBottom: "24px" }}>
-            <div style={{ padding: "16px", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", backgroundColor: "#1f2937" }}>
-              <div style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "4px", fontFamily: "'Montserrat', sans-serif" }}>Tổng Doanh Thu</div>
-              <div style={{ fontSize: "20px", fontWeight: "bold", fontFamily: "'Montserrat', sans-serif" }}>{formatCurrency(totalRevenue)}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="p-4 rounded-lg shadow-md bg-gray-800">
+              <div className="text-sm text-gray-400 mb-1">Tổng Doanh Thu</div>
+              <div className="text-xl font-bold">{formatCurrency(totalRevenue)}</div>
             </div>
-            <div style={{ padding: "16px", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", backgroundColor: "#1f2937" }}>
-              <div style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "4px", fontFamily: "'Montserrat', sans-serif" }}>Doanh Thu TB/Tháng</div>
-              <div style={{ fontSize: "20px", fontWeight: "bold", fontFamily: "'Montserrat', sans-serif" }}>{formatCurrency(avgMonthlyRevenue)}</div>
+            <div className="p-4 rounded-lg shadow-md bg-gray-800">
+              <div className="text-sm text-gray-400 mb-1">Doanh Thu TB/Tháng</div>
+              <div className="text-xl font-bold">{formatCurrency(avgMonthlyRevenue)}</div>
             </div>
-            <div style={{ padding: "16px", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", backgroundColor: "#1f2937" }}>
-              <div style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "4px", fontFamily: "'Montserrat', sans-serif" }}>Tổng Số Điều Trị</div>
-              <div style={{ fontSize: "20px", fontWeight: "bold", fontFamily: "'Montserrat', sans-serif" }}>{totalTreatments}</div>
+            <div className="p-4 rounded-lg shadow-md bg-gray-800">
+              <div className="text-sm text-gray-400 mb-1">Tổng Số Điều Trị</div>
+              <div className="text-xl font-bold">{totalTreatments}</div>
             </div>
-            <div style={{ padding: "16px", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", backgroundColor: "#1f2937" }}>
-              <div style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "4px", fontFamily: "'Montserrat', sans-serif" }}>Tổng Khách Hàng</div>
-              <div style={{ fontSize: "20px", fontWeight: "bold", fontFamily: "'Montserrat', sans-serif" }}>{totalClients}</div>
+            <div className="p-4 rounded-lg shadow-md bg-gray-800">
+              <div className="text-sm text-gray-400 mb-1">Tổng Khách Hàng</div>
+              <div className="text-xl font-bold">{totalClients}</div>
             </div>
           </div>
           
-          <div style={{ marginBottom: "24px", padding: "20px", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", backgroundColor: "#1f2937" }}>
-            <h2 style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "16px", fontFamily: "'Montserrat', sans-serif" }}>Biểu Đồ Doanh Thu Hàng Tháng {year}</h2>
-            <div style={{ height: "320px" }}>
+          <div className="mb-6 p-5 rounded-lg shadow-md bg-gray-800">
+            <h2 className="text-lg font-bold mb-4">Biểu Đồ Doanh Thu Hàng Tháng {year}</h2>
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={currentYearData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
-                  <XAxis dataKey="month" stroke="#9ca3af" tick={{ fontFamily: "'Montserrat', sans-serif" }} />
-                  <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}tr`} stroke="#9ca3af" tick={{ fontFamily: "'Montserrat', sans-serif" }} />
-                  <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={{ backgroundColor: "#1f2937", borderColor: "#4b5563", fontFamily: "'Montserrat', sans-serif" }} />
-                  <Legend wrapperStyle={{ fontFamily: "'Montserrat', sans-serif" }} />
+                  <XAxis dataKey="month" stroke="#9ca3af" />
+                  <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}tr`} stroke="#9ca3af" />
+                  <Tooltip 
+                    formatter={(value) => formatCurrency(value)} 
+                    contentStyle={{ backgroundColor: "#1f2937", borderColor: "#4b5563" }} 
+                  />
+                  <Legend />
                   <Line 
                     type="monotone" 
                     dataKey="revenue" 
@@ -126,39 +124,39 @@ const SpaDashboard = () => {
             </div>
           </div>
           
-          <div style={{ padding: "20px", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", backgroundColor: "#1f2937" }}>
-            <h2 style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "16px", fontFamily: "'Montserrat', sans-serif" }}>Chi Tiết Doanh Thu Hàng Tháng {year}</h2>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'Montserrat', sans-serif" }}>
+          <div className="p-5 rounded-lg shadow-md bg-gray-800">
+            <h2 className="text-lg font-bold mb-4">Chi Tiết Doanh Thu Hàng Tháng {year}</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid #4b5563" }}>
-                    <th style={{ textAlign: "left", padding: "12px 8px", color: "#9ca3af" }}>Tháng</th>
-                    <th style={{ textAlign: "right", padding: "12px 8px", color: "#9ca3af" }}>Doanh Thu</th>
-                    <th style={{ textAlign: "right", padding: "12px 8px", color: "#9ca3af" }}>Số Điều Trị</th>
-                    <th style={{ textAlign: "right", padding: "12px 8px", color: "#9ca3af" }}>Số Khách Hàng</th>
-                    <th style={{ textAlign: "right", padding: "12px 8px", color: "#9ca3af" }}>TB/Khách</th>
+                  <tr className="border-b border-gray-700">
+                    <th className="text-left py-3 px-2 text-gray-400">Tháng</th>
+                    <th className="text-right py-3 px-2 text-gray-400">Doanh Thu</th>
+                    <th className="text-right py-3 px-2 text-gray-400">Số Điều Trị</th>
+                    <th className="text-right py-3 px-2 text-gray-400">Số Khách Hàng</th>
+                    <th className="text-right py-3 px-2 text-gray-400">TB/Khách</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentYearData.map((item, index) => (
-                    <tr key={index} style={{ borderBottom: "1px solid #374151" }}>
-                      <td style={{ padding: "12px 8px" }}>{item.month}</td>
-                      <td style={{ textAlign: "right", padding: "12px 8px" }}>{formatCurrency(item.revenue)}</td>
-                      <td style={{ textAlign: "right", padding: "12px 8px" }}>{item.treatments}</td>
-                      <td style={{ textAlign: "right", padding: "12px 8px" }}>{item.clients}</td>
-                      <td style={{ textAlign: "right", padding: "12px 8px" }}>
+                    <tr key={index} className="border-b border-gray-700">
+                      <td className="py-3 px-2">{item.month}</td>
+                      <td className="text-right py-3 px-2">{formatCurrency(item.revenue)}</td>
+                      <td className="text-right py-3 px-2">{item.treatments}</td>
+                      <td className="text-right py-3 px-2">{item.clients}</td>
+                      <td className="text-right py-3 px-2">
                         {formatCurrency(item.revenue / item.clients)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr style={{ fontWeight: "bold", backgroundColor: "#111827" }}>
-                    <td style={{ padding: "12px 8px" }}>Tổng</td>
-                    <td style={{ textAlign: "right", padding: "12px 8px" }}>{formatCurrency(totalRevenue)}</td>
-                    <td style={{ textAlign: "right", padding: "12px 8px" }}>{totalTreatments}</td>
-                    <td style={{ textAlign: "right", padding: "12px 8px" }}>{totalClients}</td>
-                    <td style={{ textAlign: "right", padding: "12px 8px" }}>
+                  <tr className="font-bold bg-gray-900">
+                    <td className="py-3 px-2">Tổng</td>
+                    <td className="text-right py-3 px-2">{formatCurrency(totalRevenue)}</td>
+                    <td className="text-right py-3 px-2">{totalTreatments}</td>
+                    <td className="text-right py-3 px-2">{totalClients}</td>
+                    <td className="text-right py-3 px-2">
                       {formatCurrency(totalRevenue / totalClients)}
                     </td>
                   </tr>
