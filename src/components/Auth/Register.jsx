@@ -18,6 +18,16 @@ const Register = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
+  // Lấy email từ localStorage khi component mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("registrationEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      // Xóa email khỏi localStorage sau khi đã sử dụng
+      localStorage.removeItem("registrationEmail");
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;

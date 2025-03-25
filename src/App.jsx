@@ -37,6 +37,10 @@ import StaffFeedback from './components/staff/StaffFeedback';
 import StaffSettings from './components/staff/StaffSettings';
 // Import therapist2 components
 import TherapistDashboard from './components/pages/therapist2/therapistDashboard';
+import TherapistLayout from './components/pages/therapist2/therapistLayout';
+import TherapistAppointments from './components/pages/therapist2/therapistAppoiment';
+import TherapistSettings from './components/pages/therapist2/therapistSetting';
+import TherapistSchedule from './components/pages/therapist2/therapistSchedule';
 
 function App() {
     return (
@@ -81,7 +85,13 @@ function App() {
                         <Route path="settings" element={<StaffSettings />} />
                     </Route>
                     {/* therapist 2 routes */}
-                    <Route path="/therapist2" element={<TherapistDashboard />} />
+                    <Route path="/therapist2" element={<TherapistLayout  />} >
+                    
+                        <Route index element={<TherapistDashboard />} />
+                        <Route path="schedule" element={<TherapistSchedule />} />
+                        <Route path="appointments" element={<TherapistAppointments />} />
+                        <Route path="settings" element={<TherapistSettings />} />
+                    </Route>
                 </Routes>
             </UserProvider>
         </BrowserRouter>

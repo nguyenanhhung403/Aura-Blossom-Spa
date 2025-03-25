@@ -15,7 +15,6 @@ const AppointmentList = () => {
   // Các trạng thái có thể có
   const statusOptions = [
     "Đã hoàn thành",
-    "Đang điều trị",
     "Chờ xác nhận",
     "Đã hủy",
   ];
@@ -148,8 +147,6 @@ const AppointmentList = () => {
     switch (status) {
       case "Đã hoàn thành":
         return "text-green-400 bg-green-900/30";
-      case "Đang điều trị":
-        return "text-blue-400 bg-blue-900/30";
       case "Chờ xác nhận":
         return "text-yellow-400 bg-yellow-900/30";
       case "Đã hủy":
@@ -169,7 +166,7 @@ const AppointmentList = () => {
         </div>
 
         {/* Thông tin tổng quan */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-gradient-to-r from-purple-800 to-indigo-800 p-4 rounded-lg shadow-lg">
             <h3 className="text-gray-300 text-sm">Tổng khách hàng</h3>
             <p className="text-white text-2xl font-bold">{appointments.length}</p>
@@ -178,12 +175,6 @@ const AppointmentList = () => {
             <h3 className="text-gray-300 text-sm">Đã hoàn thành</h3>
             <p className="text-white text-2xl font-bold">
               {appointments.filter((a) => a.status === "Đã hoàn thành").length}
-            </p>
-          </div>
-          <div className="bg-gradient-to-r from-blue-800 to-sky-800 p-4 rounded-lg shadow-lg">
-            <h3 className="text-gray-300 text-sm">Đang điều trị</h3>
-            <p className="text-white text-2xl font-bold">
-              {appointments.filter((a) => a.status === "Đang điều trị").length}
             </p>
           </div>
           <div className="bg-gradient-to-r from-yellow-800 to-amber-800 p-4 rounded-lg shadow-lg">
