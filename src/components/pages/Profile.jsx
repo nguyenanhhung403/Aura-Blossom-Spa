@@ -83,7 +83,7 @@ const UserProfile = () => {
         )}
       </div>
       <ContactUs />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };
