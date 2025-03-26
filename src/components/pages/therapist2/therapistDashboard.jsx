@@ -5,7 +5,7 @@ import { FaCalendarAlt, FaClipboardList, FaUserCog } from "react-icons/fa";
 const TherapistDashboard = () => {
   const [menuItems, setMenuItems] = useState([
     { name: "Lịch làm việc cá nhân", path: "/therapist2/schedule", icon: <FaCalendarAlt />, count: 0 },
-    { name: "Lịch hẹn", path: "/therapist2/appointments", icon: <FaClipboardList />, count: 0 },
+   // { name: "Lịch hẹn", path: "/therapist2/appointments", icon: <FaClipboardList />, count: 0 },
     { name: "Cài đặt", path: "/therapist2/settings", icon: <FaUserCog />, count: 0 },
   ]);
 
@@ -20,7 +20,7 @@ const TherapistDashboard = () => {
         setMenuItems((prevItems) =>
           prevItems.map((item) => {
             if (item.name === "Lịch làm việc cá nhân") return { ...item, count: data.scheduleCount };
-            if (item.name === "Lịch hẹn") return { ...item, count: data.appointmentCount };
+          //  if (item.name === "Lịch hẹn") return { ...item, count: data.appointmentCount };
             if (item.name === "Cài đặt") return { ...item, count: data.settingsCount };
             return item;
           })
