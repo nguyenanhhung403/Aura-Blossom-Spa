@@ -8,33 +8,36 @@ import { getAllBlogs } from "../service/blogApi.js"; // Import hàm getAllBlogs 
 const BeautyTips = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTip, setSelectedTip] = useState(null);
-  const [blogs, setBlogs] = useState([]); // Thay thế beautyTips bằng blogs
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true); // Thêm state loading
+  const [error, setError] = useState(null); // Thêm state error
 
   // Lấy dữ liệu blog từ API
   const fetchBlogs = async () => {
     try {
-      const data = await getAllBlogs();
-      console.log("Dữ liệu API trả về:", data);
-  
-      if (!data || typeof data !== "object") {
-        console.error("Dữ liệu API không hợp lệ:", data);
-        setBlogs([]);
-        return;
+      setLoading(true);
+      const response = await getAllBlogs();
+      console.log("Response từ API:", response);
+
+      // Kiểm tra response
+      if (response && response.result && Array.isArray(response.result)) {
+        setBlogs(response.result);
+        setError(null);
+      } else {
+        throw new Error("Không nhận được dữ liệu blogs từ server");
       }
-  
-      if (!Array.isArray(data.result)) {
-        console.error("Dữ liệu blogs không phải mảng:", data.result);
-        setBlogs([]);
-        return;
-      }
-  
-      setBlogs(data.result);
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu blogs:", error);
+      console.error("Lỗi khi lấy blogs:", error);
+      setError(error.message);
       setBlogs([]);
+    } finally {
+      setLoading(false);
     }
   };
-  
+
+  useEffect(() => {
+    fetchBlogs(); // Gọi hàm fetchBlogs khi component mount
+  }, []); // Empty dependency array means this runs once when component mounts
 
   useEffect(() => {
     console.log("Danh sách blogs sau khi cập nhật state:", blogs);
@@ -61,31 +64,49 @@ const BeautyTips = () => {
           </p>
         </div>
 
-        {/* Blog Grid */}
-        {blogs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {paginatedBlogs.map((blog) => (
-              <div
-                key={blog.id}
-                className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition-shadow cursor-pointer"
-                onClick={() => setSelectedTip(blog)}
-              >
-                <img
-                  src={blog.thumbnail}
-                  alt={blog.title}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h2 className="text-xl font-bold text-gray-800">{blog.title}</h2>
-                  <p className="mt-2 text-gray-600">{blog.content.substring(0, 100)}...</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
+        {/* Loading State */}
+        {loading && (
           <div className="text-center py-10">
-            <p>Không có dữ liệu blog nào để hiển thị.</p>
+            <p>Đang tải dữ liệu...</p>
           </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-10 text-red-500">
+            <p>Có lỗi xảy ra: {error}</p>
+          </div>
+        )}
+
+        {/* Blog Grid */}
+        {!loading && !error && (
+          <>
+            {blogs.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {paginatedBlogs.map((blog) => (
+                  <div
+                    key={blog.id}
+                    className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition-shadow cursor-pointer"
+                    onClick={() => setSelectedTip(blog)}
+                  >
+                    <img
+                      src={blog.thumbnail}
+                      alt={blog.title}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <h2 className="text-xl font-bold text-gray-800">{blog.title}</h2>
+                      <p className="mt-2 text-gray-600">{blog.content.substring(0, 100)}...</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <p>Không có dữ liệu blog nào để hiển thị.</p>
+              </div>
+            )}
+          </>
         )}
 
         {/* Pagination chỉ hiển thị nếu số lượng blog > 6 */}

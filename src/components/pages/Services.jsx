@@ -120,16 +120,20 @@ const ServicesPage = () => {
     const fetchData = async () => {
       try {
         const servicesResponse = await getAllServices();
-        const categoriesResponse = await getAllServiceCategories();
+        console.log('Raw services response:', servicesResponse);
         
-        // Ở đây bạn có thể thêm API call để lấy dữ liệu technologies
-        // const technologiesResponse = await getAllTechnologies();
-        // setTechnologies(technologiesResponse.result);
+        const categoriesResponse = await getAllServiceCategories();
+        console.log('Raw categories response:', categoriesResponse);
+        
+        if (!servicesResponse.result || !categoriesResponse.result) {
+          throw new Error('Data is missing from response');
+        }
         
         setServices(servicesResponse.result);
         setCategories(categoriesResponse.result);
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching data:', err);
         setError(err.message);
         setLoading(false);
       }
@@ -261,7 +265,23 @@ const ServicesPage = () => {
         </div>
       </section>
       
-      
+      {loading && (
+        <div className="text-center py-10">
+          <p>Đang tải dữ liệu...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="text-center py-10 text-red-500">
+          <p>Có lỗi xảy ra: {error}</p>
+        </div>
+      )}
+
+      {!loading && !error && filteredServices.length === 0 && (
+        <div className="text-center py-10">
+          <p>Không có dịch vụ nào</p>
+        </div>
+      )}
       
       <ContactUs/>
     </div>

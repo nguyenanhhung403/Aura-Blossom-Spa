@@ -1,13 +1,22 @@
-import api, { handleError } from "./api.js";
+import axios from 'axios';
+
+// Tạo instance axios với baseURL
+const api = axios.create({
+  baseURL: 'http://localhost:8080', // Thay đổi port cho đúng với BE của bạn
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 
 export const getAllBlogs = async () => {
-    try {
-        const response = await api.get('/api/blogs');
-        return response.data.result;
-    } catch (error) {
-        handleError(error);
-        return [];
-    }
+  try {
+    const response = await api.get('/api/blogs');
+    console.log("API Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw new Error('Không thể lấy dữ liệu blogs: ' + error.message);
+  }
 };
 
 export const getBlogById = async (id) => {
@@ -15,7 +24,7 @@ export const getBlogById = async (id) => {
         const response = await api.get(`/api/blogs/${id}`);
         return response.data;
     } catch (error) {
-        handleError(error);
+        console.error("API Error:", error);
         return null; // hoặc throw error tùy use case
     }
 };
@@ -31,7 +40,7 @@ export const createBlog = async (blogData, thumbnail) => {
         });
         return response.data;
     } catch (error) {
-        handleError(error);
+        console.error("API Error:", error);
         return null; // hoặc throw error tùy use case
     }
 };
@@ -73,7 +82,7 @@ export const deleteBlog = async (id) => {
         const response = await api.delete(`/api/blogs/delete/${id}`);
         return response.data;
     } catch (error) {
-        handleError(error);
+        console.error("API Error:", error);
         return false; // hoặc throw error tùy use case
     }
 };
