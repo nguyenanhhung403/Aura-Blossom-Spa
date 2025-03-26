@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
-
+import ContactUs from './ContactUs';
 const dummyFeedbacks = [
     {
         id: 1,
@@ -322,7 +322,7 @@ const ViewFeedbacks = () => {
                     {filteredFeedbacks.length > 0 && <Pagination />}
                 </div>
             </div>
-            <Footer />
+            <ContactUs/>
         </div>
     );
 };
