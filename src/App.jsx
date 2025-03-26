@@ -10,7 +10,7 @@ import Blog from './components/pages/Blogs';
 import EmailCheck from './components/Auth/EmailCheck';
 import Profile from './components/pages/Profile';
 import BookingProcess from './components/pages/BookingProcess';
-import AminDashboard from './components/pages/Admin/AdminDashboard';
+import AdminDashboard from './components/pages/Admin/AdminDashboard';
 import ServiceManagement from "./components/pages/Admin/ServiceManagement";
 import AppointmentManagement from "./components/pages/Admin/AppointmentManagement";
 import TherapistManagement from "./components/pages/Admin/TherapistManagement";
@@ -63,7 +63,7 @@ function App() {
                     <Route path='/therapist' element={<Therapist/>}/>
 
                     {/* Admin Routes */}
-                    <Route path="/admin/*" element={<AminDashboard />} />
+                    <Route path="/admin/*" element={<AdminDashboard />} />
                     <Route path="/admin/services" element={<ServiceManagement />} />
                     <Route path="/admin/appointments" element={<AppointmentManagement />} />
                     <Route path="/admin/therapists" element={<TherapistManagement />} />

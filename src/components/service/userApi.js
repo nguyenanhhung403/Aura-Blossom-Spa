@@ -5,8 +5,10 @@ import api, { handleError } from './api';
 export const getAllUsers = async () => {
   try {
     const response = await api.get('/api/users');
+    console.log('Raw API response:', response.data);
     return response.data;
   } catch (error) {
+    console.error('Error in getAllUsers:', error);
     handleError(error);
   }
 };
@@ -34,36 +36,74 @@ export const createUser = async (data) => {
 // Cập nhật thông tin người dùng
 export const updateUser = async (userId, data) => {
   try {
-    // Sử dụng data được truyền vào thay vì userData
-    const requestData = {
-      id: userId,
-      username: data.username,
-      fullname: data.fullName,
-      phone: data.phone,
-      email: data.email,
-      role: data.role
-    };
+    let requestData;
+    let headers = {};
 
-    console.log("Sending update request:", requestData);
+    // Kiểm tra nếu data là FormData (có file upload)
+    if (data instanceof FormData) {
+      requestData = data;
+      headers = {
+        'Content-Type': 'multipart/form-data'
+      };
+    } else {
+      // Nếu không có file, gửi data bình thường
+      requestData = {
+        username: data.username,
+        fullname: data.fullname,
+        phone: data.phone,
+        email: data.email,
+        role: data.role // Gửi role dưới dạng string
+      };
 
+      if (data.password) {
+        requestData.password = data.password;
+      }
+    }
+
+    // Log request data để debug
+    console.log("Sending update request with data:", JSON.stringify(requestData, null, 2));
+    
     const response = await api.put(`/api/users/update/${userId}`, requestData);
-
     console.log("Update response:", response.data);
+    
+    if (!response.data) {
+      throw new Error('Không nhận được phản hồi từ server');
+    }
+    
     return response.data;
   } catch (error) {
     console.error("Update user error:", error);
-    console.log("Error details:", error.response?.data);
-    throw error;
+    if (error.response?.data) {
+      console.log("Error details:", error.response.data);
+      throw new Error(error.response.data.message || 'Lỗi khi cập nhật người dùng');
+    }
+    throw new Error('Lỗi kết nối đến server');
   }
 };
 
 // Xóa người dùng
 export const deleteUser = async (userId) => {
   try {
+    console.log("Sending delete request for user:", userId);
     const response = await api.delete(`/api/users/delete/${userId}`);
+    console.log("Delete response:", response.data);
+    
+    if (!response.data) {
+      throw new Error('Không nhận được phản hồi từ server');
+    }
+    
     return response.data;
   } catch (error) {
-    handleError(error);
+    console.error("Delete user error:", error);
+    // Kiểm tra lỗi cụ thể từ backend
+    if (error.response?.data) {
+      console.log("Error details:", error.response.data);
+      if (error.response.data.code === 1011) {
+        throw new Error('Therapist not found');
+      }
+      throw new Error(error.response.data.message || 'Lỗi khi xóa người dùng');
+    }
+    throw new Error('Lỗi kết nối đến server');
   }
 };
 
