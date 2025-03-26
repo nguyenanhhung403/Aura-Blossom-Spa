@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   FaSearch, 
   FaEye, 
@@ -7,68 +7,95 @@ import {
   FaCheck,
   FaTimes
 } from "react-icons/fa";
+import { getAllAppointments } from "../service/appointmentApi";
+import axios from "axios";
 
 const StaffHistory = () => {
-  // Các trạng thái có thể có
+  // Các trạng thái thanh toán có thể có
   const statusOptions = [
+    "Chờ thanh toán",
+    "Đã đặt cọc",
     "Đã thanh toán",
-    "Chưa thanh toán",
-    "Đã hủy"
+    "Thanh toán thất bại",
+    "Đã hủy thanh toán"
   ];
 
-  // Dữ liệu mẫu cho lịch sử thanh toán
-  const [paymentHistory, setPaymentHistory] = useState([
-    {
-      id: 1,
-      name: "Nguyễn Văn A",
-      phone: "0123456789",
-      email: "nguyenvana@gmail.com",
-      service: "Dịch vụ chăm sóc da",
-      dateTime: "2023-12-01 14:00",
-      amount: 1200000,
-      status: "Đã thanh toán",
-    },
-    {
-      id: 2,
-      name: "Trần Thị B",
-      phone: "0987654321",
-      email: "tranthib@gmail.com",
-      service: "Trị mụn chuyên sâu",
-      dateTime: "2023-12-02 09:30",
-      amount: 1500000,
-      status: "Đã thanh toán",
-    },
-    {
-      id: 3,
-      name: "Lê Văn C",
-      phone: "0909123456",
-      email: "levanc@gmail.com",
-      service: "Điều trị sẹo",
-      dateTime: "2023-12-05 15:30",
-      amount: 2500000,
-      status: "Đã thanh toán",
-    },
-    {
-      id: 4,
-      name: "Phạm Thị D",
-      phone: "0978123654",
-      email: "phamthid@gmail.com",
-      service: "Tắm trắng cao cấp",
-      dateTime: "2023-12-07 10:00",
-      amount: 3000000,
-      status: "Đã hủy",
-    },
-    {
-      id: 5,
-      name: "Hoàng Minh E",
-      phone: "0912987654",
-      email: "hoangminhe@gmail.com",
-      service: "Trị rụng tóc",
-      dateTime: "2023-12-10 13:45",
-      amount: 1800000,
-      status: "Chưa thanh toán",
-    },
-  ]);
+  // Map API status sang trạng thái hiển thị
+  const mapApiStatus = (status) => {
+    switch(status) {
+      case "PENDING": return "Chờ thanh toán";
+      case "PARTIALLY_PAID": return "Đã đặt cọc";
+      case "PAID": return "Đã thanh toán";
+      case "FAILED": return "Thanh toán thất bại";
+      case "CANCELLED": return "Đã hủy thanh toán";
+      default: return "Chờ thanh toán";
+    }
+  };
+
+  // Map trạng thái hiển thị sang API status
+  const mapToApiStatus = (status) => {
+    switch(status) {
+      case "Chờ thanh toán": return "PENDING";
+      case "Đã đặt cọc": return "PARTIALLY_PAID";
+      case "Đã thanh toán": return "PAID";
+      case "Thanh toán thất bại": return "FAILED";
+      case "Đã hủy thanh toán": return "CANCELLED";
+      default: return "PENDING";
+    }
+  };
+
+  // State cho lịch sử thanh toán
+  const [paymentHistory, setPaymentHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Cập nhật trạng thái thanh toán
+  const updatePaymentStatus = async (id, status) => {
+    try {
+      const response = await axios.put(`http://localhost:8080/api/appointments/update-status/${id}?ptStatus=${status}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Lấy dữ liệu lịch sử từ API
+  useEffect(() => {
+    const fetchPaymentHistory = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getAllAppointments();
+        if (data && data.result) {
+          // Chuyển đổi dữ liệu từ API sang định dạng phù hợp với component
+          const formattedData = data.result.map(item => ({
+            id: item.id,
+            name: item.fullname || "Không có tên",
+            phone: item.therapist?.phone || "",
+            email: item.therapist?.email || "",
+            service: item.service?.name || "Không có dịch vụ",
+            dateTime: `${item.date} ${item.time}`,
+            amount: item.price || 0,
+            depositAmount: item.depositAmount || 0,
+            remainingAmount: item.remainingAmount || 0,
+            status: mapApiStatus(item.paymentStatus),
+            originalStatus: item.paymentStatus,
+            appointmentStatus: item.appointmentStatus
+          }));
+          setPaymentHistory(formattedData);
+        } else {
+          throw new Error("Dữ liệu không hợp lệ");
+        }
+      } catch (err) {
+        setError("Không thể tải lịch sử thanh toán. Vui lòng thử lại sau.");
+        console.error("Error fetching payment history:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPaymentHistory();
+  }, []);
 
   // Tìm kiếm và lọc theo trạng thái
   const [searchTerm, setSearchTerm] = useState("");
@@ -78,7 +105,7 @@ const StaffHistory = () => {
     const matchesSearch =
       payment.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
       payment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.phone.includes(searchTerm);
+      (payment.phone && payment.phone.includes(searchTerm));
     const matchesStatus =
       filterStatus === "Tất cả" || payment.status === filterStatus;
     return matchesSearch && matchesStatus;
@@ -98,18 +125,35 @@ const StaffHistory = () => {
   // Chỉnh sửa trạng thái
   const [editingId, setEditingId] = useState(null);
   const [editingStatus, setEditingStatus] = useState("");
+  const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
 
   const startEditStatus = (payment) => {
     setEditingId(payment.id);
     setEditingStatus(payment.status);
   };
 
-  const saveEditStatus = (id) => {
-    setPaymentHistory((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: editingStatus } : p))
-    );
-    setEditingId(null);
-    setEditingStatus("");
+  const saveEditStatus = async (id) => {
+    setStatusUpdateLoading(true);
+    try {
+      const payment = paymentHistory.find(p => p.id === id);
+      if (!payment) throw new Error("Không tìm thấy giao dịch");
+      
+      const apiStatus = mapToApiStatus(editingStatus);
+      const updatedData = await updatePaymentStatus(id, apiStatus);
+      
+      if (updatedData) {
+        setPaymentHistory((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, status: editingStatus, originalStatus: apiStatus } : p))
+        );
+      }
+    } catch (err) {
+      console.error("Error updating payment status:", err);
+      alert("Không thể cập nhật trạng thái thanh toán. Vui lòng thử lại.");
+    } finally {
+      setStatusUpdateLoading(false);
+      setEditingId(null);
+      setEditingStatus("");
+    }
   };
 
   const cancelEdit = () => {
@@ -122,10 +166,14 @@ const StaffHistory = () => {
     switch (status) {
       case "Đã thanh toán":
         return "text-green-400 bg-green-900/30";
-      case "Chưa thanh toán":
+      case "Đã đặt cọc":
+        return "text-blue-400 bg-blue-900/30";
+      case "Chờ thanh toán":
         return "text-yellow-400 bg-yellow-900/30";
-      case "Đã hủy":
+      case "Thanh toán thất bại":
         return "text-red-400 bg-red-900/30";
+      case "Đã hủy thanh toán":
+        return "text-gray-400 bg-gray-900/30";
       default:
         return "text-gray-400 bg-gray-900/30";
     }
@@ -135,6 +183,24 @@ const StaffHistory = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
   };
+
+  // Hiển thị loading
+  if (loading && paymentHistory.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-white text-lg">Đang tải dữ liệu...</div>
+      </div>
+    );
+  }
+
+  // Hiển thị lỗi
+  if (error && paymentHistory.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-red-400 text-lg">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -155,10 +221,10 @@ const StaffHistory = () => {
             {paymentHistory.filter((p) => p.status === "Đã thanh toán").length}
           </p>
         </div>
-        <div className="bg-gradient-to-r from-yellow-800 to-amber-800 p-4 rounded-lg shadow-lg">
-          <h3 className="text-gray-300 text-sm">Chưa thanh toán</h3>
+        <div className="bg-gradient-to-r from-blue-800 to-cyan-800 p-4 rounded-lg shadow-lg">
+          <h3 className="text-gray-300 text-sm">Đã đặt cọc</h3>
           <p className="text-white text-2xl font-bold">
-            {paymentHistory.filter((p) => p.status === "Chưa thanh toán").length}
+            {paymentHistory.filter((p) => p.status === "Đã đặt cọc").length}
           </p>
         </div>
       </div>
@@ -211,7 +277,7 @@ const StaffHistory = () => {
                 <th className="p-3 font-semibold">Khách hàng</th>
                 <th className="p-3 font-semibold">Dịch vụ</th>
                 <th className="p-3 font-semibold">Ngày giờ</th>
-                <th className="p-3 font-semibold">Số tiền</th>
+                <th className="p-3 font-semibold">Thanh toán</th>
                 <th className="p-3 font-semibold">Trạng thái</th>
                 <th className="p-3 font-semibold text-center">Thao tác</th>
               </tr>
@@ -238,7 +304,13 @@ const StaffHistory = () => {
                       {payment.dateTime.split(" ")[1]}
                     </div>
                   </td>
-                  <td className="p-3 font-medium">{formatCurrency(payment.amount)}</td>
+                  <td className="p-3">
+                    <div className="text-xs">
+                      <div>Tổng: {formatCurrency(payment.amount)}</div>
+                      <div className="text-green-400">Đã cọc: {formatCurrency(payment.depositAmount)}</div>
+                      <div className="text-yellow-400">Còn lại: {formatCurrency(payment.remainingAmount)}</div>
+                    </div>
+                  </td>
                   <td className="p-3">
                     {editingId === payment.id ? (
                       <div className="flex items-center space-x-2">
@@ -246,6 +318,7 @@ const StaffHistory = () => {
                           value={editingStatus}
                           onChange={(e) => setEditingStatus(e.target.value)}
                           className="bg-[#0f172a] border border-gray-600 rounded text-white py-1 px-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          disabled={statusUpdateLoading}
                         >
                           {statusOptions.map((option) => (
                             <option key={option} value={option}>
@@ -257,6 +330,7 @@ const StaffHistory = () => {
                           onClick={() => saveEditStatus(payment.id)}
                           className="text-green-400 hover:text-green-300"
                           title="Lưu"
+                          disabled={statusUpdateLoading}
                         >
                           <FaCheck />
                         </button>
@@ -264,6 +338,7 @@ const StaffHistory = () => {
                           onClick={cancelEdit}
                           className="text-red-400 hover:text-red-300"
                           title="Hủy"
+                          disabled={statusUpdateLoading}
                         >
                           <FaTimes />
                         </button>
