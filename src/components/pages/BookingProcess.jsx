@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import imgBackground from "../images/LoginImage/AnhTemplate2.jpg";
@@ -10,8 +10,10 @@ import { getAllServices } from "../service/serviceApi";
 import { getAvailableSlotsByDate, getSlotsByDateAndTherapist } from "../service/slotApi";
 import { createAppointment } from "../service/appointmentApi";
 import { createVnPayPayment } from "../service/paymentApi";
+
 const BookingProcess = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState({});
 
   // Quản lý bước hiện tại: 1 - Thông tin đặt lịch, 2 - Chú ý, 3 - Thanh toán
@@ -36,6 +38,7 @@ const BookingProcess = () => {
   const [services, setServices] = useState([]);
   const [slots, setSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
+
   useEffect(() => {
     const fetchTherapists = async () => {
       try {
@@ -72,6 +75,19 @@ const BookingProcess = () => {
     fetchServices();
     fetchTherapists();
   }, []);
+
+  // Xử lý khi có dữ liệu dịch vụ được truyền từ trang dịch vụ
+  useEffect(() => {
+    if (location.state && location.state.serviceId && services.length > 0) {
+      const { serviceId, serviceName, servicePrice } = location.state;
+      setBookingData(prev => ({
+        ...prev,
+        serviceId: serviceId.toString(),
+        service: serviceName,
+        price: servicePrice,
+      }));
+    }
+  }, [location.state, services]);
 
   useEffect(() => {
     const fetchSlots = async () => {
