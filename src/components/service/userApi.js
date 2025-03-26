@@ -134,3 +134,19 @@ export const updateStaff = async (staffId, updateData) => {
     throw error;
   }
 };
+
+export const changePassword = async (passwordData) => {
+  try {
+    console.log('Calling API with data:', passwordData);
+    const response = await api.post('/api/users/change-password', passwordData);
+    console.log('API Response:', response);
+    return response.data;
+  } catch (error) {
+    console.error("Change password error:", error);
+    if (error.response) {
+      console.error("Error response:", error.response.data);
+      throw new Error(error.response.data.message || 'Lỗi khi đổi mật khẩu');
+    }
+    throw error;
+  }
+};

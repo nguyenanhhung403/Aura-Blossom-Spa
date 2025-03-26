@@ -26,15 +26,21 @@ const BlogList = () => {
 
   const fetchBlogs = async () => {
     try {
-      const data = await getAllBlogs();
-      console.log("Dữ liệu blogs nhận được:", data);
+      const response = await getAllBlogs();
+      console.log("Dữ liệu blogs nhận được:", response);
       
-      if (!Array.isArray(data)) {
-        console.error("Dữ liệu không hợp lệ:", data);
-        setBlogs([]);
-      } else {
-        setBlogs(data);
+      // Kiểm tra cấu trúc response và lấy mảng blogs
+      let blogsData = [];
+      if (Array.isArray(response)) {
+        blogsData = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        blogsData = response.data;
+      } else if (response?.result && Array.isArray(response.result)) {
+        blogsData = response.result;
       }
+      
+      console.log("Dữ liệu blogs sau khi xử lý:", blogsData);
+      setBlogs(blogsData);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu blogs:", error);
       setBlogs([]);

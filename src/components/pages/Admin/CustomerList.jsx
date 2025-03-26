@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaSearch, FaTrash, FaEdit, FaCheck, FaTimes } from "react-icons/fa";
 import Sidebar from "../Admin/SideBar";
 import { toast } from 'react-toastify';
-import { getAllUsers, updateUser, deleteUser } from "../../service/userApi";
+import { getAllUsers, updateUser, deleteUser, changePassword } from "../../service/userApi";
 import 'react-toastify/dist/ReactToastify.css';
 
 const CustomerList = () => {
@@ -13,7 +13,10 @@ const CustomerList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editedCustomer, setEditedCustomer] = useState({});
+  const [editedCustomer, setEditedCustomer] = useState({
+    password: '',
+    confirmPassword: ''
+  });
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
@@ -41,21 +44,10 @@ const CustomerList = () => {
   };
 
   const handleEdit = (customer) => {
-    console.log('Editing customer:', customer);
-    // Xử lý role từ response API
-    let currentRole = 'USER';
-    if (customer.roles && customer.roles.length > 0) {
-      currentRole = customer.roles[0].name.replace('ROLE_', '');
-    }
-    console.log('Current role:', currentRole);
-
     setEditedCustomer({
       id: customer.id,
-      username: customer.username || '',
-      email: customer.email || '',
-      fullname: customer.fullname || '', // Sửa từ fullName thành fullname
-      phone: customer.phone || '',
-      role: currentRole
+      password: '',
+      confirmPassword: ''
     });
     setIsEditModalOpen(true);
     setEditingId(customer.id);
@@ -63,30 +55,46 @@ const CustomerList = () => {
 
   const handleSave = async (id) => {
     try {
-      // Chuẩn bị dữ liệu cập nhật
-      const updateData = {
-        username: editedCustomer.username,
-        fullname: editedCustomer.fullname,
-        phone: editedCustomer.phone,
-        email: editedCustomer.email,
-        role: editedCustomer.role // Gửi role trực tiếp
+      // Log để kiểm tra giá trị đầu vào
+      console.log('EditedCustomer:', editedCustomer);
+      console.log('ID:', id);
+
+      if (editedCustomer.password !== editedCustomer.confirmPassword) {
+        toast.error('Mật khẩu xác nhận không khớp!');
+        return;
+      }
+
+      if (editedCustomer.password.length < 6) {
+        toast.error('Mật khẩu phải có ít nhất 6 ký tự!');
+        return;
+      }
+
+      // Tạo request body
+      const passwordData = {
+        userId: id,
+        newPassword: editedCustomer.password,
+        confirmPassword: editedCustomer.confirmPassword
       };
 
-      console.log("Sending update data:", updateData);
-      const response = await updateUser(id, updateData);
-      console.log("Update response:", response);
+      // Log request data
+      console.log('Sending password data:', passwordData);
 
-      if (response.code === 1000) {
-        toast.success('Cập nhật thông tin thành công!');
-        setEditingId(null);
-        setEditedCustomer({});
-        fetchCustomers(); // Tải lại danh sách
+      // Gọi API
+      const response = await changePassword(passwordData);
+      
+      // Log response
+      console.log('API Response:', response);
+
+      if (response?.code === 1000) {
+        toast.success('Đổi mật khẩu thành công!');
+        setIsEditModalOpen(false);
+        setEditedCustomer({ password: '', confirmPassword: '' });
       } else {
-        toast.error('Có lỗi xảy ra khi cập nhật!');
+        throw new Error(response?.message || 'Có lỗi xảy ra khi đổi mật khẩu!');
       }
     } catch (error) {
-      console.error("Error updating user:", error);
-      toast.error(error.message || 'Có lỗi xảy ra khi cập nhật!');
+      console.error("Error changing password:", error);
+      toast.error(error.message || 'Có lỗi xảy ra khi đổi mật khẩu!');
     }
   };
 
@@ -161,15 +169,15 @@ const CustomerList = () => {
         {/* Thanh tìm kiếm */}
         <div className="bg-gray-800 p-4 rounded-lg shadow-md mb-6">
           <div className="flex items-center space-x-4">
-            <div className="relative">
+          <div className="relative">
               <FaSearch className="absolute top-3 left-3 text-gray-400" />
-              <input
-                type="text"
+            <input
+              type="text"
                 placeholder="Tìm kiếm account..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+            />
             </div>
           </div>
         </div>
@@ -184,7 +192,6 @@ const CustomerList = () => {
                 <th className="px-6 py-3">Email</th>
                 <th className="px-6 py-3">Họ tên</th>
                 <th className="px-6 py-3">Số điện thoại</th>
-                <th className="px-6 py-3">Vai trò</th>
                 <th className="px-6 py-3">Thao tác</th>
               </tr>
             </thead>
@@ -198,37 +205,17 @@ const CustomerList = () => {
                     <td className="px-6 py-4">{customer.fullname || '-'}</td>
                     <td className="px-6 py-4">{customer.phone || '-'}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        customer.role?.[0]?.name === "STAFF" 
-                          ? "bg-blue-900/30 text-blue-400"
-                          : customer.role?.[0]?.name === "THERAPIST"
-                          ? "bg-green-900/30 text-green-400" 
-                          : "bg-gray-900/30 text-gray-400"
-                      }`}>
-                        {customer.role?.[0]?.name || 'USER'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => {
-                            handleEdit(customer);
-                          }}
+                          onClick={() => handleEdit(customer)}
                           className="text-blue-400 hover:text-blue-300"
-                          title="Chỉnh sửa"
+                          title="Đổi mật khẩu"
                         >
                           <FaEdit />
                         </button>
-                        <button
-                          onClick={() => handleDelete(customer)}
-                          className="text-red-400 hover:text-red-300"
-                          title="Xóa"
-                        >
-                          <FaTrash />
-                        </button>
                       </div>
-                    </td>
-                  </tr>
+                      </td>
+                </tr>
                 ))
               ) : (
                 <tr>
@@ -259,19 +246,19 @@ const CustomerList = () => {
               >
                 Trước
               </button>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i + 1)}
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
                   className={`px-3 py-1 rounded ${
-                    currentPage === i + 1
+                  currentPage === i + 1
                       ? "bg-indigo-600 text-white"
                       : "bg-gray-700 text-white hover:bg-gray-600"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
               <button
                 onClick={() =>
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
@@ -293,67 +280,58 @@ const CustomerList = () => {
         {isEditModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-gray-800 p-6 rounded-lg w-96">
-              <h2 className="text-xl font-bold text-white mb-4">Chỉnh sửa thông tin</h2>
+              <h2 className="text-xl font-bold text-white mb-4">Đổi mật khẩu</h2>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-gray-300 mb-1">Username</label>
+                  <label className="block text-gray-300 mb-1">Mật khẩu cũ</label>
                   <input
-                    type="text"
-                    value={editedCustomer.username}
-                    onChange={(e) => setEditedCustomer({...editedCustomer, username: e.target.value})}
+                    type="password"
+                    value={editedCustomer.oldPassword || ''}
+                    onChange={(e) => setEditedCustomer({
+                      ...editedCustomer,
+                      oldPassword: e.target.value
+                    })}
                     className="w-full bg-gray-700 text-white rounded p-2"
+                    placeholder="Nhập mật khẩu cũ"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-gray-300 mb-1">Email</label>
+                  <label className="block text-gray-300 mb-1">Mật khẩu mới</label>
                   <input
-                    type="email"
-                    value={editedCustomer.email}
-                    onChange={(e) => setEditedCustomer({...editedCustomer, email: e.target.value})}
+                    type="password"
+                    value={editedCustomer.password}
+                    onChange={(e) => setEditedCustomer({
+                      ...editedCustomer,
+                      password: e.target.value
+                    })}
                     className="w-full bg-gray-700 text-white rounded p-2"
+                    placeholder="Nhập mật khẩu mới"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-gray-300 mb-1">Họ tên</label>
+                  <label className="block text-gray-300 mb-1">Xác nhận mật khẩu mới</label>
                   <input
-                    type="text"
-                    value={editedCustomer.fullname || ''}
-                    onChange={(e) => setEditedCustomer({...editedCustomer, fullname: e.target.value})}
+                    type="password"
+                    value={editedCustomer.confirmPassword}
+                    onChange={(e) => setEditedCustomer({
+                      ...editedCustomer,
+                      confirmPassword: e.target.value
+                    })}
                     className="w-full bg-gray-700 text-white rounded p-2"
+                    placeholder="Nhập lại mật khẩu mới"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-1">Số điện thoại</label>
-                  <input
-                    type="text"
-                    value={editedCustomer.phone}
-                    onChange={(e) => setEditedCustomer({...editedCustomer, phone: e.target.value})}
-                    className="w-full bg-gray-700 text-white rounded p-2"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-1">Vai trò</label>
-                  <select
-                    value={editedCustomer.role}
-                    onChange={(e) => setEditedCustomer({...editedCustomer, role: e.target.value})}
-                    className="w-full bg-gray-700 text-white rounded p-2"
-                  >
-                    <option value="USER">User</option>
-                    <option value="STAFF">Staff</option>
-                    <option value="THERAPIST">Therapist</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
                 </div>
               </div>
 
               <div className="flex justify-end space-x-3 mt-6">
                 <button
-                  onClick={() => setIsEditModalOpen(false)}
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    setEditedCustomer({ oldPassword: '', password: '', confirmPassword: '' });
+                  }}
                   className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
                 >
                   Hủy
