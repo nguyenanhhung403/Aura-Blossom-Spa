@@ -76,3 +76,21 @@ export const getMyInfor = async () => {
     handleError(error);
   }
 };
+
+export const updateStaff = async (staffId, updateData) => {
+  try {
+    const response = await fetch(`http://localhost:8080/api/users/update/${staffId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updateData)
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error updating staff:', error);
+    throw error;
+  }
+};
