@@ -7,22 +7,23 @@ import {
   FaCheck, 
   FaTimes 
 } from "react-icons/fa";
-import { getAllAppointments, updateAppointment } from "../service/appointmentApi";
+import { getAllAppointments } from "../service/appointmentApi";
+import axios from "axios";
 
 const StaffAppointments = () => {
   // Các trạng thái có thể có
   const statusOptions = [
-    "Đã hoàn thành",
+    "Đã duyệt",
     "Chờ xác nhận",
-    "Đã hủy",
+    "Đã từ chối",
   ];
 
   // Map API status sang trạng thái hiển thị
   const mapApiStatus = (status) => {
     switch(status) {
-      case "COMPLETED": return "Đã hoàn thành";
+      case "APPROVED": return "Đã duyệt";
       case "PENDING": return "Chờ xác nhận";
-      case "CANCELLED": return "Đã hủy";
+      case "REJECTED": return "Đã từ chối";
       default: return "Chờ xác nhận";
     }
   };
@@ -30,9 +31,9 @@ const StaffAppointments = () => {
   // Map trạng thái hiển thị sang API status
   const mapToApiStatus = (status) => {
     switch(status) {
-      case "Đã hoàn thành": return "COMPLETED";
+      case "Đã duyệt": return "APPROVED";
       case "Chờ xác nhận": return "PENDING";
-      case "Đã hủy": return "CANCELLED";
+      case "Đã từ chối": return "REJECTED";
       default: return "PENDING";
     }
   };
@@ -41,6 +42,16 @@ const StaffAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Cập nhật trạng thái lịch hẹn
+  const updateAppointmentStatus = async (id, status) => {
+    try {
+      const response = await axios.put(`http://localhost:8080/api/appointments/update-status/${id}?aptStatus=${status}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
 
   // Lấy danh sách đặt lịch từ API
   useEffect(() => {
@@ -53,15 +64,12 @@ const StaffAppointments = () => {
           // Chuyển đổi dữ liệu từ API sang định dạng phù hợp với component
           const formattedData = data.result.map(item => ({
             id: item.id,
-            name: item.therapist?.fullname || "Không có tên",
-            phone: item.therapist?.phone || "",
-            email: item.therapist?.email || "",
-            gender: "", // API không cung cấp thông tin này
+            name: item.fullname || "Không có tên",
             service: item.service?.name || "Không có dịch vụ",
+            category: item.service?.category?.name || "",
             dateTime: `${item.date} ${item.time}`,
             staffName: item.therapist?.fullname || "Không có tên",
             docNote: item.note || "",
-            custNote: "",
             status: mapApiStatus(item.appointmentStatus),
             originalStatus: item.appointmentStatus
           }));
@@ -87,8 +95,7 @@ const StaffAppointments = () => {
   const filteredAppointments = appointments.filter((a) => {
     const matchesSearch =
       a.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (a.phone && a.phone.includes(searchTerm));
+      a.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       filterStatus === "Tất cả" || a.status === filterStatus;
     return matchesSearch && matchesStatus;
@@ -122,7 +129,7 @@ const StaffAppointments = () => {
       if (!appointment) throw new Error("Không tìm thấy lịch hẹn");
       
       const apiStatus = mapToApiStatus(editingStatus);
-      const updatedData = await updateAppointment(id, { appointmentStatus: apiStatus });
+      const updatedData = await updateAppointmentStatus(id, apiStatus);
       
       if (updatedData) {
         setAppointments((prev) =>
@@ -147,11 +154,11 @@ const StaffAppointments = () => {
   // Hàm trả về màu sắc dựa theo trạng thái
   const getStatusColor = (status) => {
     switch (status) {
-      case "Đã hoàn thành":
+      case "Đã duyệt":
         return "text-green-400 bg-green-900/30";
       case "Chờ xác nhận":
         return "text-yellow-400 bg-yellow-900/30";
-      case "Đã hủy":
+      case "Đã từ chối":
         return "text-red-400 bg-red-900/30";
       default:
         return "text-gray-400 bg-gray-900/30";
@@ -184,15 +191,15 @@ const StaffAppointments = () => {
       </div>
 
       {/* Thông tin tổng quan */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-gradient-to-r from-purple-800 to-indigo-800 p-4 rounded-lg shadow-lg">
           <h3 className="text-gray-300 text-sm">Tổng lịch hẹn</h3>
           <p className="text-white text-2xl font-bold">{appointments.length}</p>
         </div>
         <div className="bg-gradient-to-r from-green-800 to-emerald-800 p-4 rounded-lg shadow-lg">
-          <h3 className="text-gray-300 text-sm">Đã hoàn thành</h3>
+          <h3 className="text-gray-300 text-sm">Đã duyệt</h3>
           <p className="text-white text-2xl font-bold">
-            {appointments.filter((a) => a.status === "Đã hoàn thành").length}
+            {appointments.filter((a) => a.status === "Đã duyệt").length}
           </p>
         </div>
         <div className="bg-gradient-to-r from-yellow-800 to-amber-800 p-4 rounded-lg shadow-lg">
@@ -211,7 +218,7 @@ const StaffAppointments = () => {
               <FaSearch className="absolute top-3 left-3 text-gray-400" />
               <input
                 type="text"
-                placeholder="Tìm theo ID, tên, SĐT"
+                placeholder="Tìm theo ID, tên"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 bg-[#0f172a] border border-gray-600 rounded-lg text-white w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -249,7 +256,6 @@ const StaffAppointments = () => {
               <tr>
                 <th className="p-3 font-semibold">ID</th>
                 <th className="p-3 font-semibold">Khách hàng</th>
-                <th className="p-3 font-semibold">Liên hệ</th>
                 <th className="p-3 font-semibold">Dịch vụ</th>
                 <th className="p-3 font-semibold">Lịch hẹn</th>
                 <th className="p-3 font-semibold">Chuyên viên</th>
@@ -268,13 +274,11 @@ const StaffAppointments = () => {
                   <td className="p-3 font-medium">#{appointment.id}</td>
                   <td className="p-3">
                     <div className="font-medium">{appointment.name}</div>
-                    <div className="text-xs text-gray-400">{appointment.gender}</div>
                   </td>
                   <td className="p-3">
-                    <div>{appointment.phone}</div>
-                    <div className="text-xs text-gray-400">{appointment.email}</div>
+                    <div>{appointment.service}</div>
+                    <div className="text-xs text-gray-400">{appointment.category}</div>
                   </td>
-                  <td className="p-3">{appointment.service}</td>
                   <td className="p-3">
                     {appointment.dateTime && (
                       <>
@@ -354,7 +358,7 @@ const StaffAppointments = () => {
               {currentRecords.length === 0 && (
                 <tr>
                   <td
-                    colSpan="8"
+                    colSpan="7"
                     className="p-4 text-center text-red-400 font-semibold"
                   >
                     Không tìm thấy mục phù hợp!

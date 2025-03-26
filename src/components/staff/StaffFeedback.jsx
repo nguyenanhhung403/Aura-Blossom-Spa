@@ -1,117 +1,80 @@
-import React, { useState } from "react";
-import { FaSearch, FaStar, FaCheck, FaTimes, FaFilter, FaSort, FaUserCircle, FaPhone, FaComments } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaSearch, FaStar, FaCheck, FaTimes, FaFilter, FaSort, FaComments, FaUser, FaUserMd, FaClipboardList, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import axios from "axios";
 
 const StaffFeedback = () => {
-  // Mảng dịch vụ
-  const services = ["Dịch vụ A", "Dịch vụ B", "Dịch vụ C", "Nặn mụn", "Tư vấn da", "Chăm sóc da"];
-
-  // State chọn dịch vụ
-  const [selectedService, setSelectedService] = useState("");
   // State tìm kiếm
   const [searchTerm, setSearchTerm] = useState("");
   // State sắp xếp theo đánh giá
   const [sortByRating, setSortByRating] = useState("all"); // "all", "high", "low"
   // State hiển thị chi tiết
   const [expandedId, setExpandedId] = useState(null);
+  // State lưu trữ dữ liệu từ API
+  const [feedbacks, setFeedbacks] = useState([]);
+  // State loading
+  const [loading, setLoading] = useState(true);
+  // State phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const feedbacksPerPage = 6;
 
-  // Mảng feedback mẫu với nhiều người dùng hơn
-  const [feedbacks] = useState([
-    {
-      id: 1,
-      service: "Dịch vụ A",
-      customerName: "Nguyễn Văn A",
-      phone: "0123456789",
-      rating: 4,
-      comment: "Tôi rất hài lòng với dịch vụ, nhân viên nhiệt tình và chu đáo. Sẽ quay lại lần sau.",
-      date: "01/03/2025",
-      staffName: "Bác sĩ A"
-    },
-    {
-      id: 2,
-      service: "Dịch vụ A",
-      customerName: "Trần Thị B",
-      phone: "0987654321",
-      rating: 5,
-      comment: "Dịch vụ tuyệt vời, kết quả vượt ngoài mong đợi. Đã giới thiệu cho bạn bè.",
-      date: "02/03/2025",
-      staffName: "Bác sĩ B"
-    },
-    {
-      id: 3,
-      service: "Dịch vụ B",
-      customerName: "Lê Văn C",
-      phone: "0911222333",
-      rating: 3,
-      comment: "Dịch vụ ổn, tuy nhiên thời gian chờ đợi hơi lâu. Cần cải thiện thêm.",
-      date: "03/03/2025",
-      staffName: "Bác sĩ C"
-    },
-    {
-      id: 4,
-      service: "Nặn mụn",
-      customerName: "Phạm Thị D",
-      phone: "0977888999",
-      rating: 5,
-      comment: "Nặn mụn rất nhẹ nhàng, không đau. Da sạch và không bị thâm. Rất hài lòng!",
-      date: "04/03/2025",
-      staffName: "Bác sĩ D"
-    },
-    {
-      id: 5,
-      service: "Tư vấn da",
-      customerName: "Hoàng Văn E",
-      phone: "0866777888",
-      rating: 2,
-      comment: "Buổi tư vấn hơi ngắn, cảm thấy chưa được giải đáp hết thắc mắc. Cần dành nhiều thời gian hơn cho khách hàng.",
-      date: "05/03/2025",
-      staffName: "Bác sĩ A"
-    },
-    {
-      id: 6,
-      service: "Chăm sóc da",
-      customerName: "Ngô Thị F",
-      phone: "0933444555",
-      rating: 4,
-      comment: "Massage thư giãn và đắp mặt nạ rất tốt. Da căng mịn ngay sau khi dùng dịch vụ.",
-      date: "06/03/2025",
-      staffName: "Bác sĩ B"
-    },
-    {
-      id: 7,
-      service: "Dịch vụ C",
-      customerName: "Vũ Văn G",
-      phone: "0944555666",
-      rating: 5,
-      comment: "Tuyệt vời, không có gì để phàn nàn. Đội ngũ chuyên nghiệp, chu đáo.",
-      date: "07/03/2025",
-      staffName: "Bác sĩ E"
-    }
-  ]);
+  // Hàm fetch dữ liệu từ API
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/ratings/all");
+        if (response.data.code === 1000) {
+          setFeedbacks(response.data.result);
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu:", error); 
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeedbacks();
+  }, []);
 
   // Hàm lọc và sắp xếp feedback
   const getFilteredFeedbacks = () => {
-    // Lọc theo dịch vụ và từ khóa tìm kiếm
+    // Lọc theo từ khóa tìm kiếm
     let result = feedbacks.filter((fb) => {
-      const matchService = selectedService === "" || fb.service === selectedService;
-      const matchSearch = 
-        fb.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        fb.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        fb.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        fb.service.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchService && matchSearch;
+      return fb.feedback.toLowerCase().includes(searchTerm.toLowerCase()) || 
+             (fb.userFullname && fb.userFullname.toLowerCase().includes(searchTerm.toLowerCase())) ||
+             (fb.therapist && fb.therapist.toLowerCase().includes(searchTerm.toLowerCase())) ||
+             (fb.service && fb.service.toLowerCase().includes(searchTerm.toLowerCase()));
     });
 
     // Sắp xếp theo đánh giá
     if (sortByRating === "high") {
-      result = result.sort((a, b) => b.rating - a.rating);
+      result = result.sort((a, b) => b.stars - a.stars);
     } else if (sortByRating === "low") {
-      result = result.sort((a, b) => a.rating - b.rating);
+      result = result.sort((a, b) => a.stars - b.stars);
     }
 
     return result;
   };
 
   const filteredFeedbacks = getFilteredFeedbacks();
+  
+  // Phân trang
+  const indexOfLastFeedback = currentPage * feedbacksPerPage;
+  const indexOfFirstFeedback = indexOfLastFeedback - feedbacksPerPage;
+  const currentFeedbacks = filteredFeedbacks.slice(indexOfFirstFeedback, indexOfLastFeedback);
+  const totalPages = Math.ceil(filteredFeedbacks.length / feedbacksPerPage);
+
+  // Hàm thay đổi trang
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
+  // Hàm chuyển đến trang trước
+  const goToPreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+  
+  // Hàm chuyển đến trang sau
+  const goToNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
 
   // Hàm render sao
   const renderStars = (count) => {
@@ -136,6 +99,26 @@ const StaffFeedback = () => {
     return "bg-[#1e293b] border-red-700";
   };
 
+  // Hàm format ngày tháng
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Tiêu đề */}
@@ -152,53 +135,33 @@ const StaffFeedback = () => {
           <input
             type="text"
             className="w-full pl-10 pr-4 py-2 bg-[#0f172a] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Tìm kiếm theo tên khách hàng, số điện thoại hoặc nội dung..."
+            placeholder="Tìm kiếm theo nội dung, tên khách hàng, nhà trị liệu hoặc dịch vụ..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
-        {/* Bộ lọc */}
-        <div className="flex gap-2">
-          {/* Lọc theo dịch vụ */}
-          <div className="relative">
-            <select
-              className="appearance-none bg-[#0f172a] border border-gray-600 text-white pl-10 pr-8 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={selectedService}
-              onChange={(e) => setSelectedService(e.target.value)}
-            >
-              <option value="">Tất cả dịch vụ</option>
-              {services.map((srv, idx) => (
-                <option key={idx} value={srv}>
-                  {srv}
-                </option>
-              ))}
-            </select>
-            <FaFilter className="absolute top-3 left-3 text-gray-400" />
-          </div>
-
-          {/* Sắp xếp theo đánh giá */}
-          <div className="relative">
-            <select
-              className="appearance-none bg-[#0f172a] border border-gray-600 text-white pl-10 pr-8 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={sortByRating}
-              onChange={(e) => setSortByRating(e.target.value)}
-            >
-              <option value="all">Tất cả đánh giá</option>
-              <option value="high">Đánh giá cao nhất</option>
-              <option value="low">Đánh giá thấp nhất</option>
-            </select>
-            <FaSort className="absolute top-3 left-3 text-gray-400" />
-          </div>
+        {/* Sắp xếp theo đánh giá */}
+        <div className="relative">
+          <select
+            className="appearance-none bg-[#0f172a] border border-gray-600 text-white pl-10 pr-8 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={sortByRating}
+            onChange={(e) => setSortByRating(e.target.value)}
+          >
+            <option value="all">Tất cả đánh giá</option>
+            <option value="high">Đánh giá cao nhất</option>
+            <option value="low">Đánh giá thấp nhất</option>
+          </select>
+          <FaSort className="absolute top-3 left-3 text-gray-400" />
         </div>
       </div>
 
       {/* Danh sách feedback */}
       <div className="space-y-4">
-        {filteredFeedbacks.map((fb) => (
+        {currentFeedbacks.map((fb) => (
           <div
             key={fb.id}
-            className={`bg-[#1e293b] border rounded-lg overflow-hidden hover:shadow-lg transition-all ${getRatingColor(fb.rating)}`}
+            className={`bg-[#1e293b] border rounded-lg overflow-hidden hover:shadow-lg transition-all ${getRatingColor(fb.stars)}`}
           >
             {/* Phần header */}
             <div 
@@ -207,16 +170,21 @@ const StaffFeedback = () => {
             >
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                  <span className="text-white font-semibold">{fb.customerName}</span>
                   <span className="text-gray-400 text-sm">
-                    {fb.service} | {fb.date}
+                    {formatDate(fb.createdAt)}
                   </span>
+                  {fb.userFullname && (
+                    <span className="text-white font-medium">
+                      <FaUser className="inline mr-1 text-blue-400" size={14} />
+                      {fb.userFullname}
+                    </span>
+                  )}
                 </div>
                 
                 <div className="flex items-center">
-                  <div className="flex mr-2">{renderStars(fb.rating)}</div>
+                  <div className="flex mr-2">{renderStars(fb.stars)}</div>
                   <span className="text-sm text-gray-300">
-                    {fb.rating}/5
+                    {fb.stars}/5
                   </span>
                 </div>
               </div>
@@ -233,39 +201,35 @@ const StaffFeedback = () => {
             {/* Phần mở rộng */}
             {expandedId === fb.id && (
               <div className="p-4 pt-0 border-t border-gray-700">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-blue-400" />
-                    <div>
-                      <div className="text-gray-400 text-xs">Khách hàng</div>
-                      <div className="text-white">{fb.customerName}</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                  {fb.therapist && (
+                    <div className="bg-[#0f172a] p-3 rounded-lg">
+                      <div className="flex items-center gap-2 mb-1">
+                        <FaUserMd className="text-green-400" />
+                        <div className="text-gray-400 text-xs">Chuyên viên</div>
+                      </div>
+                      <div className="text-white">{fb.therapist}</div>
                     </div>
-                  </div>
+                  )}
                   
-                  <div className="flex items-center gap-2">
-                    <FaPhone className="text-green-400" />
-                    <div>
-                      <div className="text-gray-400 text-xs">Số điện thoại</div>
-                      <div className="text-white">{fb.phone}</div>
+                  {fb.service && (
+                    <div className="bg-[#0f172a] p-3 rounded-lg">
+                      <div className="flex items-center gap-2 mb-1">
+                        <FaClipboardList className="text-purple-400" />
+                        <div className="text-gray-400 text-xs">Dịch vụ</div>
+                      </div>
+                      <div className="text-white">{fb.service}</div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-purple-400" />
-                    <div>
-                      <div className="text-gray-400 text-xs">Nhân viên phục vụ</div>
-                      <div className="text-white">{fb.staffName}</div>
-                    </div>
-                  </div>
+                  )}
                 </div>
-                
+
                 <div className="mt-3">
                   <div className="flex items-center gap-2 mb-1">
                     <FaComments className="text-yellow-400" />
                     <div className="text-gray-400 text-xs">Nhận xét</div>
                   </div>
                   <div className="bg-[#0f172a] p-3 rounded-lg text-white">
-                    "{fb.comment}"
+                    "{fb.feedback}"
                   </div>
                 </div>
               </div>
@@ -284,6 +248,51 @@ const StaffFeedback = () => {
             <div className="text-sm text-gray-500">
               Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
             </div>
+          </div>
+        )}
+        
+        {/* Phân trang */}
+        {filteredFeedbacks.length > 0 && (
+          <div className="flex justify-center items-center mt-6 gap-2">
+            <button
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-lg ${
+                currentPage === 1
+                ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                : "bg-[#0f172a] text-white hover:bg-blue-600"
+              }`}
+            >
+              <FaChevronLeft />
+            </button>
+            
+            <div className="flex gap-1">
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => paginate(i + 1)}
+                  className={`w-8 h-8 rounded-lg ${
+                    currentPage === i + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-[#0f172a] text-white hover:bg-blue-600"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-lg ${
+                currentPage === totalPages
+                ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                : "bg-[#0f172a] text-white hover:bg-blue-600"
+              }`}
+            >
+              <FaChevronRight />
+            </button>
           </div>
         )}
       </div>

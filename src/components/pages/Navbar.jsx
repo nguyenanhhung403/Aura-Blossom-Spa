@@ -19,6 +19,7 @@ import {
   faUser,
   faHistory,
   faSignOutAlt,
+  faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import { faSpa } from "@fortawesome/free-solid-svg-icons";
 
@@ -52,6 +53,26 @@ const Navbar = () => {
     }
 };
 
+  // Kiểm tra xem người dùng có role STAFF hoặc ADMIN không
+  const hasAdminAccess = () => {
+    if (!user || !user.role) return false;
+    return user.role.some(role => role.name === "ADMIN");
+  };
+
+  const hasStaffAccess = () => {
+    if (!user || !user.role) return false;
+    return user.role.some(role => role.name === "STAFF");
+  };
+
+  // Điều hướng đến trang quản lý phù hợp dựa vào role
+  const navigateToManagement = () => {
+    if (hasAdminAccess()) {
+      navigate("/admin");
+    } else if (hasStaffAccess()) {
+      navigate("/staff");
+    }
+    setIsDropdownOpen(false);
+  };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -118,7 +139,6 @@ const Navbar = () => {
                     >
                       <FontAwesomeIcon icon={faUser} className="text-[#446E6A] w-5 h-5" />
                       <span>Thông tin tài khoản</span>
-
                     </Link>
 
                     <Link
@@ -129,6 +149,16 @@ const Navbar = () => {
                       <FontAwesomeIcon icon={faHistory} className="text-[#446E6A] w-5 h-5" />
                       <span>Lịch sử</span>
                     </Link>
+                    
+                    {(hasStaffAccess() || hasAdminAccess()) && (
+                      <button
+                        onClick={navigateToManagement}
+                        className="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 flex items-center space-x-3"
+                      >
+                        <FontAwesomeIcon icon={faCog} className="text-[#446E6A] w-5 h-5" />
+                        <span>Quản lý</span>
+                      </button>
+                    )}
                   </div>
 
                   <div className="border-t border-gray-100 p-2">
