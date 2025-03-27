@@ -3,19 +3,17 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import ContactUs from './ContactUs';
 import { getAllRatings } from '../service/ratingApi';
+import { FaStar, FaUser, FaClock, FaClipboardList } from 'react-icons/fa';
 
 const StarRating = ({ rating }) => (
-    <div className="flex">
+    <div className="flex items-center">
         {[...Array(5)].map((_, i) => (
-            <svg
+            <FaStar
                 key={i}
-                className={`w-5 h-5 ${i < rating ? 'text-yellow-500' : 'text-gray-300'}`}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-            >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.54-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.05 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z" />
-            </svg>
+                className={`w-5 h-5 ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}
+            />
         ))}
+        <span className="ml-2 text-gray-600 font-medium">{rating}/5</span>
     </div>
 );
 
@@ -23,27 +21,22 @@ const ViewFeedbacks = () => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [selectedRating, setSelectedRating] = useState('all');
+    const itemsPerPage = 6;
 
     useEffect(() => {
         const fetchFeedbacks = async () => {
             try {
                 setLoading(true);
                 const response = await getAllRatings();
-                console.log("API Response:", response); // Debug log
+                console.log('Feedback response:', response);
                 
-                // Kiểm tra cấu trúc response và lấy mảng dữ liệu
-                const feedbacksData = response.result || [];
-                
-                // Chuyển đổi dữ liệu từ API sang định dạng phù hợp
-                const formattedFeedbacks = feedbacksData.map(item => ({
-                    id: item.id,
-                    date: new Date(item.created_at).toLocaleDateString('vi-VN'),
-                    comment: item.feedback || 'Không có nhận xét',
-                    rating: item.stars,
-                    appointmentId: item.appointment_id
-                }));
-                
-                setFeedbacks(formattedFeedbacks);
+                if (response?.code === 1000 && response.result) {
+                    setFeedbacks(response.result);
+                } else {
+                    throw new Error('Không thể tải đánh giá');
+                }
                 setError(null);
             } catch (err) {
                 setError(err.message);
@@ -56,77 +49,177 @@ const ViewFeedbacks = () => {
         fetchFeedbacks();
     }, []);
 
+    // Lọc feedback theo rating
+    const filteredFeedbacks = feedbacks.filter(feedback => {
+        if (selectedRating === 'all') return true;
+        return feedback.stars === parseInt(selectedRating);
+    });
+
+    // Tính toán phân trang
+    const totalPages = Math.ceil(filteredFeedbacks.length / itemsPerPage);
+    const currentFeedbacks = filteredFeedbacks.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // Tính toán thống kê
+    const stats = {
+        total: feedbacks.length,
+        average: feedbacks.reduce((acc, curr) => acc + curr.stars, 0) / feedbacks.length || 0,
+        fiveStar: feedbacks.filter(f => f.stars === 5).length,
+        fourStar: feedbacks.filter(f => f.stars === 4).length,
+        threeStar: feedbacks.filter(f => f.stars === 3).length,
+        twoStar: feedbacks.filter(f => f.stars === 2).length,
+        oneStar: feedbacks.filter(f => f.stars === 1).length,
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-100">
                 <Navbar />
                 <div className="pt-36 pb-12 px-4 text-center">
-                    <p>Đang tải dữ liệu đánh giá...</p>
+                    <div className="animate-pulse">
+                        <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/4 mx-auto"></div>
+                    </div>
                 </div>
             </div>
         );
     }
-    
-    if (error) {
-        return (
-            <div className="min-h-screen bg-gray-100">
-                <Navbar />
-                <div className="pt-36 pb-12 px-4 text-center text-red-500">
-                    <p>Lỗi khi tải dữ liệu: {error}</p>
-                </div>
-            </div>
-        );
-    }
-    
+
     return (
         <div className="min-h-screen bg-gray-100">
             <Navbar />
             <div className="pt-36 pb-12 px-4">
                 <div className="max-w-7xl mx-auto">
-                    <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Đánh giá từ khách hàng</h2>
-                    <p className="text-center text-gray-600 mb-8">
-                        Xem tất cả các đánh giá và phản hồi từ khách hàng
-                    </p>
-                    
-                    {/* Hiển thị danh sách đánh giá */}
-                    {feedbacks.length === 0 ? (
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                            Đánh giá từ khách hàng
+                        </h2>
+                        <p className="text-gray-600">
+                            {stats.total} đánh giá | Điểm trung bình: {stats.average.toFixed(1)}/5
+                        </p>
+                    </div>
+
+                    {/* Rating stats */}
+                    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            {[5, 4, 3, 2, 1].map(stars => {
+                                const count = feedbacks.filter(f => f.stars === stars).length;
+                                const percentage = (count / stats.total) * 100 || 0;
+                                return (
+                                    <div key={stars} className="flex items-center space-x-2">
+                                        <div className="flex items-center">
+                                            <FaStar className="text-yellow-400" />
+                                            <span className="ml-1">{stars}</span>
+                                        </div>
+                                        <div className="flex-1 h-2 bg-gray-200 rounded-full">
+                                            <div
+                                                className="h-full bg-yellow-400 rounded-full"
+                                                style={{ width: `${percentage}%` }}
+                                            ></div>
+                                        </div>
+                                        <span className="text-sm text-gray-500">{count}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Filter buttons */}
+                    <div className="flex flex-wrap gap-2 mb-6">
+                        <button
+                            onClick={() => setSelectedRating('all')}
+                            className={`px-4 py-2 rounded-full ${
+                                selectedRating === 'all'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-gray-200 text-gray-700'
+                            }`}
+                        >
+                            Tất cả
+                        </button>
+                        {[5, 4, 3, 2, 1].map(rating => (
+                            <button
+                                key={rating}
+                                onClick={() => setSelectedRating(rating.toString())}
+                                className={`px-4 py-2 rounded-full ${
+                                    selectedRating === rating.toString()
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200 text-gray-700'
+                                }`}
+                            >
+                                {rating} sao
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Feedback list */}
+                    {currentFeedbacks.length === 0 ? (
                         <div className="text-center py-8">
-                            <p className="text-gray-500">Hiện chưa có đánh giá nào</p>
+                            <p className="text-gray-500">Chưa có đánh giá nào</p>
                         </div>
                     ) : (
-                        <div className="space-y-6">
-                            {feedbacks.map(feedback => (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {currentFeedbacks.map(feedback => (
                                 <div 
                                     key={feedback.id} 
-                                    className={`p-6 rounded-lg shadow-md border ${
-                                        feedback.rating >= 4 
-                                            ? "bg-green-50 border-green-200" 
-                                            : feedback.rating === 3 
-                                                ? "bg-blue-50 border-blue-200" 
-                                                : "bg-red-50 border-red-200"
-                                    }`}
+                                    className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
                                 >
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <div className="flex items-center space-x-2">
-                                                <StarRating rating={feedback.rating} />
-                                                <span className="text-sm text-gray-500">
-                                                    {feedback.date}
-                                                </span>
+                                            <StarRating rating={feedback.stars} />
+                                            <div className="mt-2 flex items-center text-gray-600">
+                                                <FaUser className="mr-2" />
+                                                <span>{feedback.userFullname}</span>
                                             </div>
-                                            <p className="mt-2 text-gray-700">{feedback.comment}</p>
                                         </div>
-                                        <span className="text-sm text-gray-500">
-                                            ID lịch hẹn: {feedback.appointmentId}
-                                        </span>
+                                        <div className="text-right text-sm text-gray-500">
+                                            <div className="flex items-center">
+                                                <FaClock className="mr-1" />
+                                                {new Date(feedback.createdAt).toLocaleDateString('vi-VN')}
+                                            </div>
+                                        </div>
                                     </div>
+
+                                    <div className="space-y-2 mb-4">
+                                        <div className="flex items-center text-gray-600">
+                                            <FaClipboardList className="mr-2" />
+                                            <span>Dịch vụ: {feedback.service}</span>
+                                        </div>
+                                        <div className="text-gray-600">
+                                            Chuyên viên: {feedback.therapist}
+                                        </div>
+                                    </div>
+
+                                    <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">
+                                        {feedback.feedback || 'Không có nhận xét'}
+                                    </p>
                                 </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-center mt-8 space-x-2">
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={`px-4 py-2 rounded ${
+                                        currentPage === i + 1
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                >
+                                    {i + 1}
+                                </button>
                             ))}
                         </div>
                     )}
                 </div>
             </div>
-            <ContactUs/>
+            <ContactUs />
             <Footer />
         </div>
     );

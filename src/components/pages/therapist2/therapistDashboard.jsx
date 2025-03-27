@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaCalendarAlt, FaClipboardList, FaUserCog } from "react-icons/fa";
+import { handleLogout } from '../../service/authApi';
 
 const TherapistDashboard = () => {
+  const navigate = useNavigate();
   const [menuItems, setMenuItems] = useState([
     { name: "Lịch làm việc cá nhân", path: "/therapist2/schedule", icon: <FaCalendarAlt />, count: 0 },
-   // { name: "Lịch hẹn", path: "/therapist2/appointments", icon: <FaClipboardList />, count: 0 },
-    { name: "Cài đặt", path: "/therapist2/settings", icon: <FaUserCog />, count: 0 },
+    { name: "Cài đặt", path: "/therapist2/settings", icon: <FaUserCog />, count: 0 }
   ]);
 
   // Gọi API lấy dữ liệu từ backend
@@ -20,7 +21,6 @@ const TherapistDashboard = () => {
         setMenuItems((prevItems) =>
           prevItems.map((item) => {
             if (item.name === "Lịch làm việc cá nhân") return { ...item, count: data.scheduleCount };
-          //  if (item.name === "Lịch hẹn") return { ...item, count: data.appointmentCount };
             if (item.name === "Cài đặt") return { ...item, count: data.settingsCount };
             return item;
           })
@@ -34,17 +34,40 @@ const TherapistDashboard = () => {
   }, []);
 
   return (
-    <div className="dashboard-container">
-      <h1 className="dashboard-title">Trang Chủ Chuyên Viên</h1>
-      <div className="dashboard-grid">
-        {menuItems.map((item, index) => (
-          <div key={index} className="dashboard-card">
-            <div className="dashboard-icon">{item.icon}</div>
-            <p className="dashboard-count">{item.count}</p>
-            <p className="dashboard-text">{item.name}</p>
-            <Link to={item.path} className="dashboard-link">Chi tiết</Link>
+    <div className="min-h-screen bg-gray-900">
+      <div className="p-6">
+        <h1 className="text-2xl font-bold text-white mb-8">Trang Chủ Chuyên Viên</h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Card Lịch làm việc */}
+          <div className="bg-blue-900 rounded-lg p-6 text-center">
+            <h2 className="text-xl text-white mb-4">Lịch làm việc cá nhân</h2>
+            <div className="text-3xl font-bold text-white mb-4">{menuItems[0].count}</div>
+            <Link 
+              to={menuItems[0].path}
+              className="inline-block bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded text-white"
+            >
+              Chi tiết
+            </Link>
           </div>
-        ))}
+
+          {/* Card Cài đặt */}
+          <div className="bg-purple-900 rounded-lg p-6 text-center">
+            <h2 className="text-xl text-white mb-4">Cài đặt tài khoản</h2>
+            <div className="text-3xl font-bold text-white mb-4">{menuItems[1].count}</div>
+            <Link 
+              to={menuItems[1].path}
+              className="inline-block bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded text-white"
+            >
+              Chi tiết
+            </Link>
+          </div>
+        </div>
+
+        {/* Chỉ giữ một nút đăng xuất ở dưới */}
+        <div className="mt-8">
+          
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   FaCalendarAlt, 
   FaHistory, 
@@ -8,12 +8,16 @@ import {
   FaMoneyBillWave,
   FaStar, 
   FaUsers,
-  FaClock
+  FaClock,
+  FaSignOutAlt
 } from "react-icons/fa";
 import { getAllAppointments } from "../service/appointmentApi";
+import { handleLogout } from '../service/authApi';
 import axios from "axios";
 
 const SpaDashboard = () => {
+  const navigate = useNavigate();
+  
   // State cho dữ liệu tổng quan
   const [appointments, setAppointments] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
@@ -125,7 +129,7 @@ const SpaDashboard = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6 bg-[#1e293b] p-4 rounded shadow text-white">
+      <h1 className="text-2xl font-semibold bg-[#1e293b] p-4 rounded shadow text-white">
         Tổng Quan Spa
       </h1>
 
@@ -246,6 +250,19 @@ const SpaDashboard = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Footer với nút đăng xuất */}
+      <div className="flex items-center justify-between mt-8 p-4 bg-[#1e293b]">
+        <Link to="/" className="text-blue-400 hover:text-blue-300">
+          Trang Home
+        </Link>
+        <button 
+          onClick={() => handleLogout(navigate)}
+          className="text-red-500 hover:text-red-400 flex items-center gap-2"
+        >
+          Đăng xuất
+        </button>
       </div>
     </div>
   );
