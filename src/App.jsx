@@ -1,6 +1,7 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useContext } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { UserProvider } from './components/context/UserContext';
+import { UserContext } from './components/context/UserContext';
 import './App.css';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
@@ -42,6 +43,24 @@ import TherapistAppointments from './components/pages/therapist2/therapistAppoim
 import TherapistSettings from './components/pages/therapist2/therapistSetting';
 import TherapistSchedule from './components/pages/therapist2/therapistSchedule';
 
+// Protected Route Component cho Staff
+const ProtectedStaffRoute = ({ children }) => {
+  const { user } = useContext(UserContext);
+  
+  // Kiểm tra xem người dùng có role STAFF không
+  const hasStaffAccess = () => {
+    if (!user || !user.role) return false;
+    return user.role.some(role => role.name === "STAFF");
+  };
+
+  // Nếu không đăng nhập hoặc không có quyền staff, chuyển hướng về trang login
+  if (!user || !hasStaffAccess()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
 function App() {
     return (
         <BrowserRouter>
@@ -76,8 +95,12 @@ function App() {
                     <Route path="/admin/quizlist/:id" element={<QuizDetail />} />
                     <Route path="/admin/recommend-service" element={<RecommendService />} />
                     
-                    {/* Staff Routes */}
-                    <Route path="/staff" element={<StaffLayout />}>
+                    {/* Staff Routes - Được bảo vệ bởi ProtectedStaffRoute */}
+                    <Route path="/staff" element={
+                      <ProtectedStaffRoute>
+                        <StaffLayout />
+                      </ProtectedStaffRoute>
+                    }>
                         <Route index element={<StaffDashboard />} />
                         <Route path="appointments" element={<StaffAppointments />} />
                         <Route path="history" element={<StaffHistory />} />
