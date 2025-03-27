@@ -468,7 +468,7 @@ const TherapistManagement = () => {
                       <td className="px-6 py-4 whitespace-nowrap">{therapist.username}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <img
-                          src={therapist.image || "https://via.placeholder.com/40"}
+                          src={therapist.image || "https://placehold.co/40x40"}
                           alt={therapist.fullname}
                           className="h-10 w-10 rounded-full"
                         />

@@ -17,12 +17,20 @@ function Login() {
   );
   const [loading, setLoading] = useState(false);
 
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      // Kiểm tra role để redirect
+      if (user.roles?.some(role => role.name.toUpperCase() === "ADMIN")) {
+        navigate("/admin");
+      } else if (user.roles?.some(role => role.name.toUpperCase() === "THERAPIST") || 
+                user.username?.startsWith("therapist")) {
+        navigate("/therapist2");
+      } else {
+        navigate("/");
+      }
     }
   }, [user, navigate]);
 
@@ -50,11 +58,15 @@ function Login() {
         localStorage.removeItem("rememberedUsername");
         localStorage.removeItem("rememberMe");
       }
-      const roles = loginResult.result.roles;
-      const isAdmin = roles.some((role) => role.name.toUpperCase() === "ADMIN");
 
-      // Redirect based on role
-      navigate(isAdmin ? "/admin" : "/");
+      // Cập nhật user context
+      const userData = {
+        username: loginResult.result.username,
+        roles: loginResult.result.roles || [],
+        token: accessToken
+      };
+      setUser(userData);
+
     } catch (error) {
       console.error(error);
       alert("Mật khẩu hoặc tên đăng nhập không đúng");
@@ -88,7 +100,7 @@ function Login() {
         </motion.div>
 
         <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
-Đăng nhập
+          Đăng nhập
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -102,6 +114,7 @@ function Login() {
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
               placeholder="Nhập tên đăng nhập"
+              required
             />
           </div>
 
@@ -115,10 +128,10 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
               placeholder="••••••••"
+              required
             />
           </div>
 
-          {/* Ghi nhớ đăng nhập */}
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -136,9 +149,12 @@ function Login() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+            disabled={loading}
+            className={`w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Đăng nhập
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </motion.button>
         </form>
 

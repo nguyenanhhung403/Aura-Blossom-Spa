@@ -163,12 +163,18 @@ const ServicesPage = () => {
     const fetchData = async () => {
       try {
         const servicesResponse = await getAllServices();
+        console.log('Raw services response:', servicesResponse);
         const categoriesResponse = await getAllServiceCategories();
+        console.log('Raw categories response:', categoriesResponse);
         
+        if (!servicesResponse.result || !categoriesResponse.result) {
+          throw new Error('Data is missing from response');
+        }
         setServices(servicesResponse.result);
         setCategories(categoriesResponse.result);
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching data:', err);
         setError(err.message);
         setLoading(false);
       }
@@ -199,12 +205,12 @@ const ServicesPage = () => {
       
       {/* Hero Banner */}
       <section className="relative h-[85vh] overflow-hidden">
-        <div className="absolute inset-0">
-          <img
+          <div className="absolute inset-0">
+            <img
             src="https://images.unsplash.com/photo-1560750588-73207b1ef5b8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
             alt="Spa Banner"
-            className="w-full h-full object-cover"
-          />
+              className="w-full h-full object-cover"
+            />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
         </div>
         
@@ -263,12 +269,12 @@ const ServicesPage = () => {
             </a>
           </motion.div>
         </div>
-      </section>
-      
-      {/* Services Section */}
+        </section>
+
+        {/* Services Section */}
       <section id="services" className="py-20">
         <div className="container mx-auto px-8 max-w-6xl">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -281,7 +287,7 @@ const ServicesPage = () => {
               Khám phá các dịch vụ spa cao cấp được thiết kế riêng cho nhu cầu của bạn với công nghệ tiên tiến và sản phẩm tự nhiên
             </p>
           </motion.div>
-          
+
           {/* Category Filter */}
           <div className="mb-10">
             <div className="max-w-3xl mx-auto">
@@ -314,9 +320,9 @@ const ServicesPage = () => {
                     {category.name}
                   </motion.button>
                 ))}
-              </div>
-            </div>
-          </div>
+                              </div>
+                            </div>
+                          </div>
           
           {/* Services Grid */}
           {loading ? (
@@ -334,21 +340,21 @@ const ServicesPage = () => {
               </svg>
               <h3 className="text-2xl font-medium text-gray-700 mb-2">Không tìm thấy dịch vụ</h3>
               <p className="text-gray-500">Vui lòng chọn danh mục khác</p>
-            </div>
+                    </div>
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {currentServices.map(service => (
                   <ServiceCard key={service.id} service={service} />
-                ))}
-              </div>
+            ))}
+          </div>
               
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex justify-center mt-12">
                   <div className="flex space-x-1">
                     {/* Previous Page Button */}
-                    <button
+                <button
                       onClick={() => currentPage > 1 && paginate(currentPage - 1)}
                       disabled={currentPage === 1}
                       className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
@@ -359,9 +365,9 @@ const ServicesPage = () => {
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    
+                  </svg>
+                </button>
+                
                     {/* Page Numbers */}
                     {[...Array(totalPages)].map((_, index) => (
                       <button
@@ -374,11 +380,11 @@ const ServicesPage = () => {
                         }`}
                       >
                         {index + 1}
-                      </button>
+                            </button>
                     ))}
-                    
+                
                     {/* Next Page Button */}
-                    <button
+                <button
                       onClick={() => currentPage < totalPages && paginate(currentPage + 1)}
                       disabled={currentPage === totalPages}
                       className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
@@ -389,18 +395,37 @@ const ServicesPage = () => {
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+                  </svg>
+                </button>
+              </div>
+              </div>
               )}
             </>
           )}
+          </div>
+        </section>
+
+      {loading && (
+        <div className="text-center py-10">
+          <p>Đang tải dữ liệu...</p>
         </div>
-      </section>
+      )}
+
+      {error && (
+        <div className="text-center py-10 text-red-500">
+          <p>Có lỗi xảy ra: {error}</p>
+            </div>
+      )}
+
+      {!loading && !error && filteredServices.length === 0 && (
+        <div className="text-center py-10">
+          <p>Không có dịch vụ nào</p>
+          </div>
+      )}
+
       <ContactUs />
       {/* <Footer /> */}
-    </div>
+      </div>
   );
 };
 

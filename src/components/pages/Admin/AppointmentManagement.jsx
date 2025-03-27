@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   FaSearch, 
@@ -10,151 +10,169 @@ import {
   FaTimes 
 } from "react-icons/fa";
 import Sidebar from "./SideBar";
+import { 
+  getAllAppointments, 
+  updateAppointment, 
+  deleteAppointment,
+  cancelAppointment 
+} from "../../service/appointmentApi.js";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const AppointmentList = () => {
-  // Các trạng thái có thể có
-  const statusOptions = [
-    "Đã hoàn thành",
-    "Chờ xác nhận",
-    "Đã hủy",
-  ];
-
-  // Dữ liệu mẫu cho danh sách đặt lịch
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      name: "Nguyễn Văn A",
-      phone: "0123456789",
-      email: "nguyenvana@gmail.com",
-      gender: "Nam",
-      service: "Dịch vụ chăm sóc da",
-      dateTime: "2023-12-01 14:00",
-      staffName: "Chuyên viên Minh",
-      docNote: "Kiểm tra da, đề xuất liệu trình 3 tháng",
-      custNote: "Muốn tư vấn thêm về sản phẩm dưỡng da",
-      status: "Đã hoàn thành",
-    },
-    {
-      id: 2,
-      name: "Trần Thị B",
-      phone: "0987654321",
-      email: "tranthib@gmail.com",
-      gender: "Nữ",
-      service: "Trị mụn chuyên sâu",
-      dateTime: "2023-12-02 09:30",
-      staffName: "Chuyên viên Hương",
-      docNote: "Xem xét dị ứng, đề xuất sản phẩm phù hợp",
-      custNote: "Có tiền sử dị ứng với benzoyl peroxide",
-      status: "Chờ xác nhận",
-    },
-    {
-      id: 3,
-      name: "Lê Văn C",
-      phone: "0909123456",
-      email: "levanc@gmail.com",
-      gender: "Nam",
-      service: "Điều trị sẹo",
-      dateTime: "2023-12-05 15:30",
-      staffName: "Chuyên viên Thanh",
-      docNote: "Sẹo lõm, cần liệu trình laser kết hợp lăn kim",
-      custNote: "Quan tâm đến chi phí và thời gian phục hồi",
-      status: "Đã hoàn thành",
-    },
-    {
-      id: 4,
-      name: "Phạm Thị D",
-      phone: "0978123654",
-      email: "phamthid@gmail.com",
-      gender: "Nữ",
-      service: "Tắm trắng cao cấp",
-      dateTime: "2023-12-07 10:00",
-      staffName: "Chuyên viên Lan",
-      docNote: "Da sạm màu do tiếp xúc ánh nắng nhiều",
-      custNote: "Muốn làm trắng trước kỳ nghỉ lễ",
-      status: "Đã hủy",
-    },
-    {
-      id: 5,
-      name: "Hoàng Minh E",
-      phone: "0912987654",
-      email: "hoangminhe@gmail.com",
-      gender: "Nam",
-      service: "Trị rụng tóc",
-      dateTime: "2023-12-10 13:45",
-      staffName: "Chuyên viên Tùng",
-      docNote: "Rụng tóc theo mùa, cần bổ sung dinh dưỡng",
-      custNote: "Lo lắng về tác dụng phụ của thuốc mọc tóc",
-      status: "Đã hoàn thành",
-    },
-  ]);
-
-  // Tìm kiếm và lọc theo trạng thái
+const AppointmentManagement = () => {
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("Tất cả");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [editingId, setEditingId] = useState(null);
+  const [editingStatus, setEditingStatus] = useState("");
 
-  const filteredAppointments = appointments.filter((a) => {
-    const matchesSearch =
-      a.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.phone.includes(searchTerm);
-    const matchesStatus =
-      filterStatus === "Tất cả" || a.status === filterStatus;
+  // Các trạng thái có thể có
+  const appointmentStatusOptions = [
+    "PENDING",
+    "CONFIRMED",
+    "COMPLETED",
+    "REJECTED",
+    "CANCELLED"
+  ];
+
+  const paymentStatusOptions = [
+    "UNPAID",
+    "PARTIALLY_PAID",
+    "PAID",
+    "CANCELLED"
+  ];
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Fetching appointments...');
+      const response = await getAllAppointments();
+      console.log('Full API Response:', response);
+      console.log('Sample appointment structure:', response?.result[0]);
+
+      if (response?.result && Array.isArray(response.result)) {
+        const formattedAppointments = response.result.map(appointment => ({
+          ...appointment,
+          fullname: appointment.fullname || 'Chưa có tên',
+          phone: appointment.phone || 'Chưa có SĐT',
+          email: appointment.email || 'Chưa có email',
+          service: {
+            name: appointment.service?.name || 'Chưa có dịch vụ',
+            price: appointment.service?.price || 0
+          },
+          status: appointment.status || 'PENDING',
+          paymentStatus: appointment.paymentStatus || 'UNPAID'
+        }));
+        setAppointments(formattedAppointments);
+        console.log('Formatted appointments:', formattedAppointments);
+      } else {
+        throw new Error('Không nhận được dữ liệu từ server');
+      }
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      setError(error.message);
+      setAppointments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Xử lý cập nhật trạng thái
+  const handleStatusUpdate = async (id, appointmentStatus, paymentStatus) => {
+    try {
+      await updateAppointment(id, {
+        appointmentStatus,
+        paymentStatus
+      });
+      toast.success("Cập nhật trạng thái thành công");
+      fetchAppointments(); // Refresh data
+      setEditingId(null);
+    } catch (error) {
+      toast.error("Lỗi khi cập nhật trạng thái");
+    }
+  };
+
+  // Xử lý hủy lịch hẹn
+  const handleCancel = async (id) => {
+    try {
+      await cancelAppointment(id);
+      toast.success("Hủy lịch hẹn thành công");
+      fetchAppointments();
+    } catch (error) {
+      toast.error("Lỗi khi hủy lịch hẹn");
+    }
+  };
+
+  // Xử lý xóa lịch hẹn
+  const handleDelete = async (id) => {
+    if (window.confirm("Bạn có chắc muốn xóa lịch hẹn này?")) {
+      try {
+        await deleteAppointment(id);
+        toast.success("Xóa lịch hẹn thành công");
+        fetchAppointments();
+      } catch (error) {
+        toast.error("Lỗi khi xóa lịch hẹn");
+      }
+    }
+  };
+
+  // Format price
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN').format(price);
+  };
+
+  // Lọc appointments
+  const filteredAppointments = appointments.filter((appointment) => {
+    const matchesSearch = 
+      appointment.id.toString().includes(searchTerm) ||
+      appointment.fullname.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = 
+      filterStatus === "Tất cả" || 
+      appointment.status === filterStatus;
+
     return matchesSearch && matchesStatus;
   });
 
   // Phân trang
-  const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 5;
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredAppointments.slice(
-    indexOfFirstRecord,
-    indexOfLastRecord
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
+  const currentItems = filteredAppointments.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
-  const totalPages = Math.ceil(filteredAppointments.length / recordsPerPage);
 
-  // Chỉnh sửa trạng thái
-  const [editingId, setEditingId] = useState(null);
-  const [editingStatus, setEditingStatus] = useState("");
-
-  const startEditStatus = (appointment) => {
-    setEditingId(appointment.id);
-    setEditingStatus(appointment.status);
-  };
-
-  const saveEditStatus = (id) => {
-    setAppointments((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: editingStatus } : a))
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-gray-900 justify-center items-center">
+        <div className="text-white">Đang tải dữ liệu...</div>
+      </div>
     );
-    setEditingId(null);
-    setEditingStatus("");
-  };
+  }
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditingStatus("");
-  };
-
-  // Xóa đặt lịch
-  const handleDelete = (id) => {
-    if (window.confirm("Bạn có chắc muốn xóa mục này?")) {
-      setAppointments((prev) => prev.filter((a) => a.id !== id));
-    }
-  };
-
-  // Hàm trả về màu sắc dựa theo trạng thái
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Đã hoàn thành":
-        return "text-green-400 bg-green-900/30";
-      case "Chờ xác nhận":
-        return "text-yellow-400 bg-yellow-900/30";
-      case "Đã hủy":
-        return "text-red-400 bg-red-900/30";
-      default:
-        return "text-gray-400 bg-gray-900/30";
-    }
-  };
+  if (error) {
+    return (
+      <div className="flex min-h-screen bg-gray-900 justify-center items-center">
+        <div className="text-red-500">
+          Lỗi: {error}
+          <button 
+            onClick={fetchAppointments}
+            className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-900">
@@ -168,19 +186,19 @@ const AppointmentList = () => {
         {/* Thông tin tổng quan */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-gradient-to-r from-purple-800 to-indigo-800 p-4 rounded-lg shadow-lg">
-            <h3 className="text-gray-300 text-sm">Tổng khách hàng</h3>
+            <h3 className="text-gray-300 text-sm">Tổng lịch hẹn</h3>
             <p className="text-white text-2xl font-bold">{appointments.length}</p>
           </div>
           <div className="bg-gradient-to-r from-green-800 to-emerald-800 p-4 rounded-lg shadow-lg">
             <h3 className="text-gray-300 text-sm">Đã hoàn thành</h3>
             <p className="text-white text-2xl font-bold">
-              {appointments.filter((a) => a.status === "Đã hoàn thành").length}
+              {appointments.filter((a) => a.status === "COMPLETED").length}
             </p>
           </div>
           <div className="bg-gradient-to-r from-yellow-800 to-amber-800 p-4 rounded-lg shadow-lg">
             <h3 className="text-gray-300 text-sm">Chờ xác nhận</h3>
             <p className="text-white text-2xl font-bold">
-              {appointments.filter((a) => a.status === "Chờ xác nhận").length}
+              {appointments.filter((a) => a.status === "PENDING").length}
             </p>
           </div>
         </div>
@@ -207,7 +225,7 @@ const AppointmentList = () => {
                   className="bg-gray-700 border border-gray-600 rounded-lg text-white py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="Tất cả">Tất cả trạng thái</option>
-                  {statusOptions.map((option) => (
+                  {appointmentStatusOptions.map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
@@ -217,7 +235,7 @@ const AppointmentList = () => {
             </div>
             <div className="text-gray-300">
               <span>
-                Hiển thị {currentRecords.length} / {filteredAppointments.length} mục
+                Hiển thị {currentItems.length} / {filteredAppointments.length} mục
               </span>
             </div>
           </div>
@@ -226,106 +244,76 @@ const AppointmentList = () => {
         {/* Bảng danh sách đặt lịch */}
         <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead className="bg-gray-700 text-gray-300 text-left">
+            <table className="w-full text-sm text-left text-gray-200">
+              <thead className="text-xs uppercase bg-gray-700">
                 <tr>
-                  <th className="p-3 font-semibold">ID</th>
-                  <th className="p-3 font-semibold">Khách hàng</th>
-                  <th className="p-3 font-semibold">Liên hệ</th>
-                  <th className="p-3 font-semibold">Dịch vụ</th>
-                  <th className="p-3 font-semibold">Lịch hẹn</th>
-                  <th className="p-3 font-semibold">Chuyên viên</th>
-                  <th className="p-3 font-semibold">Trạng thái</th>
-                  <th className="p-3 font-semibold text-center">Thao tác</th>
+                  <th className="px-6 py-3">ID</th>
+                  <th className="px-6 py-3">Khách hàng</th>
+                  <th className="px-6 py-3">Liên hệ</th>
+                  <th className="px-6 py-3">Dịch vụ</th>
+                  <th className="px-6 py-3">Lịch hẹn</th>
+                  <th className="px-6 py-3">Chuyên viên</th>
+                  <th className="px-6 py-3">Trạng thái</th>
+                  <th className="px-6 py-3">Thanh toán</th>
+                  <th className="px-6 py-3">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="text-gray-200">
-                {currentRecords.map((appointment, index) => (
-                  <tr
-                    key={appointment.id}
-                    className={`border-t border-gray-700 hover:bg-gray-700/50 transition ${
-                      index % 2 === 0 ? "bg-gray-800/50" : "bg-gray-800"
-                    }`}
-                  >
-                    <td className="p-3 font-medium">#{appointment.id}</td>
-                    <td className="p-3">
-                      <div className="font-medium">{appointment.name}</div>
-                      <div className="text-xs text-gray-400">{appointment.gender}</div>
+              <tbody>
+                {currentItems.map((appointment) => (
+                  <tr key={appointment.id} className="border-b border-gray-700">
+                    <td className="px-6 py-4">#{appointment.id}</td>
+                    <td className="px-6 py-4">
+                      <div>{appointment.fullname}</div>
+                      <div className="text-sm text-gray-400">{appointment.note || '-'}</div>
                     </td>
-                    <td className="p-3">
-                      <div>{appointment.phone}</div>
-                      <div className="text-xs text-gray-400">{appointment.email}</div>
-                    </td>
-                    <td className="p-3">{appointment.service}</td>
-                    <td className="p-3">
-                      <div className="font-medium">
-                        {appointment.dateTime.split(" ")[0]}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {appointment.dateTime.split(" ")[1]}
+                    <td className="px-6 py-4">
+                      <div>{formatPrice(appointment.price)} VND</div>
+                      <div className="text-sm text-gray-400">
+                        Đặt cọc: {formatPrice(appointment.depositAmount)} VND
                       </div>
                     </td>
-                    <td className="p-3">{appointment.staffName}</td>
-                    <td className="p-3">
-                      {editingId === appointment.id ? (
-                        <div className="flex items-center space-x-2">
-                          <select
-                            value={editingStatus}
-                            onChange={(e) => setEditingStatus(e.target.value)}
-                            className="bg-gray-700 border border-gray-600 rounded text-white py-1 px-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                          >
-                            {statusOptions.map((option) => (
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            onClick={() => saveEditStatus(appointment.id)}
-                            className="text-green-400 hover:text-green-300"
-                            title="Lưu"
-                          >
-                            <FaCheck />
-                          </button>
-                          <button
-                            onClick={cancelEdit}
-                            className="text-red-400 hover:text-red-300"
-                            title="Hủy"
-                          >
-                            <FaTimes />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              appointment.status
-                            )}`}
-                          >
-                            {appointment.status}
-                          </span>
-                          <button
-                            onClick={() => startEditStatus(appointment)}
-                            className="text-gray-400 hover:text-gray-300"
-                            title="Chỉnh sửa trạng thái"
-                          >
-                            <FaEdit size={14} />
-                          </button>
-                        </div>
-                      )}
+                    <td className="px-6 py-4">
+                      <div>{appointment.service?.name || 'Chưa có dịch vụ'}</div>
                     </td>
-                    <td className="p-3">
-                      <div className="flex justify-center space-x-2">
+                    <td className="px-6 py-4">
+                      <div>{appointment.date || 'Chưa có ngày'}</div>
+                      <div className="text-sm text-gray-400">
+                        {appointment.startTime || '--:--'} - {appointment.endTime || '--:--'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div>{appointment.therapist?.fullname || 'Chưa có chuyên viên'}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(appointment.status)}`}>
+                        {appointment.status || 'PENDING'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded-full text-xs ${getPaymentStatusColor(appointment.paymentStatus)}`}>
+                        {appointment.paymentStatus || 'UNPAID'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex space-x-2">
                         <button
-                          className="text-blue-400 hover:text-blue-300 p-1"
-                          title="Xem chi tiết"
+                          onClick={() => handleStatusUpdate(appointment.id)}
+                          className="text-blue-400 hover:text-blue-300"
+                          title="Chỉnh sửa"
                         >
-                          <FaEye />
+                          <FaEdit />
                         </button>
                         <button
-                          className="text-red-400 hover:text-red-300 p-1"
-                          title="Xóa"
+                          onClick={() => handleCancel(appointment.id)}
+                          className="text-yellow-400 hover:text-yellow-300"
+                          title="Hủy"
+                        >
+                          <FaTimes />
+                        </button>
+                        <button
                           onClick={() => handleDelete(appointment.id)}
+                          className="text-red-400 hover:text-red-300"
+                          title="Xóa"
                         >
                           <FaTrash />
                         </button>
@@ -333,16 +321,6 @@ const AppointmentList = () => {
                     </td>
                   </tr>
                 ))}
-                {currentRecords.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan="8"
-                      className="p-4 text-center text-red-400 font-semibold"
-                    >
-                      Không tìm thấy mục phù hợp!
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
@@ -400,4 +378,41 @@ const AppointmentList = () => {
   );
 };
 
-export default AppointmentList;
+// Helper function để format giá
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('vi-VN').format(price);
+};
+
+// Helper function để xác định màu sắc trạng thái
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'APPROVED':
+      return 'bg-green-900/30 text-green-400';
+    case 'PENDING':
+      return 'bg-yellow-900/30 text-yellow-400';
+    case 'REJECTED':
+      return 'bg-red-900/30 text-red-400';
+    case 'CANCELLED':
+      return 'bg-red-900/30 text-red-400';
+    case 'COMPLETED':
+      return 'bg-blue-900/30 text-blue-400';
+    default:
+      return 'bg-gray-900/30 text-gray-400';
+  }
+};
+
+const getPaymentStatusColor = (status) => {
+  switch (status) {
+    case 'PAID':
+      return 'bg-green-900/30 text-green-400';
+    case 'PARTIALLY_PAID':
+      return 'bg-yellow-900/30 text-yellow-400';
+    case 'UNPAID':
+      return 'bg-red-900/30 text-red-400';
+    default:
+      return 'bg-gray-900/30 text-gray-400';
+  }
+};
+
+export default AppointmentManagement;
+

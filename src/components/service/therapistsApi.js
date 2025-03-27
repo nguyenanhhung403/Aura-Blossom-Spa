@@ -9,17 +9,21 @@ export const getAllTherapists = async () => {
     }
 };
 
+export const getTherapistById = async (id) => {
+    try {
+        const response = await api.get(`/api/therapists/${id}`);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
 export const createTherapist = async (therapistData, thumbnailFile) => {
     try {
         const formData = new FormData();
-        // Chuyển đổi experience thành số trước khi stringify
-        const dataToSend = {
-            ...therapistData,
-            experience: Number(therapistData.experience)
-        };
         
         // Thêm dữ liệu therapist vào FormData
-        formData.append("therapist", new Blob([JSON.stringify(dataToSend)], {
+        formData.append("therapist", new Blob([JSON.stringify(therapistData)], {
             type: "application/json"
         }));
 
@@ -33,6 +37,7 @@ export const createTherapist = async (therapistData, thumbnailFile) => {
                 'Content-Type': 'multipart/form-data'
             }
         });
+        
         return response.data;
     } catch (error) {
         handleError(error);
@@ -43,19 +48,7 @@ export const updateTherapist = async (id, therapistData, thumbnailFile) => {
     try {
         const formData = new FormData();
         
-        // Đảm bảo gửi đúng format dữ liệu và loại bỏ username khỏi request
-        const dataToSend = {
-            fullname: therapistData.fullname,
-            phone: therapistData.phone,
-            email: therapistData.email,
-            experience: Number(therapistData.experience),
-            description: therapistData.description || ""
-        };
-
-        // Log để debug
-        console.log("Data being sent to API:", dataToSend);
-
-        formData.append("therapist", new Blob([JSON.stringify(dataToSend)], {
+        formData.append("therapist", new Blob([JSON.stringify(therapistData)], {
             type: "application/json"
         }));
 
@@ -68,27 +61,36 @@ export const updateTherapist = async (id, therapistData, thumbnailFile) => {
                 'Content-Type': 'multipart/form-data'
             }
         });
+        
         return response.data;
     } catch (error) {
-        console.error("API Error:", error.response?.data);
-        if (error.response?.status === 409) {
-            throw new Error("Email hoặc số điện thoại đã tồn tại trong hệ thống!");
-        }
-        throw error;
+        handleError(error);
     }
 };
 
 export const deleteTherapist = async (id) => {
     try {
-        // Sửa endpoint từ /api/therapists/delete/{id} thành /api/therapists/{id}
         const response = await api.delete(`/api/therapists/delete/${id}`);
         return response.data;
     } catch (error) {
-        if (error.response?.status === 400) {
-            throw new Error("Không thể xóa chuyên viên này vì có dữ liệu liên quan!");
-        } else if (error.response?.status === 404) {
-            throw new Error("Không tìm thấy chuyên viên này!");
+        handleError(error);
+    }
+};
+
+const loadTherapists = async () => {
+    try {
+        const response = await getAllTherapists();
+        if (response.code === 1000) {
+            setTherapists(response.result);
         }
-        throw error;
+    } catch (error) {
+        // Nếu là lỗi không tìm thấy therapist
+        if (error.response?.data?.code === 1014) { // Giả sử 1014 là THERAPIST_NOT_FOUND
+            setTherapists([]); // Set empty array
+            // Có thể hiển thị thông báo "Chưa có chuyên viên nào"
+        } else {
+            // Xử lý các lỗi khác
+            console.error("Lỗi khi tải danh sách chuyên viên:", error);
+        }
     }
 };

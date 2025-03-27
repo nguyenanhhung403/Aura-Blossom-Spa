@@ -25,7 +25,7 @@ export const handlePaymentResponse = (response, navigate) => {
             // Thanh toán thành công
             alert("Thanh toán thành công!");
             // Chuyển hướng về trang history
-            navigate('/history');
+            navigate('/my-upcoming-appointment');
             return {
                 success: true,
                 message: "Thanh toán thành công!"

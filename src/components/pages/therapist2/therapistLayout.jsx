@@ -4,8 +4,6 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaCalendarAlt,
-  FaHistory,
-  FaCommentDots,
   FaUserCircle,
   FaSignOutAlt,
   FaCog,
@@ -40,13 +38,6 @@ const TherapistLayout = () => {
             </Link>
           </li>
           <li>
-            <Link to="/therapist2/appointments">
-              <FaHistory className="icon" />
-              Lịch hẹn
-            </Link>
-          </li>
-
-          <li>
             <Link to="/therapist2/settings">
               <FaCog className="icon" />
               Cài đặt tài khoản
@@ -54,7 +45,6 @@ const TherapistLayout = () => {
           </li>
         </ul>
 
-        {/* Thêm phần Trang Home và Đăng xuất ngay chỗ user info */}
         <div className="sidebar-footer">
           <div className="user-info">
             <FaUserCircle className="user-icon" />

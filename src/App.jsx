@@ -11,7 +11,7 @@ import Blog from './components/pages/Blogs';
 import EmailCheck from './components/Auth/EmailCheck';
 import Profile from './components/pages/Profile';
 import BookingProcess from './components/pages/BookingProcess';
-import AminDashboard from './components/pages/Admin/AdminDashboard';
+import AdminDashboard from './components/pages/Admin/AdminDashboard';
 import ServiceManagement from "./components/pages/Admin/ServiceManagement";
 import AppointmentManagement from "./components/pages/Admin/AppointmentManagement";
 import TherapistManagement from "./components/pages/Admin/TherapistManagement";
@@ -39,7 +39,7 @@ import StaffSettings from './components/staff/StaffSettings';
 // Import therapist2 components
 import TherapistDashboard from './components/pages/therapist2/therapistDashboard';
 import TherapistLayout from './components/pages/therapist2/therapistLayout';
-import TherapistAppointments from './components/pages/therapist2/therapistAppoiment';
+//import TherapistAppointments from './components/pages/therapist2/therapistAppoiment';
 import TherapistSettings from './components/pages/therapist2/therapistSetting';
 import TherapistSchedule from './components/pages/therapist2/therapistSchedule';
 
@@ -82,7 +82,7 @@ function App() {
                     <Route path='/therapist' element={<Therapist/>}/>
 
                     {/* Admin Routes */}
-                    <Route path="/admin/*" element={<AminDashboard />} />
+                    <Route path="/admin/*" element={<AdminDashboard />} />
                     <Route path="/admin/services" element={<ServiceManagement />} />
                     <Route path="/admin/appointments" element={<AppointmentManagement />} />
                     <Route path="/admin/therapists" element={<TherapistManagement />} />
@@ -112,7 +112,6 @@ function App() {
                     
                         <Route index element={<TherapistDashboard />} />
                         <Route path="schedule" element={<TherapistSchedule />} />
-                        <Route path="appointments" element={<TherapistAppointments />} />
                         <Route path="settings" element={<TherapistSettings />} />
                     </Route>
                 </Routes>
