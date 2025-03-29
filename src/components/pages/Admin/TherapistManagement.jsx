@@ -26,6 +26,7 @@ const TherapistManagement = () => {
   // State cho form thêm mới
   const [newTherapist, setNewTherapist] = useState({
     username: "",
+    password: "",
     fullname: "",
     phone: "",
     email: "",
@@ -70,6 +71,9 @@ const TherapistManagement = () => {
     if (!newTherapist.username?.trim()) {
       validationErrors.username = "Username không được để trống";
     }
+    if (!newTherapist.password?.trim()) {
+      validationErrors.password = "Password không được để trống";
+    }
     if (!newTherapist.fullname?.trim()) {
       validationErrors.fullname = "Tên không được để trống";
     }
@@ -91,6 +95,7 @@ const TherapistManagement = () => {
     try {
       const therapistData = {
         username: newTherapist.username,
+        password: newTherapist.password,
         fullname: newTherapist.fullname,
         phone: newTherapist.phone,
         email: newTherapist.email,
@@ -103,6 +108,7 @@ const TherapistManagement = () => {
         await fetchTherapists();
         setNewTherapist({
           username: "",
+          password: "",
           fullname: "",
           phone: "",
           email: "",
@@ -152,6 +158,7 @@ const TherapistManagement = () => {
         // Chuẩn bị dữ liệu gửi đi
         const therapistData = {
             fullname: editedTherapist.fullname,
+            password: editedTherapist.password,
             phone: editedTherapist.phone,
             email: editedTherapist.email,
             experience: Number(editedTherapist.experience),
@@ -244,6 +251,17 @@ const TherapistManagement = () => {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <input
+                  type="text"
+                  value={newTherapist.password}
+                  onChange={(e) => setNewTherapist(prev => ({ ...prev, password: e.target.value }))}
+                  className="mt-1 block w-full border rounded-md px-3 py-2"
+                />
+                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700">Tên chuyên viên</label>
                 <input
                   type="text"
@@ -329,6 +347,7 @@ const TherapistManagement = () => {
                   setIsAdding(false);
                   setNewTherapist({
                     username: "",
+                    password: "",
                     fullname: "",
                     phone: "",
                     email: "",
@@ -353,6 +372,7 @@ const TherapistManagement = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Password</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hình ảnh</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Họ và tên</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số điện thoại</th>
@@ -370,6 +390,17 @@ const TherapistManagement = () => {
                     <>
                       <td className="px-6 py-4 whitespace-nowrap">{therapist.id}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{therapist.username}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="text"
+                          value={editedTherapist.password || ''}
+                          onChange={(e) => setEditedTherapist(prev => ({
+                              ...prev,
+                              password: e.target.value
+                          }))}
+                          className="w-full border rounded px-2 py-1"
+                        />
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input
                           type="file"
@@ -466,6 +497,7 @@ const TherapistManagement = () => {
                     <>
                       <td className="px-6 py-4 whitespace-nowrap">{therapist.id}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{therapist.username}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{therapist.password}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <img
                           src={therapist.image || "https://placehold.co/40x40"}
@@ -483,6 +515,8 @@ const TherapistManagement = () => {
                           onClick={() => {
                             setEditingId(therapist.id);
                             setEditedTherapist({
+                              username: therapist.username,
+                              password: therapist.password,
                               fullname: therapist.fullname,
                               phone: therapist.phone,
                               email: therapist.email,
