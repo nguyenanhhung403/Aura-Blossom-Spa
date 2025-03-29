@@ -81,9 +81,9 @@ const ServiceCard = ({ service }) => {
         
         <button 
           onClick={handleBookingClick}
-          className="mt-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-3 rounded-xl 
+          className="mt-auto bg-gradient-to-r 
           font-medium transform transition-all duration-300 hover:shadow-lg hover:shadow-emerald-200/50 w-full flex items-center justify-center gap-2 group">
-          <span>Đặt lịch ngay</span>
+          <span>Đặt lịch ngay</span>from-emerald-500 to-teal-600 text-white px-4 py-3 rounded-xl 
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
