@@ -29,6 +29,7 @@ import ViewFeedbacks from './components/pages/ViewFeedbacks';
 import Quiz from './components/pages/Quiz';
 import History from './components/pages/History';
 import Therapist from './components/pages/Therapist';
+import ServiceDetail from "./components/pages/ServiceDetail";
 // Import staff components
 import StaffLayout from './components/staff/StaffLayout';
 import StaffDashboard from './components/staff/StaffDashboard';
@@ -80,6 +81,7 @@ function App() {
                     <Route path="/quiz" element={<Quiz />} />
                     <Route path='/history' element={<History/>}/>
                     <Route path='/therapist' element={<Therapist/>}/>
+                    <Route path="/service-detail/:id" element={<ServiceDetail />} />
 
                     {/* Admin Routes */}
                     <Route path="/admin/*" element={<AdminDashboard />} />
