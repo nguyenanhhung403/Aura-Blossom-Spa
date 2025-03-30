@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "./SideBar";
+import { handleLogout } from "../../service/authApi";
 
 const menuItems = [
   { name: "Dịch vụ", path: "/admin/services" },
@@ -15,6 +16,13 @@ const menuItems = [
 ];
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
+  // Xử lý sự kiện click đăng xuất
+  const handleLogoutClick = async () => {
+    await handleLogout(navigate);
+  };
+
   return (
     <div className="flex h-screen bg-gray-900">
       {/* Sidebar */}
@@ -22,9 +30,17 @@ const AdminDashboard = () => {
 
       {/* Main content */}
       <main className="flex-1 p-6">
-        <h1 className="text-2xl font-semibold mb-6 bg-gray-800 p-4 text-white rounded">
-          Trang Chủ
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-semibold text-white">
+            Trang Chủ
+          </h1>
+          <button
+            onClick={handleLogoutClick}
+            className="text-red-500 hover:text-red-400 px-4 py-2 rounded-lg"
+          >
+            Đăng xuất
+          </button>
+        </div>
 
         {/* Grid of Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

@@ -135,18 +135,42 @@ export const updateStaff = async (staffId, updateData) => {
   }
 };
 
-export const changePassword = async (passwordData) => {
+export const changePassword = async (data) => {
   try {
+    // Thêm oldPassword với giá trị mặc định nếu backend yêu cầu
+    const passwordData = {
+      userId: data.userId,
+      oldPassword: "default", // Thêm giá trị mặc định hoặc để trống tùy backend
+      newPassword: data.newPassword,
+      confirmPassword: data.confirmPassword
+    };
+
     console.log('Calling API with data:', passwordData);
     const response = await api.post('/api/users/change-password', passwordData);
-    console.log('API Response:', response);
+    
+    if (response.data) {
+      return response.data;
+    }
+    throw new Error('Không có dữ liệu trả về');
+  } catch (error) {
+    console.log('Change password error:', error);
+    console.log('Error response:', error.response?.data);
+    throw new Error('Lỗi khi đổi mật khẩu');
+  }
+};
+
+export const adminResetPassword = async (data) => {
+  try {
+    const passwordData = {
+      userId: data.userId,
+      newPassword: data.newPassword,
+      confirmPassword: data.confirmPassword
+    };
+
+    const response = await api.post('/api/users/admin/reset-password', passwordData);
     return response.data;
   } catch (error) {
-    console.error("Change password error:", error);
-    if (error.response) {
-      console.error("Error response:", error.response.data);
-      throw new Error(error.response.data.message || 'Lỗi khi đổi mật khẩu');
-    }
-    throw error;
+    console.log('Reset password error:', error);
+    throw new Error(error.response?.data?.message || 'Lỗi khi đặt lại mật khẩu');
   }
 };

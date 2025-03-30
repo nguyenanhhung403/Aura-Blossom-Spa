@@ -25,14 +25,17 @@ function Login() {
       // Kiểm tra role để redirect
       if (user.roles?.some(role => role.name.toUpperCase() === "ADMIN")) {
         navigate("/admin");
-      } else if (user.roles?.some(role => role.name.toUpperCase() === "THERAPIST") || 
-                user.username?.startsWith("therapist")) {
+      } else if (user.roles?.some(role => role.name.toUpperCase() === "THERAPIST")) {
         navigate("/therapist2");
+      } else if (user.roles?.some(role => role.name.toUpperCase() === "STAFF")) {
+        navigate("/staff");
       } else {
+        // Nếu không phải 3 role trên thì mặc định là USER
         navigate("/");
       }
     }
   }, [user, navigate]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

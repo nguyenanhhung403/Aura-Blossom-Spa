@@ -47,3 +47,29 @@ export const introspectToken = async (data) => {
     handleError(errorObj);
   }
 };
+
+export const handleLogout = async (navigate) => {
+  try {
+    // Gọi API logout
+    const response = await logoutUser();
+    
+    if (response?.code === 1000) {
+      // Xóa dữ liệu stored
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Chuyển hướng về trang login
+      navigate('/login');
+      
+      // Reload trang sau khi chuyển hướng
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    } else {
+      throw new Error('Đăng xuất thất bại');
+    }
+  } catch (error) {
+    console.error('Logout error:', error);
+    alert('Có lỗi xảy ra khi đăng xuất');
+  }
+};

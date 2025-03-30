@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaSearch, FaTrash, FaEdit, FaCheck, FaTimes } from "react-icons/fa";
 import Sidebar from "../Admin/SideBar";
 import { toast } from 'react-toastify';
-import { getAllUsers, updateUser, deleteUser, changePassword } from "../../service/userApi";
+import { getAllUsers, updateUser, deleteUser, changePassword, adminResetPassword } from "../../service/userApi";
 import 'react-toastify/dist/ReactToastify.css';
 
 const CustomerList = () => {
@@ -55,10 +55,6 @@ const CustomerList = () => {
 
   const handleSave = async (id) => {
     try {
-      // Log để kiểm tra giá trị đầu vào
-      console.log('EditedCustomer:', editedCustomer);
-      console.log('ID:', id);
-
       if (editedCustomer.password !== editedCustomer.confirmPassword) {
         toast.error('Mật khẩu xác nhận không khớp!');
         return;
@@ -69,32 +65,24 @@ const CustomerList = () => {
         return;
       }
 
-      // Tạo request body
       const passwordData = {
         userId: id,
         newPassword: editedCustomer.password,
         confirmPassword: editedCustomer.confirmPassword
       };
 
-      // Log request data
-      console.log('Sending password data:', passwordData);
-
-      // Gọi API
-      const response = await changePassword(passwordData);
+      const response = await adminResetPassword(passwordData);
       
-      // Log response
-      console.log('API Response:', response);
-
       if (response?.code === 1000) {
-        toast.success('Đổi mật khẩu thành công!');
+        toast.success('Đặt lại mật khẩu thành công!');
         setIsEditModalOpen(false);
         setEditedCustomer({ password: '', confirmPassword: '' });
       } else {
-        throw new Error(response?.message || 'Có lỗi xảy ra khi đổi mật khẩu!');
+        throw new Error(response?.message || 'Có lỗi xảy ra khi đặt lại mật khẩu!');
       }
     } catch (error) {
-      console.error("Error changing password:", error);
-      toast.error(error.message || 'Có lỗi xảy ra khi đổi mật khẩu!');
+      console.error("Error resetting password:", error);
+      toast.error(error.message || 'Có lỗi xảy ra khi đặt lại mật khẩu!');
     }
   };
 
@@ -284,23 +272,9 @@ const CustomerList = () => {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-gray-300 mb-1">Mật khẩu cũ</label>
-                  <input
-                    type="password"
-                    value={editedCustomer.oldPassword || ''}
-                    onChange={(e) => setEditedCustomer({
-                      ...editedCustomer,
-                      oldPassword: e.target.value
-                    })}
-                    className="w-full bg-gray-700 text-white rounded p-2"
-                    placeholder="Nhập mật khẩu cũ"
-                  />
-                </div>
-
-                <div>
                   <label className="block text-gray-300 mb-1">Mật khẩu mới</label>
                   <input
-                    type="password"
+                    type="text"
                     value={editedCustomer.password}
                     onChange={(e) => setEditedCustomer({
                       ...editedCustomer,
@@ -314,7 +288,7 @@ const CustomerList = () => {
                 <div>
                   <label className="block text-gray-300 mb-1">Xác nhận mật khẩu mới</label>
                   <input
-                    type="password"
+                    type="text"
                     value={editedCustomer.confirmPassword}
                     onChange={(e) => setEditedCustomer({
                       ...editedCustomer,
@@ -330,7 +304,7 @@ const CustomerList = () => {
                 <button
                   onClick={() => {
                     setIsEditModalOpen(false);
-                    setEditedCustomer({ oldPassword: '', password: '', confirmPassword: '' });
+                    setEditedCustomer({ password: '', confirmPassword: '' });
                   }}
                   className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
                 >
