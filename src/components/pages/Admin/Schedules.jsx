@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./SideBar";
-import { FaPlus, FaTrash, FaEdit } from "react-icons/fa";
+import { FaPlus, FaTrash } from "react-icons/fa";
 
 const WorkSchedule = () => {
   // State để theo dõi khoảng thời gian xem lịch
@@ -9,19 +9,15 @@ const WorkSchedule = () => {
     endDate: "2025-03-16"
   });
 
-  // State để lưu trữ lịch hẹn đang được chỉnh sửa
-  const [editingAppointment, setEditingAppointment] = useState(null);
-  
-  // State cho modal chỉnh sửa
-  const [showEditModal, setShowEditModal] = useState(false);
-
   // State cho modal tạo lịch mới
   const [showCreateModal, setShowCreateModal] = useState(false);
   
   // State cho lịch hẹn mới
   const [newAppointment, setNewAppointment] = useState({
     selectedDoctors: [],
-    weekSelection: "current"
+    startDate: "",
+    endDate: "",
+    singleDates: []
   });
 
   // Danh sách bác sĩ
@@ -236,9 +232,57 @@ const WorkSchedule = () => {
     }
   }, [isSearching]);
 
+  // Lấy ngày hiện tại và giới hạn theo tuần
+  const getCurrentDateString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  const getStartOfWeek = () => {
+    const today = new Date();
+    const diff = today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1); // Điều chỉnh cho tuần bắt đầu từ thứ 2
+    const startOfWeek = new Date(today.setDate(diff));
+    return startOfWeek.toISOString().split('T')[0];
+  };
+
+  const getMaxDateString = () => {
+    const today = new Date();
+    const startOfWeek = new Date(getStartOfWeek());
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // Thêm 6 ngày để đến cuối tuần (Chủ nhật)
+    return endOfWeek.toISOString().split('T')[0];
+  };
+
+  // Kiểm tra ngày có hợp lệ không (không trong quá khứ và trong tuần hiện tại)
+  const isValidDate = (dateString) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(dateString);
+    const startOfWeek = new Date(getStartOfWeek());
+    const endOfWeek = new Date(getMaxDateString());
+    return checkDate >= today && checkDate >= startOfWeek && checkDate <= endOfWeek;
+  };
+
   // Xử lý thay đổi trong form tạo lịch mới
   const handleNewAppointmentChange = (e) => {
     const { name, value } = e.target;
+    
+    // Kiểm tra nếu ngày được chọn không hợp lệ
+    if ((name === 'startDate' || name === 'endDate') && !isValidDate(value)) {
+      alert("Không thể chọn ngày trong quá khứ!");
+      return;
+    }
+
+    // Kiểm tra nếu ngày kết thúc vượt quá 7 ngày
+    if (name === 'endDate') {
+      const maxDate = new Date(getMaxDateString());
+      const selectedDate = new Date(value);
+      if (selectedDate > maxDate) {
+        alert("Chỉ có thể đặt lịch trong vòng 7 ngày!");
+        return;
+      }
+    }
+
     setNewAppointment(prev => ({
       ...prev,
       [name]: value
@@ -315,16 +359,37 @@ const WorkSchedule = () => {
     return weekdays[dayOfWeek];
   };
 
-  // Xử lý khi chọn tuần
-  const handleWeekSelection = (weekId) => {
-    const selectedWeek = weeks.find(week => week.id === weekId);
-    if (selectedWeek) {
-      setNewAppointment(prev => ({
-        ...prev,
-        weekSelection: weekId,
-        date: selectedWeek.startDate // Đặt ngày bắt đầu của tuần được chọn
-      }));
+  // Xử lý chọn ngày riêng lẻ
+  const handleSingleDateSelection = (date) => {
+    // Kiểm tra ngày có hợp lệ không
+    if (!isValidDate(date)) {
+      alert("Không thể chọn ngày trong quá khứ!");
+      return;
     }
+
+    // Kiểm tra ngày có nằm trong khoảng 7 ngày không
+    const maxDate = new Date(getMaxDateString());
+    const selectedDate = new Date(date);
+    if (selectedDate > maxDate) {
+      alert("Chỉ có thể đặt lịch trong vòng 7 ngày!");
+      return;
+    }
+
+    setNewAppointment(prev => {
+      const singleDates = [...prev.singleDates];
+      
+      if (singleDates.includes(date)) {
+        return {
+          ...prev,
+          singleDates: singleDates.filter(d => d !== date)
+        };
+      } else {
+        return {
+          ...prev,
+          singleDates: [...singleDates, date].sort()
+        };
+      }
+    });
   };
 
   // Lưu lịch hẹn mới
@@ -336,33 +401,49 @@ const WorkSchedule = () => {
     }
 
     let startId = generateNewId();
-    
-    // Nếu chọn theo tuần
-    if (newAppointment.weekSelection !== "current") {
-      const selectedWeek = weeks.find(week => week.id === newAppointment.weekSelection);
-      if (selectedWeek) {
-        const startDate = new Date(selectedWeek.startDate);
-        const endDate = new Date(selectedWeek.endDate);
 
-        // Lặp qua từng ngày trong tuần đã chọn
-        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-          const dateString = d.toISOString().split('T')[0];
-          addAppointmentsToDate(dateString, startId);
-        }
-      }
-    } else {
-      // Nếu chọn theo ngày cụ thể
-      if (!newAppointment.date) {
-        alert("Vui lòng chọn ngày!");
+    // Nếu có chọn khoảng thời gian
+    if (newAppointment.startDate && newAppointment.endDate) {
+      const startDate = new Date(newAppointment.startDate);
+      const endDate = new Date(newAppointment.endDate);
+      const maxDate = new Date(getMaxDateString());
+
+      if (startDate > endDate) {
+        alert("Ngày bắt đầu phải trước ngày kết thúc!");
         return;
       }
-      addAppointmentsToDate(newAppointment.date, startId);
+
+      if (endDate > maxDate) {
+        alert("Chỉ có thể đặt lịch trong vòng 7 ngày!");
+        return;
+      }
+
+      // Lặp qua từng ngày trong khoảng thời gian đã chọn
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateString = d.toISOString().split('T')[0];
+        if (isValidDate(dateString)) {
+          addAppointmentsToDate(dateString, startId);
+          startId += newAppointment.selectedDoctors.length;
+        }
+      }
+    }
+
+    // Thêm lịch cho các ngày riêng lẻ
+    if (newAppointment.singleDates.length > 0) {
+      newAppointment.singleDates.forEach(date => {
+        if (isValidDate(date)) {
+          addAppointmentsToDate(date, startId);
+          startId += newAppointment.selectedDoctors.length;
+        }
+      });
     }
 
     // Reset form và đóng modal
     setNewAppointment({
       selectedDoctors: [],
-      weekSelection: "current"
+      startDate: "",
+      endDate: "",
+      singleDates: []
     });
     setShowCreateModal(false);
   };
@@ -418,15 +499,6 @@ const WorkSchedule = () => {
           className="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs"
         >
           <FaTrash />
-        </button>
-        <button 
-          onClick={() => {
-            setEditingAppointment(entry);
-            setShowEditModal(true);
-          }}
-          className="bg-yellow-600 hover:bg-yellow-500 text-white px-2 py-1 rounded text-xs"
-        >
-          <FaEdit />
         </button>
       </div>
     </div>
@@ -500,41 +572,6 @@ const WorkSchedule = () => {
   // Xử lý khi chuyển trang
   const handlePageChange = (direction) => {
     setCurrentPage(prevPage => prevPage + direction);
-  };
-
-  // Xử lý cập nhật lịch hẹn
-  const handleUpdateAppointment = () => {
-    if (currentWeek === 0) {
-      setCalendarData(prevData => {
-        const newData = {...prevData};
-        const date = Object.keys(newData).find(date => 
-          newData[date].some(app => app.id === editingAppointment.id)
-        );
-        
-        if (date) {
-          newData[date] = newData[date].map(app => 
-            app.id === editingAppointment.id ? editingAppointment : app
-          );
-        }
-        return newData;
-      });
-    } else {
-      setPreviousCalendarData(prevData => {
-        const newData = {...prevData};
-        const date = Object.keys(newData).find(date => 
-          newData[date].some(app => app.id === editingAppointment.id)
-        );
-        
-        if (date) {
-          newData[date] = newData[date].map(app => 
-            app.id === editingAppointment.id ? editingAppointment : app
-          );
-        }
-        return newData;
-      });
-    }
-    setShowEditModal(false);
-    setEditingAppointment(null);
   };
 
   return (
@@ -709,33 +746,66 @@ const WorkSchedule = () => {
             <h3 className="text-xl font-bold mb-4 text-white">Tạo lịch làm việc mới</h3>
             
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-400 mb-2">Chọn tuần:</label>
-              <div className="grid grid-cols-1 gap-2 mb-4">
-                {weeks.map((week) => (
-                  <button
-                    key={week.id}
-                    onClick={() => handleWeekSelection(week.id)}
-                    className={`px-3 py-2 rounded-md text-left ${
-                      newAppointment.weekSelection === week.id
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-700 text-gray-200 hover:bg-gray-600"
-                    }`}
-                  >
-                    {week.label}
-                  </button>
-                ))}
+              <label className="block text-sm font-medium text-gray-400 mb-2">Chọn khoảng thời gian:</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Từ ngày:</label>
+                  <input 
+                    type="date" 
+                    name="startDate"
+                    min={getStartOfWeek()}
+                    max={getMaxDateString()}
+                    value={newAppointment.startDate}
+                    onChange={handleNewAppointmentChange}
+                    className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Đến ngày:</label>
+                  <input 
+                    type="date" 
+                    name="endDate"
+                    min={newAppointment.startDate || getStartOfWeek()}
+                    max={getMaxDateString()}
+                    value={newAppointment.endDate}
+                    onChange={handleNewAppointmentChange}
+                    className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm w-full"
+                  />
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-400">
+                *Chỉ có thể đặt lịch trong tuần hiện tại (Thứ 2 - Chủ nhật)
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-400 mb-2">Chọn ngày:</label>
-              <input 
-                type="date" 
-                name="date"
-                value={newAppointment.date || ""}
-                onChange={handleNewAppointmentChange}
-                className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm w-full"
-              />
+              <label className="block text-sm font-medium text-gray-400 mb-2">Hoặc chọn ngày riêng lẻ:</label>
+              <div className="grid grid-cols-7 gap-1 bg-gray-700 p-2 rounded-md">
+                {Array.from({ length: 7 }, (_, i) => {
+                  const startOfWeek = new Date(getStartOfWeek());
+                  const day = new Date(startOfWeek);
+                  day.setDate(startOfWeek.getDate() + i);
+                  const date = day.toISOString().split('T')[0];
+                  const weekday = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'][i];
+                  return (
+                    <button
+                      key={date}
+                      onClick={() => handleSingleDateSelection(date)}
+                      className={`p-2 text-sm rounded ${
+                        newAppointment.singleDates.includes(date)
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-600 hover:bg-gray-500 text-gray-200'
+                      }`}
+                    >
+                      <div className="text-xs mb-1">{weekday}</div>
+                      <div>{day.getDate()}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-2 text-sm text-gray-400">
+                Đã chọn: {newAppointment.singleDates.length} ngày
+              </div>
             </div>
 
             <div className="mb-4">
@@ -785,48 +855,6 @@ const WorkSchedule = () => {
                 className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded"
               >
                 Tạo lịch
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal chỉnh sửa */}
-      {showEditModal && editingAppointment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-4 text-white">Chỉnh sửa lịch làm việc</h3>
-            
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-400 mb-2">Chọn bác sĩ:</label>
-              <select
-                value={editingAppointment.doctor}
-                onChange={(e) => setEditingAppointment({...editingAppointment, doctor: e.target.value})}
-                className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm w-full"
-              >
-                {doctors.map(doctor => (
-                  <option key={doctor} value={doctor}>
-                    {doctor}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="flex justify-end space-x-3 mt-6">
-              <button 
-                onClick={() => {
-                  setShowEditModal(false);
-                  setEditingAppointment(null);
-                }}
-                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded"
-              >
-                Hủy
-              </button>
-              <button 
-                onClick={handleUpdateAppointment}
-                className="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded"
-              >
-                Cập nhật
               </button>
             </div>
           </div>
