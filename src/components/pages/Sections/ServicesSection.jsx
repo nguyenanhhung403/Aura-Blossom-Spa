@@ -49,7 +49,7 @@ const ServicesSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {services.length > 0 &&
-            services.map((service, index) => (
+            services.slice(0, 4).map((service, index) => (
               <div
                 key={index}
                 className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group"
