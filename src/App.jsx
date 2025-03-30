@@ -55,7 +55,7 @@ const ProtectedStaffRoute = ({ children }) => {
 
   // Nếu không đăng nhập hoặc không có quyền staff, chuyển hướng về trang login
   if (!user || !hasStaffAccess()) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;
