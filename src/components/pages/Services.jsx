@@ -37,6 +37,10 @@ const ServiceCard = ({ service }) => {
     });
   };
 
+  const handleDetailClick = () => {
+    navigate(`/service-detail/${service.id}`);
+  };
+
   return (
     <motion.div 
       whileHover={{ y: -8 }}
@@ -62,7 +66,7 @@ const ServiceCard = ({ service }) => {
       <div className="p-6 flex flex-col flex-grow">
         <div className="flex flex-col items-center text-center mb-3">
           <h3 className="text-xl font-bold text-gray-800 mb-2">{service.name}</h3>
-          <span className="text-emerald-600 font-semibold">{service.price} VNĐ</span>
+          <span className="text-emerald-600 font-semibold">{service.price.toLocaleString('vi-VN')} VNĐ</span>
         </div>
         
         <div className="flex items-center justify-center mb-3 gap-2">
@@ -79,15 +83,27 @@ const ServiceCard = ({ service }) => {
           {service.description}
         </p>
         
-        <button 
-          onClick={handleBookingClick}
-          className="mt-auto bg-gradient-to-r 
-          font-medium transform transition-all duration-300 hover:shadow-lg hover:shadow-emerald-200/50 w-full flex items-center justify-center gap-2 group">
-          <span>Đặt lịch ngay</span>from-emerald-500 to-teal-600 text-white px-4 py-3 rounded-xl 
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </button>
+        <div className="mt-auto flex gap-2">
+          <button 
+            onClick={handleDetailClick}
+            className="flex-1 bg-white border-2 border-emerald-500 text-emerald-500 px-4 py-2 rounded-lg font-medium transform transition-all duration-300 hover:bg-emerald-50 flex items-center justify-center gap-2 group"
+          >
+            <span>Chi tiết</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+          
+          <button 
+            onClick={handleBookingClick}
+            className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-lg font-medium transform transition-all duration-300 hover:shadow-lg hover:shadow-emerald-200/50 flex items-center justify-center gap-2 group"
+          >
+            <span>Đặt lịch</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+        </div>
       </div>
     </motion.div>
   );
