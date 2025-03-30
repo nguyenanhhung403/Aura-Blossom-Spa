@@ -220,7 +220,7 @@ const ViewFeedbacks = () => {
                 </div>
             </div>
             <ContactUs />
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 };
