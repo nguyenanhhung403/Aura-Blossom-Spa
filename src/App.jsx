@@ -43,7 +43,7 @@ import TherapistLayout from './components/pages/therapist2/therapistLayout';
 //import TherapistAppointments from './components/pages/therapist2/therapistAppoiment';
 import TherapistSettings from './components/pages/therapist2/therapistSetting';
 import TherapistSchedule from './components/pages/therapist2/therapistSchedule';
-
+import Reports from './components/pages/Admin/SpaDashboard';
 // Protected Route Component cho Staff
 const ProtectedStaffRoute = ({ children }) => {
   const { user } = useContext(UserContext);
@@ -96,7 +96,7 @@ function App() {
                     <Route path="/admin/quizlist" element={<QuizList />} />
                     <Route path="/admin/quizlist/:id" element={<QuizDetail />} />
                     <Route path="/admin/recommend-service" element={<RecommendService />} />
-                    
+                    <Route path="/admin/reports" element={<Reports />} /> 
                     {/* Staff Routes - Được bảo vệ bởi ProtectedStaffRoute */}
                     <Route path="/staff" element={
                       <ProtectedStaffRoute>
