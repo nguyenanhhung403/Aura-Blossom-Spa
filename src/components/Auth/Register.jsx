@@ -44,7 +44,7 @@ const Register = () => {
     setLoading(true);
     try {
       const registerObj = {
-        fullName: name,
+        fullname: name,
         email,
         phone,
         password,

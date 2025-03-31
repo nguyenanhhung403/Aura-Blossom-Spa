@@ -253,7 +253,7 @@ const SpaDashboard = () => {
       </div>
 
       {/* Footer với nút đăng xuất */}
-      <div className="flex items-center justify-between mt-8 p-4 bg-[#1e293b]">
+      {/* <div className="flex items-center justify-between mt-8 p-4 bg-[#1e293b]">
         <Link to="/" className="text-blue-400 hover:text-blue-300">
           Trang Home
         </Link>
@@ -263,7 +263,7 @@ const SpaDashboard = () => {
         >
           Đăng xuất
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

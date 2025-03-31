@@ -1,6 +1,7 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useContext } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { UserProvider } from './components/context/UserContext';
+import { UserContext } from './components/context/UserContext';
 import './App.css';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
@@ -28,6 +29,7 @@ import ViewFeedbacks from './components/pages/ViewFeedbacks';
 import Quiz from './components/pages/Quiz';
 import History from './components/pages/History';
 import Therapist from './components/pages/Therapist';
+import ServiceDetail from "./components/pages/ServiceDetail";
 // Import staff components
 import StaffLayout from './components/staff/StaffLayout';
 import StaffDashboard from './components/staff/StaffDashboard';
@@ -41,6 +43,24 @@ import TherapistLayout from './components/pages/therapist2/therapistLayout';
 //import TherapistAppointments from './components/pages/therapist2/therapistAppoiment';
 import TherapistSettings from './components/pages/therapist2/therapistSetting';
 import TherapistSchedule from './components/pages/therapist2/therapistSchedule';
+
+// Protected Route Component cho Staff
+const ProtectedStaffRoute = ({ children }) => {
+  const { user } = useContext(UserContext);
+  
+  // Kiểm tra xem người dùng có role STAFF không
+  const hasStaffAccess = () => {
+    if (!user || !user.role) return false;
+    return user.role.some(role => role.name === "STAFF");
+  };
+
+  // Nếu không đăng nhập hoặc không có quyền staff, chuyển hướng về trang login
+  if (!user || !hasStaffAccess()) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
 
 function App() {
     return (
@@ -61,6 +81,7 @@ function App() {
                     <Route path="/quiz" element={<Quiz />} />
                     <Route path='/history' element={<History/>}/>
                     <Route path='/therapist' element={<Therapist/>}/>
+                    <Route path="/service-detail/:id" element={<ServiceDetail />} />
 
                     {/* Admin Routes */}
                     <Route path="/admin/*" element={<AdminDashboard />} />
@@ -76,8 +97,12 @@ function App() {
                     <Route path="/admin/quizlist/:id" element={<QuizDetail />} />
                     <Route path="/admin/recommend-service" element={<RecommendService />} />
                     
-                    {/* Staff Routes */}
-                    <Route path="/staff" element={<StaffLayout />}>
+                    {/* Staff Routes - Được bảo vệ bởi ProtectedStaffRoute */}
+                    <Route path="/staff" element={
+                      <ProtectedStaffRoute>
+                        <StaffLayout />
+                      </ProtectedStaffRoute>
+                    }>
                         <Route index element={<StaffDashboard />} />
                         <Route path="appointments" element={<StaffAppointments />} />
                         <Route path="history" element={<StaffHistory />} />

@@ -89,6 +89,18 @@ const BookingProcess = () => {
     }
   }, [location.state, services]);
 
+  // Xử lý khi có dữ liệu therapist được truyền từ trang therapist
+  useEffect(() => {
+    if (location.state && location.state.therapistId && therapists.length > 0) {
+      const { therapistId, therapistName } = location.state;
+      setBookingData(prev => ({
+        ...prev,
+        therapistId: therapistId.toString(),
+        therapist: therapistName,
+      }));
+    }
+  }, [location.state, therapists]);
+
   useEffect(() => {
     const fetchSlots = async () => {
       if (bookingData.date && bookingData.therapistId !== "") {

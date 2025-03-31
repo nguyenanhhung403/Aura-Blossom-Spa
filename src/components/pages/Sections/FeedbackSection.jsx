@@ -1,26 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-const feedbacks = [
-    {
-        id: 1,
-        text: "Tôi rất hài lòng với dịch vụ tại spa. Các chuyên viên rất chuyên nghiệp và tận tâm. Sau khi sử dụng dịch vụ chăm sóc da mặt, làn da của tôi trở nên sáng mịn và căng bóng. Tôi nhất định sẽ quay lại và giới thiệu cho bạn bè.",
-        rating: 5,
-        delay: ""
-    },
-    {
-        id: 2,
-        text: "Spa có không gian rất thư giãn và dễ chịu. Các dịch vụ tẩy lông ở đây không đau, hiệu quả rõ rệt ngay từ lần đầu tiên. Tôi cảm thấy rất thoải mái và tự tin hơn với làn da mịn màng sau khi tẩy lông. Chắc chắn tôi sẽ trở thành khách hàng thường xuyên.",
-        rating: 4,
-        delay: "animate__delay-1s"
-    },
-    {
-        id: 3,
-        text: "Tôi đã thử liệu trình massage toàn thân tại spa, cảm giác thư giãn tuyệt vời. Các chuyên viên rất chu đáo, luôn hỏi tôi cảm thấy như thế nào trong suốt quá trình điều trị. Đặc biệt, tôi rất thích không gian ấm cúng và yên tĩnh ở đây.",
-        rating: 4,
-        delay: "animate__delay-2s"
-    }
-];
+import { getAllRatings } from '../../service/ratingApi';
 
 const StarRating = ({ rating }) => (
     <div className="flex justify-center mt-4">
@@ -38,6 +18,34 @@ const StarRating = ({ rating }) => (
 );
 
 const FeedbackSection = () => {
+    const [feedbacks, setFeedbacks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchFeedbacks = async () => {
+            try {
+                setLoading(true);
+                const response = await getAllRatings();
+                
+                if (response?.code === 1000 && response.result) {
+                    // Lấy 3 feedback đầu tiên hoặc tất cả nếu ít hơn 3
+                    setFeedbacks(response.result.slice(0, 3));
+                } else {
+                    throw new Error('Không thể tải đánh giá');
+                }
+                setError(null);
+            } catch (err) {
+                setError(err.message);
+                console.error("Lỗi khi tải đánh giá:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchFeedbacks();
+    }, []);
+
     return (
         <section id="feedback" className="w-full py-16 px-4 animate__animated animate__fadeInUp animate__delay-2s" style={{ backgroundColor: 'rgb(142, 163, 150)' }}>
             <div className="max-w-7xl mx-auto text-center">
@@ -45,26 +53,38 @@ const FeedbackSection = () => {
                 <p className="text-center text-gray-200 max-w-2xl mx-auto mb-12">
                     Spa là không gian thư giãn, cung cấp các dịch vụ chăm sóc sức khoẻ, giúp khách hàng xua tan căng thẳng.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-                    {feedbacks.map(({ id, text, rating, delay }) => (
-                        <div 
-                            key={id} 
-                            className={`bg-white p-6 rounded-lg shadow text-center animate__animated animate__fadeInUp ${delay} transition-all duration-300 transform hover:scale-105 hover:shadow-lg`}
-                        >
-                            <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full mb-4"></div>
-                            <p className="text-sm text-gray-600">{text}</p>
-                            <StarRating rating={rating} />
-                        </div>
-                    ))}
-                </div>
+                
+                {loading ? (
+                    <div className="flex justify-center items-center h-40">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                    </div>
+                ) : error ? (
+                    <div className="bg-red-50 text-red-500 p-4 rounded-lg max-w-xl mx-auto">
+                        <p>{error}</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                        {feedbacks.map((feedback) => (
+                            <div 
+                                key={feedback.id} 
+                                className="bg-white p-6 rounded-lg shadow text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                            >
+                                <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full mb-4 flex items-center justify-center overflow-hidden">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                                <h3 className="font-medium text-gray-800 mb-2">{feedback.userFullname}</h3>
+                                <p className="text-sm text-gray-600 mb-2">
+                                    {feedback.feedback || "Dịch vụ tuyệt vời, tôi rất hài lòng!"}
+                                </p>
+                                <StarRating rating={feedback.stars} />
+                            </div>
+                        ))}
+                    </div>
+                )}
                 
                 <div className="mt-10 flex justify-center space-x-4">
-                    {/* <Link 
-                        to="/rate-service" 
-                        className="bg-white text-[rgb(88,137,133)] hover:bg-gray-100 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg"
-                    >
-                        Đánh giá dịch vụ
-                    </Link> */}
                     <Link 
                         to="/view-feedbacks" 
                         className="bg-transparent text-white border-2 border-white hover:bg-white hover:text-[rgb(88,137,133)] px-6 py-3 rounded-full font-medium transition-all duration-300"
