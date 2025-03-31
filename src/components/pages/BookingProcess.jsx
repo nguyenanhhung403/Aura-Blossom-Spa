@@ -34,6 +34,10 @@ const BookingProcess = () => {
     note: "",
   });
 
+  // State để quản lý lỗi
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [therapists, setTherapists] = useState([]);
   const [services, setServices] = useState([]);
   const [slots, setSlots] = useState([]);
@@ -165,6 +169,12 @@ const BookingProcess = () => {
       }
     }
 
+    // Xóa lỗi của trường đang nhập khi người dùng thay đổi giá trị
+    setFormErrors({
+      ...formErrors,
+      [name]: undefined
+    });
+
     if (name === "serviceId") {
       const selectedService = services.find((service) => service.id == value);
       setBookingData((prev) => ({
@@ -195,13 +205,52 @@ const BookingProcess = () => {
         slotId: slotId,
         time: selectedSlot.time || "",
       }));
+      
+      // Xóa lỗi của trường khung giờ
+      setFormErrors({
+        ...formErrors,
+        slotId: undefined
+      });
     } else {
       console.warn("Cannot select an unavailable slot");
     }
   };
 
+  // Hàm kiểm tra dữ liệu form
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!bookingData.serviceId) {
+      errors.serviceId = "Vui lòng chọn dịch vụ";
+    }
+    
+    if (!bookingData.therapistId) {
+      errors.therapistId = "Vui lòng chọn chuyên viên";
+    }
+    
+    if (!bookingData.date) {
+      errors.date = "Vui lòng chọn ngày";
+    }
+    
+    if (!bookingData.slotId) {
+      errors.slotId = "Vui lòng chọn khung giờ";
+    }
+    
+    return errors;
+  };
+
   // Bước 1: Khi người dùng nhấn "Tiếp tục"
   const handleGoToPayment = () => {
+    const errors = validateForm();
+    setFormErrors(errors);
+    
+    // Nếu có lỗi, hiển thị thông báo lỗi và không chuyển bước
+    if (Object.keys(errors).length > 0) {
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Nếu không có lỗi, chuyển sang bước tiếp theo
     setCurrentStep(2);
   };
 
@@ -331,15 +380,16 @@ const BookingProcess = () => {
                   />
                 </div>
                 <div>
-                  <label className="block font-medium">Dịch Vụ</label>
+                  <label className="block font-medium">Dịch Vụ <span className="text-red-500">*</span></label>
                   <select
                     name="serviceId"
                     value={bookingData.serviceId}
                     onChange={handleInputChange}
-                    className="
+                    className={`
                       w-full border rounded px-3 py-2 
                       focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
-                    "
+                      ${formErrors.serviceId ? 'border-red-500' : ''}
+                    `}
                   >
                     <option value="">Chọn dịch vụ</option>
                     {services.map((service) => (
@@ -348,19 +398,23 @@ const BookingProcess = () => {
                       </option>
                     ))}
                   </select>
+                  {formErrors.serviceId && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.serviceId}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block font-medium">Chuyên Viên</label>
+                  <label className="block font-medium">Chuyên Viên <span className="text-red-500">*</span></label>
                   <select
                     name="therapistId"
                     value={bookingData.therapistId}
                     onChange={(e) => {
                       handleInputChange(e);
                     }}
-                    className="
+                    className={`
                       w-full border rounded px-3 py-2 
                       focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
-                    "
+                      ${formErrors.therapistId ? 'border-red-500' : ''}
+                    `}
                   >
                     <option value="">Chọn chuyên viên</option>
                     {therapists.map((therapist) => (
@@ -369,23 +423,30 @@ const BookingProcess = () => {
                       </option>
                     ))}
                   </select>
+                  {formErrors.therapistId && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.therapistId}</p>
+                  )}
                 </div>
                 <div className="">
-                  <label className="block font-medium">Ngày/Tháng/Năm</label>
+                  <label className="block font-medium">Ngày/Tháng/Năm <span className="text-red-500">*</span></label>
                   <input
                     type="date"
                     name="date"
                     value={bookingData.date}
                     onChange={handleInputChange}
                     min={getCurrentDate()}
-                    className="
+                    className={`
                       w-full border rounded px-3 py-2 
                       focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
-                    "
+                      ${formErrors.date ? 'border-red-500' : ''}
+                    `}
                   />
+                  {formErrors.date && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.date}</p>
+                  )}
                 </div>
                 <div className="pb-3">
-                  <label className="block font-medium">Giờ</label>
+                  <label className="block font-medium">Giờ <span className="text-red-500">*</span></label>
                   <div className="flex flex-wrap gap-2">
                     {slots.length > 0 ? (
                       slots.map((slot) => (
@@ -424,6 +485,9 @@ const BookingProcess = () => {
                       </p>
                     )}
                   </div>
+                  {formErrors.slotId && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.slotId}</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -439,6 +503,17 @@ const BookingProcess = () => {
                   placeholder="Nhập ghi chú (nếu có)"
                 />
               </div>
+              {/* Hiển thị thông báo lỗi nếu có */}
+              {Object.keys(formErrors).length > 0 && (
+                <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                  <p className="font-medium">Vui lòng kiểm tra lại thông tin:</p>
+                  <ul className="list-disc list-inside">
+                    {Object.values(formErrors).map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <button
                 onClick={handleGoToPayment}
                 className="
