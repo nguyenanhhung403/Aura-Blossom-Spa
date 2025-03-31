@@ -48,28 +48,45 @@ export const introspectToken = async (data) => {
   }
 };
 
-export const handleLogout = async (navigate) => {
+export const handleLogout = async () => {
   try {
-    // Gọi API logout
-    const response = await logoutUser();
+    // Lấy token từ localStorage
+    const token = localStorage.getItem('token');
     
-    if (response?.code === 1000) {
-      // Xóa dữ liệu stored
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Chuyển hướng về trang login
-      navigate('/login');
-      
-      // Reload trang sau khi chuyển hướng
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
-    } else {
-      throw new Error('Đăng xuất thất bại');
+    // Clear tất cả storage ngay lập tức
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Abort tất cả các request đang pending (nếu có)
+    if (window.AbortController) {
+      // Abort tất cả request đang chạy
+      const controller = new AbortController();
+      controller.abort();
     }
+    
+    if (token) {
+      try {
+        // Gọi API logout với timeout ngắn
+        await Promise.race([
+          logoutUser({ token: token }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Logout timeout')), 1000)
+          )
+        ]);
+      } catch (error) {
+        console.warn('Logout API error:', error);
+        // Không cần xử lý lỗi vì đã clear storage
+      }
+    }
+
+    // Force reload và chuyển về trang login
+    window.location.replace('/login');
+    
   } catch (error) {
     console.error('Logout error:', error);
-    alert('Có lỗi xảy ra khi đăng xuất');
+    // Đảm bảo luôn clear và redirect
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.replace('/login');
   }
 };

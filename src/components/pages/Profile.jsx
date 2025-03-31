@@ -62,13 +62,13 @@ const UserProfile = () => {
     e.preventDefault();
     try {
       const response = await updateUser(userData.id, {
-        fullName: formData.fullName,
+        fullname: formData.fullName,
         phone: formData.phone
       });
 
       if (response && response.code === 1000) {
         alert('Cập nhật thông tin thành công!');
-        await fetchUserData(); // Refresh data ngay lập tức
+        await fetchUserData();
         setIsEditing(false);
       } else {
         throw new Error(response?.message || 'Cập nhật thất bại');
