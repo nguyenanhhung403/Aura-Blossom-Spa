@@ -119,7 +119,7 @@ const Therapist = () => {
                   <div className="flex flex-col md:flex-row gap-8 bg-white rounded-3xl overflow-hidden p-6 shadow-lg">
                     <div className="md:w-1/3 relative">
                       <div className="relative z-10">
-                        <div className="rounded-2xl overflow-hidden shadow-xl h-[350px] relative">
+                        <div className="rounded-2xl overflow-hidden shadow-xl h-[700px] relative">
                           <img 
                             src={selectedTherapist.image || placeholderImageUrl}
                             alt={selectedTherapist.fullname}
@@ -287,7 +287,7 @@ const Therapist = () => {
                                   {/* Card Content */}
                                   <div className="flex flex-col h-full bg-white/60">
                                     {/* Image Section */}
-                                    <div className="relative pt-[90%] overflow-hidden">
+                                    <div className="relative pt-[140.5%] overflow-hidden">
                                       <img
                                         src={therapist.image || placeholderImageUrl}
                                         alt={therapist.fullname}
