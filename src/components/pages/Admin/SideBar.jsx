@@ -13,15 +13,10 @@ import {
   FaUserMd,
   FaSignOutAlt
 } from 'react-icons/fa';
+import { handleLogout } from '../../service/authApi';
 
 const Sidebar = () => {
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
 
   return (
     <div className="w-64 bg-[#0e1726] min-h-screen text-white p-4">
@@ -75,7 +70,7 @@ const Sidebar = () => {
         </li>
 
         <li>
-          <Link to="/admin/quiz" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
+          <Link to="/admin/quizlist" className="flex items-center px-4 py-2 hover:bg-[#1c2a3d] rounded">
             <FaQuestionCircle className="mr-3" />
             Quiz
           </Link>
