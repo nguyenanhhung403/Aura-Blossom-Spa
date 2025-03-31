@@ -116,6 +116,9 @@ function App() {
                         <Route path="schedule" element={<TherapistSchedule />} />
                         <Route path="settings" element={<TherapistSettings />} />
                     </Route>
+
+                    {/* Thêm route cho trang chi tiết dịch vụ */}
+                    <Route path="/services/:id" element={<ServiceDetail />} />
                 </Routes>
             </UserProvider>
         </BrowserRouter>

@@ -152,6 +152,19 @@ const BookingProcess = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    if (name === 'date') {
+      // Kiểm tra nếu ngày được chọn là ngày trong quá khứ
+      const selectedDate = new Date(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time về 00:00:00
+
+      if (selectedDate < today) {
+        alert('Không thể chọn ngày trong quá khứ');
+        return;
+      }
+    }
+
     if (name === "serviceId") {
       const selectedService = services.find((service) => service.id == value);
       setBookingData((prev) => ({
@@ -206,6 +219,15 @@ const BookingProcess = () => {
     };
     const paymentResponse = await createVnPayPayment(paymentRequest);
     window.location.href = paymentResponse.result.paymentUrl;
+  };
+
+  // Thêm hàm để lấy ngày hiện tại dạng YYYY-MM-DD
+  const getCurrentDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   return (
@@ -355,10 +377,11 @@ const BookingProcess = () => {
                     name="date"
                     value={bookingData.date}
                     onChange={handleInputChange}
+                    min={getCurrentDate()}
                     className="
-                        w-full border rounded px-3 py-2 
-                        focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
-                      "
+                      w-full border rounded px-3 py-2 
+                      focus:outline-none focus:ring-2 focus:ring-[#C8A27C]
+                    "
                   />
                 </div>
                 <div className="pb-3">
