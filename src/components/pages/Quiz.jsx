@@ -21,6 +21,8 @@ const Quiz = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [recommendationList, setRecommendationList] = useState([]);
+  const [quizzes, setQuizzes] = useState([]);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
 
   // Gọi API lấy danh sách dịch vụ
   useEffect(() => {
@@ -35,8 +37,23 @@ const Quiz = () => {
     fetchServices();
   }, []);
 
-  const handleServiceClick = (service) => {
-    setSelectedService(service);
+  // Thêm useEffect để lấy danh sách quiz
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const response = await getAllQuizzes();
+        console.log("Quizzes:", response.result);
+        setQuizzes(response.result || []);
+      } catch (error) {
+        console.error("Lỗi tải quiz:", error);
+      }
+    };
+    fetchQuizzes();
+  }, []);
+
+  const handleQuizClick = (quiz) => {
+    console.log("Selected quiz:", quiz);
+    setSelectedQuiz(quiz);
     setQuizSubmitted(false);
   };
 
@@ -65,21 +82,23 @@ const Quiz = () => {
               autoplay={{ delay: 3000, disableOnInteraction: false }}
               loop={true}
             >
-              {services.map((service) => (
+              {quizzes.map((quiz) => (
                 <SwiperSlide
-                  key={service.id}
-                  onClick={() => handleServiceClick(service)}
+                  key={quiz.id}
+                  onClick={() => handleQuizClick(quiz)}
                 >
-                  <div className="slide-item">{service.name}</div>
+                  <div className="slide-item">
+                    {quiz.title}
+                  </div>
                 </SwiperSlide>
               ))}
             </Swiper>
           </div>
         </div>
 
-        {selectedService && (
+        {selectedQuiz && (
           <QuizComponent
-            service={selectedService}
+            quiz={selectedQuiz}
             setQuizSubmitted={setQuizSubmitted}
             setRecommendationList={setRecommendationList}
           />
@@ -94,30 +113,23 @@ const Quiz = () => {
   );
 };
 
-const QuizComponent = ({
-  service,
-  setQuizSubmitted,
-  setRecommendationList,
-}) => {
+const QuizComponent = ({ quiz, setQuizSubmitted, setRecommendationList }) => {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const [quiz, setQuiz] = useState(null);
 
-  // Gọi API lấy danh sách câu hỏi
   useEffect(() => {
     const fetchAllQuestions = async () => {
       try {
-        const response = await getAllQuizzesByCategoryId(service.category?.id);
+        const response = await getAllQuizzesByCategoryId(quiz.id);
+        console.log("Questions response:", response);
         setQuestions(response.result.questions || []);
-        console.log(response.result.questions);
-        setQuiz(response.result);
       } catch (error) {
         console.error("Lỗi tải câu hỏi:", error);
       }
-    }
+    };
     fetchAllQuestions();
-  }, [service.category?.id]);
+  }, [quiz.id]);
 
   const handleAnswerChange = (questionId, answer) => {
     setAnswers({ ...answers, [questionId]: answer });
@@ -135,8 +147,8 @@ const QuizComponent = ({
       setQuizSubmitted(true);
 
       const requestBody = {
-        quizId: quiz.id, // Hoặc service.quizId nếu có
-        answersIds: Object.values(answers), // Lấy danh sách ID của các đáp án đã chọn
+        quizId: quiz.id,
+        answersIds: Object.values(answers),
       };
 
       try{
@@ -154,10 +166,9 @@ const QuizComponent = ({
     }
   };
 
-
   return (
     <div className="quiz-content">
-      <h2>{service.name}</h2>
+      <h2>{quiz.title}</h2>
       {questions.length > 0 ? (
         <form className="quiz-form">
           {questions.map((q) => (
@@ -173,15 +184,15 @@ const QuizComponent = ({
                   >
                     <input
                       type="radio"
-                      name={`question-${q.id}`} // Nhóm radio theo câu hỏi
+                      name={`question-${q.id}`}
                       value={option.id}
-                      checked={answers[q.id] === option.id} // Kiểm tra theo ID
+                      checked={answers[q.id] === option.id}
                       onChange={() => handleAnswerChange(q.id, option.id)}
                     />
                     <span className="option-label">
                       {String.fromCharCode(65 + idx)}.
                     </span>{" "}
-                    {option.answer} {/* Hiển thị nội dung đáp án */}
+                    {option.answer}
                   </label>
                 ))}
               </div>
@@ -208,7 +219,6 @@ const QuizComponent = ({
 const Recommendations = ({ recommendations }) => {
   const navigate = useNavigate();
   
-  // Thêm log để kiểm tra dữ liệu
   console.log("Full recommendations data:", recommendations);
   console.log("First service:", recommendations[0]);
 
