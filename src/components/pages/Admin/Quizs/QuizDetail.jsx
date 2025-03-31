@@ -66,8 +66,8 @@ const QuizDetail = () => {
         errors[`option${i}Text`] = `Option ${i} không được để trống`;
       }
       const score = parseInt(newAnswers[i].score, 10);
-      if (isNaN(score) || score < 10 || score > 20) {
-        errors[`option${i}Score`] = `Điểm Option ${i} phải từ 10 đến 20`;
+      if (isNaN(score)) {
+        errors[`option${i}Score`] = `Điểm Option ${i} phải là số`;
       }
     }
     if (Object.keys(errors).length > 0) {
@@ -109,7 +109,6 @@ const QuizDetail = () => {
   };
 
   const handleSaveEdit = async (idQ) => {
-    // Kiểm tra lỗi tương tự khi thêm
     const errors = {};
     if (!editedQuestion.question.trim()) {
       errors.question = "Câu hỏi không được để trống";
@@ -119,8 +118,8 @@ const QuizDetail = () => {
         errors[`option${i}Text`] = `Option ${i} không được để trống`;
       }
       const score = parseInt(editedQuestion[`option${i}Score`], 10);
-      if (isNaN(score) || score < 10 || score > 20) {
-        errors[`option${i}Score`] = `Điểm Option ${i} phải từ 10 đến 20`;
+      if (isNaN(score)) {
+        errors[`option${i}Score`] = `Điểm Option ${i} phải là số`;
       }
     }
     if (Object.keys(errors).length > 0) {
@@ -128,7 +127,6 @@ const QuizDetail = () => {
       return;
     }
 
-    // Chuẩn bị dữ liệu gửi API
     const updatedQuestion = {
       id: idQ,
       question: editedQuestion.question,
