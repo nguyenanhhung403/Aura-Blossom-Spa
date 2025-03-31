@@ -53,10 +53,34 @@ export const generateSlotsForDay = async (slotRequest) => {
         handleError(error);
     }
 };
+export const generateSlotsForDateRange = async (startDate, endDate, therapistIds) => {
+    try {
+        const therapistIdArray = therapistIds.map(therapist => parseInt(therapist.id)).join(",");
+
+        const response = await api.post('/api/slots/generate/date-range', null, {
+            params: {
+                startDate,
+                endDate,
+                therapistIds: therapistIdArray
+            }
+        });
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
 
 export const deleteSlot = async (id) => {
     try {
         const response = await api.delete(`/api/slots/delete/${id}`);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+export const deleteSlotByDateAndTherapist = async (therapistId, date) => {
+    try {
+        const response = await api.get(`/api/slots/therapist/delete?therapistId=${therapistId}&date=${date}`);
         return response.data;
     } catch (error) {
         handleError(error);
