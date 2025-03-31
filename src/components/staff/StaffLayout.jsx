@@ -1,11 +1,19 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { 
   FaHome, FaCalendarAlt, FaHistory, FaCommentDots, 
   FaUserCircle, FaSignOutAlt, FaCog
 } from 'react-icons/fa';
+import { handleLogout } from '../service/authApi';
 
 const StaffLayout = () => {
+  const navigate = useNavigate();
+
+  const handleLogoutClick = (e) => {
+    e.preventDefault();
+    handleLogout(navigate);
+  };
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
@@ -85,6 +93,7 @@ const StaffLayout = () => {
               to="/login"
               className="flex items-center text-sm text-red-400 hover:text-red-300"
               title="Đăng xuất"
+              onClick={handleLogoutClick}
             >
               <FaSignOutAlt className="mr-1" />
               <span>Đăng xuất</span>
