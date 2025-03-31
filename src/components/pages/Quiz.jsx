@@ -207,6 +207,10 @@ const QuizComponent = ({
 
 const Recommendations = ({ recommendations }) => {
   const navigate = useNavigate();
+  
+  // Thêm log để kiểm tra dữ liệu
+  console.log("Full recommendations data:", recommendations);
+  console.log("First service:", recommendations[0]);
 
   const handleServiceClick = (serviceId) => {
     console.log("Navigating to service:", serviceId);
@@ -248,11 +252,11 @@ const Recommendations = ({ recommendations }) => {
                 
                 <div className="p-6 flex-grow flex flex-col">
                   <h3 className="text-2xl font-bold text-[#2D4B49] mb-3">
-                    {service.name}
+                    {service.service_name}
                   </h3>
                   
                   <p className="text-gray-600 text-base mb-6 line-clamp-2 flex-grow">
-                    {service.description || 'Khám phá dịch vụ của chúng tôi'}
+                    {service.service_name}
                   </p>
 
                   <button 
