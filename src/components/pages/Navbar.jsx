@@ -63,13 +63,18 @@ const Navbar = () => {
     if (!user || !user.role) return false;
     return user.role.some(role => role.name === "STAFF");
   };
-
+  const hasTherapistAccess = () => {
+    if (!user || !user.role) return false;
+    return user.role.some(role => role.name === "THERAPIST");
+  };
   // Điều hướng đến trang quản lý phù hợp dựa vào role
   const navigateToManagement = () => {
     if (hasAdminAccess()) {
       navigate("/admin");
     } else if (hasStaffAccess()) {
       navigate("/staff");
+    } else if (hasTherapistAccess()) {
+      navigate("/therapist2");
     }
     setIsDropdownOpen(false);
   };
@@ -150,7 +155,7 @@ const Navbar = () => {
                       <span>Lịch sử</span>
                     </Link>
                     
-                    {(hasStaffAccess() || hasAdminAccess()) && (
+                    {(hasStaffAccess() || hasAdminAccess() || hasTherapistAccess()) && (
                       <button
                         onClick={navigateToManagement}
                         className="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 flex items-center space-x-3"
