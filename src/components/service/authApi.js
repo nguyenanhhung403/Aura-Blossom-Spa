@@ -48,6 +48,50 @@ export const introspectToken = async (data) => {
   }
 };
 
+// Lấy thông tin chuyên viên theo ID
+export const getTherapistById = async (id) => {
+  try {
+    const response = await api.get(`/api/therapists/${id}`);
+    return response.data;
+  } catch (error) {
+    const errorMsg = error.response?.data?.message;
+    const errorObj = errorMsg ? new Error(errorMsg) : error;
+    handleError(errorObj);
+  }
+};
+
+// Lấy thông tin tất cả chuyên viên
+export const getAllTherapists = async () => {
+  try {
+    const response = await api.get('/api/therapists');
+    return response.data;
+  } catch (error) {
+    const errorMsg = error.response?.data?.message;
+    const errorObj = errorMsg ? new Error(errorMsg) : error;
+    handleError(errorObj);
+  }
+};
+
+// Cập nhật thông tin chuyên viên
+export const updateTherapist = async (id, therapistData, thumbnailFile) => {
+  try {
+    const formData = new FormData();
+    formData.append('therapist', JSON.stringify(therapistData));
+    
+    if (thumbnailFile) {
+      formData.append('thumbnail', thumbnailFile);
+    }
+    
+    const response = await api.put(`/api/therapists/update/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    const errorMsg = error.response?.data?.message;
+    const errorObj = errorMsg ? new Error(errorMsg) : error;
+    handleError(errorObj);
+    throw errorObj;
+  }
+};
+
 export const handleLogout = async () => {
   try {
     // Lấy token từ localStorage
