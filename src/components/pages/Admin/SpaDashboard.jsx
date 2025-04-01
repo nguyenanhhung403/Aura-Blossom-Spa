@@ -12,8 +12,9 @@ const SpaDashboard = () => {
   const [revenueData, setRevenueData] = useState([]);
   const [appointmentStats, setAppointmentStats] = useState({
     total: 0,
-    completed: 0,
-    pending: 0,
+    paid: 0,
+    partiallyPaid: 0,
+    unpaid: 0,
     cancelled: 0
   });
   const [serviceStats, setServiceStats] = useState([]);
@@ -59,11 +60,12 @@ const SpaDashboard = () => {
       };
     });
 
-    // Thống kê trạng thái lịch hẹn
+    // Thống kê trạng thái thanh toán
     let totalAppointments = appointments.length;
-    let completedAppointments = 0;
-    let pendingAppointments = 0;
-    let cancelledAppointments = 0;
+    let paidAppointments = 0;
+    let partiallyPaidAppointments = 0;
+    let unpaidAppointments = 0;
+    let cancelledPaymentAppointments = 0;
 
     // Thống kê dịch vụ
     const serviceMap = new Map();
@@ -87,13 +89,15 @@ const SpaDashboard = () => {
 
     // Xử lý từng lịch hẹn
     appointments.forEach(appointment => {
-      // Thống kê trạng thái
-      if (appointment.appointmentStatus === 'COMPLETED') {
-        completedAppointments++;
-      } else if (appointment.appointmentStatus === 'PENDING') {
-        pendingAppointments++;
-      } else if (['CANCELLED', 'REJECTED'].includes(appointment.appointmentStatus)) {
-        cancelledAppointments++;
+      // Thống kê trạng thái thanh toán
+      if (appointment.paymentStatus === 'PAID') {
+        paidAppointments++;
+      } else if (appointment.paymentStatus === 'PARTIALLY_PAID') {
+        partiallyPaidAppointments++;
+      } else if (appointment.paymentStatus === 'UNPAID') {
+        unpaidAppointments++;
+      } else if (appointment.paymentStatus === 'CANCELLED') {
+        cancelledPaymentAppointments++;
       }
 
       // Chỉ xử lý doanh thu với lịch hẹn đã hoàn thành thanh toán
@@ -138,9 +142,10 @@ const SpaDashboard = () => {
     setRevenueData(processedMonths);
     setAppointmentStats({
       total: totalAppointments,
-      completed: completedAppointments,
-      pending: pendingAppointments,
-      cancelled: cancelledAppointments
+      paid: paidAppointments,
+      partiallyPaid: partiallyPaidAppointments,
+      unpaid: unpaidAppointments,
+      cancelled: cancelledPaymentAppointments
     });
 
     // Chuyển đổi Map thành mảng và sắp xếp theo doanh thu
@@ -279,17 +284,18 @@ const SpaDashboard = () => {
               </div>
             </div>
 
-            {/* Biểu đồ lịch hẹn */}
+            {/* Biểu đồ trạng thái thanh toán */}
             <div className="p-5 rounded-lg shadow-md bg-gray-800">
-              <h2 className="text-lg font-bold mb-4">Trạng Thái Lịch Hẹn</h2>
+              <h2 className="text-lg font-bold mb-4">Trạng Thái Thanh Toán</h2>
               <div className="h-80 flex items-center justify-center">
                 <div className="w-full">
                   <ResponsiveContainer width="100%" height={280}>
                     <PieChart>
                       <Pie
                         data={[
-                          { name: 'Hoàn thành', value: appointmentStats.completed },
-                          { name: 'Chờ xác nhận', value: appointmentStats.pending },
+                          { name: 'Đã thanh toán', value: appointmentStats.paid },
+                          { name: 'Thanh toán một phần', value: appointmentStats.partiallyPaid },
+                          { name: 'Chưa thanh toán', value: appointmentStats.unpaid },
                           { name: 'Đã hủy', value: appointmentStats.cancelled }
                         ]}
                         cx="50%"
@@ -301,9 +307,10 @@ const SpaDashboard = () => {
                         dataKey="value"
                       >
                         {[
-                          { name: 'Hoàn thành', value: appointmentStats.completed, color: '#10b981' },
-                          { name: 'Chờ xác nhận', value: appointmentStats.pending, color: '#f59e0b' },
-                          { name: 'Đã hủy', value: appointmentStats.cancelled, color: '#ef4444' }
+                          { name: 'Đã thanh toán', value: appointmentStats.paid, color: '#10b981' },
+                          { name: 'Thanh toán một phần', value: appointmentStats.partiallyPaid, color: '#f59e0b' },
+                          { name: 'Chưa thanh toán', value: appointmentStats.unpaid, color: '#ef4444' },
+                          { name: 'Đã hủy', value: appointmentStats.cancelled, color: '#8b5cf6' }
                         ].map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
@@ -314,17 +321,21 @@ const SpaDashboard = () => {
                       />
                     </PieChart>
                   </ResponsiveContainer>
-                  <div className="flex justify-center text-sm">
-                    <div className="flex items-center mr-4">
+                  <div className="flex flex-wrap justify-center text-sm">
+                    <div className="flex items-center mr-4 mb-2">
                       <div className="w-3 h-3 bg-green-500 mr-1 rounded-full"></div>
-                      <span>Hoàn thành: {appointmentStats.completed}</span>
+                      <span>Đã thanh toán: {appointmentStats.paid}</span>
                     </div>
-                    <div className="flex items-center mr-4">
+                    <div className="flex items-center mr-4 mb-2">
                       <div className="w-3 h-3 bg-yellow-500 mr-1 rounded-full"></div>
-                      <span>Chờ xác nhận: {appointmentStats.pending}</span>
+                      <span>Thanh toán một phần: {appointmentStats.partiallyPaid}</span>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center mr-4 mb-2">
                       <div className="w-3 h-3 bg-red-500 mr-1 rounded-full"></div>
+                      <span>Chưa thanh toán: {appointmentStats.unpaid}</span>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      <div className="w-3 h-3 bg-purple-500 mr-1 rounded-full"></div>
                       <span>Đã hủy: {appointmentStats.cancelled}</span>
                     </div>
                   </div>
