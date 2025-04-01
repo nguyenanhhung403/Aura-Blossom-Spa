@@ -253,7 +253,7 @@ const TherapistManagement = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-300">Password</label>
                 <input
-                  type="text"
+                  type="password"
                   value={newTherapist.password}
                   onChange={(e) => setNewTherapist(prev => ({ ...prev, password: e.target.value }))}
                   className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white"
@@ -392,7 +392,7 @@ const TherapistManagement = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-gray-300">{therapist.username}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input
-                          type="text"
+                          type="password"
                           value={editedTherapist.password || ''}
                           onChange={(e) => setEditedTherapist(prev => ({
                               ...prev,
@@ -497,7 +497,7 @@ const TherapistManagement = () => {
                     <>
                       <td className="px-6 py-4 whitespace-nowrap text-gray-300">{therapist.id}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-gray-300">{therapist.username}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-300">{therapist.password}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-300">********</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <img
                           src={therapist.image || "https://placehold.co/40x40"}
