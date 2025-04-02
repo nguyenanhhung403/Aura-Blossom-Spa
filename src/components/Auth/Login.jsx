@@ -161,13 +161,7 @@ function Login() {
           </motion.button>
         </form>
 
-        <div className="my-6 flex items-center justify-between text-sm">
-          <Link
-            to="/email-check"
-            className="text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Quên mật khẩu?
-          </Link>
+        <div className="my-6 flex items-center justify-center text-sm">
           <Link
             to="/register"
             className="text-blue-600 hover:text-blue-800 font-medium"
