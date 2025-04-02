@@ -10,10 +10,16 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
         try {
+            const token = localStorage.getItem(ACCESS_TOKEN);
             const storedUser = JSON.parse(localStorage.getItem("user")) || {};
-            return storedUser.username
-                ? { ...storedUser, displayName: storedUser.fullname, id: storedUser.id }
-                : null;
+            if (token && storedUser.username) {
+                return { 
+                    ...storedUser, 
+                    displayName: storedUser.fullName || storedUser.fullname, 
+                    id: storedUser.id 
+                };
+            }
+            return null;
         } catch (error) {
             console.error("Error parsing user data:", error);
             return null;
@@ -43,6 +49,7 @@ export const UserProvider = ({ children }) => {
                     ...gotUser,
                     id: gotUser?.id,
                     displayName: gotUser?.fullName,
+                    fullName: gotUser?.fullname,
                 };
                 localStorage.setItem("user", JSON.stringify(formattedUser));
                 setUser(formattedUser);
@@ -77,13 +84,14 @@ export const UserProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem(ACCESS_TOKEN);
-        if (!user && token && !fetchFailed) {
+        if (token && (!user || !user.roles) && !fetchFailed) {
             fetchUser();
         }
     }, [fetchUser, user, fetchFailed]);
 
     useEffect(() => {
-        if (!user && location.pathname !== lastLocation && !fetchFailed) {
+        const token = localStorage.getItem(ACCESS_TOKEN);
+        if (token && (!user || !user.roles) && location.pathname !== lastLocation && !fetchFailed) {
             setLastLocation(location.pathname);
             fetchUser();
         }
