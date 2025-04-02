@@ -104,6 +104,17 @@ const RecommendService = () => {
       errors.scoreRange = "Min Score không được lớn hơn Max Score";
     }
 
+    // Kiểm tra xem đã tồn tại recommend cho cặp quiz-service này chưa
+    const isDuplicate = recommendServices.some(
+      (item) => 
+        item.quizId.toString() === newRecommend.quizId.toString() && 
+        item.serviceId.toString() === newRecommend.serviceId.toString()
+    );
+    
+    if (isDuplicate) {
+      errors.duplicate = "KHÔNG THỂ THÊM: Đã tồn tại recommend cho Quiz và Service này!";
+    }
+
     if (Object.keys(errors).length > 0) {
       setAddErrors(errors);
       return;
@@ -258,6 +269,15 @@ const RecommendService = () => {
             <div className="mb-2 font-semibold text-gray-200">
               Thêm Recommend Service
             </div>
+
+            {/* Thông báo lỗi trùng lặp nổi bật */}
+            {addErrors.duplicate && (
+              <div className="bg-red-900 border-2 border-red-600 text-white p-3 mb-3 rounded flex items-center">
+                <FaTimes className="text-red-400 mr-2 text-xl" />
+                <p className="font-bold">{addErrors.duplicate}</p>
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
               {/* Quiz Category */}
               <div>

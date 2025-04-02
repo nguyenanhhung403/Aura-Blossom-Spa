@@ -8,12 +8,20 @@ import {
   FaSignOutAlt,
   FaCog,
 } from "react-icons/fa";
+import { handleLogout as logoutAuth } from "../../service/authApi";
 
 const TherapistLayout = () => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logoutAuth();
+      // Không cần sử dụng navigate vì hàm handleLogout trong authApi đã có window.location.replace('/login')
+    } catch (error) {
+      console.error("Đăng xuất thất bại:", error);
+      // Nếu có lỗi, vẫn chuyển hướng về trang đăng nhập
+      navigate("/login");
+    }
   };
 
   return (

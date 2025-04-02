@@ -19,15 +19,17 @@ export const getTherapistById = async (id) => {
         throw error;
     }
 };
-
+// do not enter anything
 export const createTherapist = async (therapistData, thumbnailFile) => {
     try {
         const formData = new FormData();
         
-        // Thêm dữ liệu therapist vào FormData - không dùng Blob
-        formData.append("therapist", JSON.stringify(therapistData));
+        // Use a Blob with the correct content type
+        formData.append("therapist", new Blob([JSON.stringify(therapistData)], {
+            type: 'application/json'
+        }));
 
-        // Thêm file hình ảnh nếu có
+        // Add file if available
         if (thumbnailFile) {
             formData.append("thumbnail", thumbnailFile);
         }
@@ -43,25 +45,22 @@ export const createTherapist = async (therapistData, thumbnailFile) => {
 
 export const updateTherapist = async (id, therapistData, thumbnailFile) => {
     try {
-        console.log(`Updating therapist ${id} with data:`, therapistData);
-        
         const formData = new FormData();
         
-        // Thêm dữ liệu therapist vào FormData - không dùng Blob để giống Postman
-        formData.append("therapist", JSON.stringify(therapistData));
+        // Use a Blob with the correct content type
+        const therapistBlob = new Blob([JSON.stringify(therapistData)], {
+            type: 'application/json'
+        });
+        formData.append("therapist", therapistBlob);
 
         if (thumbnailFile) {
             formData.append("thumbnail", thumbnailFile);
-            console.log("Including thumbnail in update");
         }
 
         const response = await api.put(`/api/therapists/update/${id}`, formData);
-        console.log("Update therapist response:", response.data);
         
         return response.data;
     } catch (error) {
-        console.error("Error in updateTherapist:", error);
-        console.error("Response data:", error.response?.data);
         handleError(error);
         throw error;
     }

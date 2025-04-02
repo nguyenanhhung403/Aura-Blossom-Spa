@@ -7,7 +7,10 @@ import {
   FaPhone,
   FaLock,
   FaFileAlt,
-  FaCamera
+  FaCamera,
+  FaBriefcase,
+  FaSave,
+  FaExclamationTriangle
 } from "react-icons/fa";
 import api from "../../service/api";
 import { getTherapistById, updateTherapist } from "../../service/therapistsApi";
@@ -18,20 +21,20 @@ const TherapistSettings = () => {
     email: "",
     phone: "",
     description: "",
-  });
-
-  const [passwordData, setPasswordData] = useState({
+    username: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
+    experience: "",
   });
 
   const [avatar, setAvatar] = useState(defaultAvatar); // Ảnh đại diện
   const [selectedFile, setSelectedFile] = useState(null); // Ảnh mới
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [success, setSuccess] = useState("");
   const [therapistId, setTherapistId] = useState(null); // Lưu ID của chuyên viên
+  const [activeTab, setActiveTab] = useState("profile"); // Tab đang active: profile hoặc password
 
   // Lấy dữ liệu từ API khi component render lần đầu
   useEffect(() => {
@@ -61,6 +64,11 @@ const TherapistSettings = () => {
                 email: therapistData.email || "",
                 phone: therapistData.phone || "",
                 description: therapistData.description || "",
+                username: therapistData.username || "",
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+                experience: therapistData.experience || "",
               });
               
               if (therapistData.image) {
@@ -76,6 +84,11 @@ const TherapistSettings = () => {
               email: userData.email || "",
               phone: "",
               description: "",
+              username: userData.username || "",
+              currentPassword: "",
+              newPassword: "",
+              confirmPassword: "",
+              experience: userData.experience || "",
             });
             
             if (userData.image) {
@@ -101,25 +114,21 @@ const TherapistSettings = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Hàm cập nhật state khi nhập mật khẩu
-  const handlePasswordChange = (e) => {
-    setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
-  };
-
   // Hàm xử lý khi chọn ảnh mới
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setAvatar(URL.createObjectURL(file)); // Hiển thị ảnh xem trước
+      setAvatar(URL.createObjectURL(file));
     }
   };
 
   // Hàm gửi dữ liệu cập nhật thông tin lên API
-  const handleInfoSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
 
     if (!therapistId) {
       setError("Không có thông tin ID chuyên viên");
@@ -128,228 +137,334 @@ const TherapistSettings = () => {
     }
 
     try {
-      // Tạo object therapist cần cập nhật với đúng format
+      // Lọc các trường cần thiết để cập nhật thông tin cơ bản
       const therapistData = {
         email: formData.email,
         fullname: formData.fullname,
         phone: formData.phone || "",
-        description: formData.description || ""
+        description: formData.description || "",
+        username: formData.username || "",
+        experience: formData.experience || "",
       };
       
-      console.log("Sending data:", therapistData); // Log để debug
+      // Kiểm tra và xử lý mật khẩu riêng biệt
+      const hasPasswordChange = formData.currentPassword && formData.newPassword;
+      
+      if (hasPasswordChange) {
+        if (formData.newPassword !== formData.confirmPassword) {
+          setError("Mật khẩu mới và xác nhận mật khẩu không khớp");
+          setLoading(false);
+          return;
+        }
+        
+        // Thêm mật khẩu vào dữ liệu cập nhật
+        therapistData.oldPassword = formData.currentPassword;
+        therapistData.password = formData.newPassword;
+      }
+      
+      console.log("Sending data:", therapistData);
       console.log("Therapist ID:", therapistId);
       console.log("Has thumbnail:", selectedFile ? "Yes" : "No");
       
-      // Sử dụng hàm updateTherapist đã được sửa từ therapistsApi.js
+      // Gọi API cập nhật thông tin
       const response = await updateTherapist(therapistId, therapistData, selectedFile);
       
       if (response && response.code === 1000) {
-        alert("Cập nhật thông tin thành công!");
+        setSuccess("Cập nhật thông tin thành công!");
+        
+        // Nếu đổi mật khẩu thành công, xóa trường mật khẩu
+        if (hasPasswordChange) {
+          setFormData({
+            ...formData,
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: ""
+          });
+        }
       } else {
         throw new Error(response?.message || "Cập nhật thất bại");
       }
     } catch (error) {
       console.error("Lỗi khi cập nhật:", error);
-      setError(error.message || "Cập nhật thất bại. Vui lòng thử lại sau.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Hàm gửi cập nhật mật khẩu
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setPasswordError("");
-
-    if (!therapistId) {
-      setPasswordError("Không có thông tin ID chuyên viên");
-      setLoading(false);
-      return;
-    }
-
-    // Kiểm tra mật khẩu mới nếu có nhập
-    if (!passwordData.currentPassword) {
-      setPasswordError("Vui lòng nhập mật khẩu hiện tại");
-      setLoading(false);
-      return;
-    }
-
-    if (!passwordData.newPassword) {
-      setPasswordError("Vui lòng nhập mật khẩu mới");
-      setLoading(false);
-      return;
-    }
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError("Mật khẩu mới và xác nhận mật khẩu không khớp");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      // Tạo object therapist chỉ với password
-      const therapistData = {
-        password: passwordData.newPassword,
-        oldPassword: passwordData.currentPassword // Thêm old password nếu API cần xác thực
-      };
-      
-      console.log("Sending password update:", { therapistId, hasPassword: !!passwordData.newPassword });
-      
-      // Sử dụng hàm updateTherapist đã sửa
-      const response = await updateTherapist(therapistId, therapistData, null);
-      
-      if (response && response.code === 1000) {
-        alert("Cập nhật mật khẩu thành công!");
-        // Reset password fields
-        setPasswordData({
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: ""
-        });
-      } else {
-        throw new Error(response?.message || "Cập nhật mật khẩu thất bại");
-      }
-    } catch (error) {
-      console.error("Lỗi khi cập nhật mật khẩu:", error);
-      setPasswordError(error.message || "Cập nhật mật khẩu thất bại. Vui lòng thử lại sau.");
+      setError(error.response?.data?.message || error.message || "Cập nhật thất bại. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="settings-container">
-      {/* Hiển thị thông báo loading */}
-      {loading && (
-        <div className="loading-overlay">
-          <div className="loading-spinner"></div>
-          <p>Đang xử lý...</p>
-        </div>
-      )}
-      
-      {/* Thanh thông tin cá nhân */}
-      <aside className="therapist-sidebar">
-        <div className="profile-section">
-          <div className="avatar">
-            <img src={avatar} alt="therapist-avatar" />
-            <label className="upload-avatar">
-              <FaCamera />
-              <input type="file" accept="image/*" onChange={handleFileChange} />
-            </label>
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen py-8 px-4">
+      {/* Container chính */}
+      <div className="max-w-6xl mx-auto bg-gray-900 rounded-xl shadow-lg overflow-hidden">
+        <div className="flex flex-col md:flex-row">
+          {/* Sidebar chuyên viên */}
+          <div className="w-full md:w-1/3 bg-gradient-to-b from-gray-800 to-gray-700 text-white p-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="relative mb-6">
+                <div className="h-36 w-36 rounded-full overflow-hidden border-4 border-gray-700 shadow-lg">
+                  <img 
+                    src={avatar} 
+                    alt="Ảnh đại diện" 
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <label className="absolute bottom-0 right-0 h-10 w-10 bg-gray-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-gray-600 transition duration-200">
+                  <FaCamera className="text-white" />
+                  <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                </label>
+              </div>
+              
+              <h2 className="text-2xl font-bold mb-2 text-white">{formData.fullname || "Chuyên viên"}</h2>
+              
+              <div className="w-full space-y-3 mt-4">
+                {formData.username && (
+                  <div className="flex items-center justify-center space-x-2">
+                    <FaUser className="text-gray-400" />
+                    <span className="text-white">{formData.username}</span>
+                  </div>
+                )}
+                
+                {formData.email && (
+                  <div className="flex items-center justify-center space-x-2">
+                    <FaEnvelope className="text-gray-400" />
+                    <span className="text-white">{formData.email}</span>
+                  </div>
+                )}
+                
+                {formData.phone && (
+                  <div className="flex items-center justify-center space-x-2">
+                    <FaPhone className="text-gray-400" />
+                    <span className="text-white">{formData.phone}</span>
+                  </div>
+                )}
+                
+                {formData.experience && (
+                  <div className="flex items-center justify-center space-x-2">
+                    <FaBriefcase className="text-gray-400" />
+                    <span className="text-white">{formData.experience} năm kinh nghiệm</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="mt-8 p-4 bg-gray-800 bg-opacity-10 rounded-lg text-left">
+                <h3 className="font-semibold mb-2 flex items-center text-white">
+                  <FaFileAlt className="mr-2" /> Mô tả chuyên môn
+                </h3>
+                <p className="text-sm leading-relaxed text-gray-300">
+                  {formData.description || "Chưa có thông tin mô tả."}
+                </p>
+              </div>
+            </div>
           </div>
-          {formData.fullname && <h3>{formData.fullname}</h3>}
-          {formData.phone && <p><FaPhone className="icon" /> {formData.phone}</p>}
-          {formData.email && <p><FaEnvelope className="icon" /> {formData.email}</p>}
+          
+          {/* Phần form cập nhật */}
+          <div className="w-full md:w-2/3 p-6">
+            <h1 className="text-2xl font-bold text-white mb-6">Cài đặt tài khoản</h1>
+            
+            {/* Tabs */}
+            <div className="flex border-b border-gray-600 mb-6">
+              <button 
+                className={`px-4 py-2 font-medium ${activeTab === 'profile' ? 'text-white border-b-2 border-white' : 'text-gray-400 hover:text-gray-300'}`}
+                onClick={() => setActiveTab('profile')}
+              >
+                Thông tin cá nhân
+              </button>
+              <button 
+                className={`px-4 py-2 font-medium ${activeTab === 'password' ? 'text-white border-b-2 border-white' : 'text-gray-400 hover:text-gray-300'}`}
+                onClick={() => setActiveTab('password')}
+              >
+                Đổi mật khẩu
+              </button>
+            </div>
+            
+            {/* Hiển thị thông báo */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-900 border-l-4 border-red-700 text-red-300 flex items-start">
+                <FaExclamationTriangle className="mr-2 mt-0.5 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+            
+            {success && (
+              <div className="mb-4 p-3 bg-green-900 border-l-4 border-green-700 text-green-300">
+                {success}
+              </div>
+            )}
+            
+            {/* Loading overlay */}
+            {loading && (
+              <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                <div className="bg-gray-800 p-5 rounded-lg shadow-lg flex flex-col items-center">
+                  <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-300">Đang xử lý...</p>
+                </div>
+              </div>
+            )}
+            
+            <form onSubmit={handleSubmit}>
+              {/* Tab thông tin cá nhân */}
+              {activeTab === 'profile' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Họ và tên</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaUser className="text-gray-500" />
+                        </div>
+                        <input
+                          type="text"
+                          name="fullname"
+                          value={formData.fullname}
+                          onChange={handleChange}
+                          className="pl-10 w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-white focus:border-white bg-gray-700 text-white"
+                          placeholder="Nhập họ và tên"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaEnvelope className="text-gray-500" />
+                        </div>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          className="pl-10 w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-white focus:border-white bg-gray-700 text-white"
+                          placeholder="Nhập email"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Số điện thoại</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaPhone className="text-gray-500" />
+                        </div>
+                        <input
+                          type="text"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          className="pl-10 w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-white focus:border-white bg-gray-700 text-white"
+                          placeholder="Nhập số điện thoại"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Số năm kinh nghiệm</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaBriefcase className="text-gray-500" />
+                        </div>
+                        <input
+                          type="number"
+                          name="experience"
+                          value={formData.experience}
+                          onChange={handleChange}
+                          min="0"
+                          className="pl-10 w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-white focus:border-white bg-gray-700 text-white"
+                          placeholder="Nhập số năm kinh nghiệm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Mô tả</label>
+                    <div className="relative">
+                      <div className="absolute top-3 left-3 pointer-events-none">
+                        <FaFileAlt className="text-gray-500" />
+                      </div>
+                      <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        rows="4"
+                        className="pl-10 w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-white focus:border-white bg-gray-700 text-white"
+                        placeholder="Nhập mô tả chuyên môn của bạn"
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Tab đổi mật khẩu */}
+              {activeTab === 'password' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Mật khẩu hiện tại</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="text-gray-500" />
+                      </div>
+                      <input
+                        type="password"
+                        name="currentPassword"
+                        value={formData.currentPassword}
+                        onChange={handleChange}
+                        className="pl-10 w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-white focus:border-white bg-gray-700 text-white"
+                        placeholder="Nhập mật khẩu hiện tại"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Mật khẩu mới</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="text-gray-500" />
+                      </div>
+                      <input
+                        type="password"
+                        name="newPassword"
+                        value={formData.newPassword}
+                        onChange={handleChange}
+                        className="pl-10 w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-white focus:border-white bg-gray-700 text-white"
+                        placeholder="Nhập mật khẩu mới"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Xác nhận mật khẩu mới</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="text-gray-500" />
+                      </div>
+                      <input
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className="pl-10 w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-white focus:border-white bg-gray-700 text-white"
+                        placeholder="Nhập lại mật khẩu mới"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Nút cập nhật */}
+              <div className="mt-6">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center px-4 py-2 bg-gradient-to-r from-gray-700 to-gray-600 text-white font-medium rounded-lg hover:from-gray-600 hover:to-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-300"
+                >
+                  <FaSave className="mr-2" /> {loading ? "Đang xử lý..." : "Lưu thay đổi"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </aside>
-
-      {/* Form cập nhật thông tin */}
-      <main className="settings-form">
-        <div className="form-section">
-          <h2>Cập nhật thông tin</h2>
-          
-          {error && <div className="error-message">{error}</div>}
-          
-          <form onSubmit={handleInfoSubmit}>
-            <div className="input-group">
-              <label>Họ và tên</label>
-              <div className="input-icon">
-                <FaUser className="input-icon-element" />
-                <input type="text" name="fullname" value={formData.fullname} onChange={handleChange} />
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label>Email</label>
-              <div className="input-icon">
-                <FaEnvelope className="input-icon-element" />
-                <input type="email" name="email" value={formData.email} onChange={handleChange} />
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label>Số điện thoại</label>
-              <div className="input-icon">
-                <FaPhone className="input-icon-element" />
-                <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label>Mô tả</label>
-              <div className="input-icon">
-                <FaFileAlt className="input-icon-element" />
-                <input type="text" name="description" value={formData.description} onChange={handleChange} />
-              </div>
-            </div>
-
-            <button 
-              type="submit" 
-              className="update-button"
-              disabled={loading}
-            >
-              {loading ? "Đang xử lý..." : "Cập nhật thông tin"}
-            </button>
-          </form>
-        </div>
-
-        {/* Form cập nhật mật khẩu */}
-        <div className="form-section password-section">
-          <h2>Đổi mật khẩu</h2>
-          
-          {passwordError && <div className="error-message">{passwordError}</div>}
-          
-          <form onSubmit={handlePasswordSubmit}>
-            <div className="input-group">
-              <label>Mật khẩu hiện tại</label>
-              <div className="input-icon">
-                <FaLock className="input-icon-element" />
-                <input 
-                  type="password" 
-                  name="currentPassword" 
-                  value={passwordData.currentPassword} 
-                  onChange={handlePasswordChange} 
-                />
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label>Mật khẩu mới</label>
-              <div className="input-icon">
-                <FaLock className="input-icon-element" />
-                <input 
-                  type="password" 
-                  name="newPassword" 
-                  value={passwordData.newPassword} 
-                  onChange={handlePasswordChange} 
-                />
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label>Xác nhận mật khẩu mới</label>
-              <div className="input-icon">
-                <FaLock className="input-icon-element" />
-                <input 
-                  type="password" 
-                  name="confirmPassword" 
-                  value={passwordData.confirmPassword} 
-                  onChange={handlePasswordChange} 
-                />
-              </div>
-            </div>
-
-            <button 
-              type="submit" 
-              className="update-button"
-              disabled={loading}
-            >
-              {loading ? "Đang xử lý..." : "Đổi mật khẩu"}
-            </button>
-          </form>
-        </div>
-      </main>
+      </div>
     </div>
   );
 };
