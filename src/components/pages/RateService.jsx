@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { toast } from 'react-toastify';
@@ -8,11 +8,14 @@ import { createRating } from '../service/ratingApi';
 
 const RateService = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const appointmentIdFromHistory = location.state?.appointmentId;
+    
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [appointments, setAppointments] = useState([]);
     
-    const [selectedAppointment, setSelectedAppointment] = useState('');
+    const [selectedAppointment, setSelectedAppointment] = useState(appointmentIdFromHistory || '');
     const [formData, setFormData] = useState({
         rating: 5,
         comment: ''
