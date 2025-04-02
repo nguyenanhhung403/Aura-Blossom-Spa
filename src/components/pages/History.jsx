@@ -104,8 +104,12 @@ const History = () => {
     });
   };
 
-  const handleReviewClick = () => {
-    navigate("/rate-service");
+  const handleReviewClick = (appointmentId) => {
+    navigate("/rate-service", {
+      state: {
+        appointmentId: appointmentId
+      }
+    });
   };
 
   return (
@@ -227,7 +231,7 @@ const History = () => {
                         ) : (
                           <button
                             className="review-btn"
-                            onClick={handleReviewClick}
+                            onClick={() => handleReviewClick(item.id)}
                           >
                             Đánh giá ngay
                           </button>
