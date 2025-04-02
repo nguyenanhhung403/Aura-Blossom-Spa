@@ -13,20 +13,20 @@ import axios from "axios";
 const StaffHistory = () => {
   // Các trạng thái thanh toán có thể có
   const statusOptions = [
+    // "Chờ thanh toán",
     "Đã đặt cọc",
     "Đã thanh toán",
-    "Hủy lịch hẹn"
+    // "Thanh toán thất bại",
+    "Đã hủy thanh toán"
   ];
 
   // Map API status sang trạng thái hiển thị
   const mapApiStatus = (status) => {
     switch(status) {
-      case "PENDING": return "Đã đặt cọc";
       case "PARTIALLY_PAID": return "Đã đặt cọc";
       case "PAID": return "Đã thanh toán";
-      case "FAILED": return "Hủy lịch hẹn";
-      case "CANCELLED": return "Hủy lịch hẹn";
-      default: return "Đã đặt cọc";
+      case "CANCELLED": return "Đã hủy thanh toán";
+      default: return "Chờ thanh toán";
     }
   };
 
@@ -35,8 +35,8 @@ const StaffHistory = () => {
     switch(status) {
       case "Đã đặt cọc": return "PARTIALLY_PAID";
       case "Đã thanh toán": return "PAID";
-      case "Hủy lịch hẹn": return "CANCELLED";
-      default: return "PARTIALLY_PAID";
+      case "Đã hủy thanh toán": return "CANCELLED";
+      default: return "PENDING";
     }
   };
 

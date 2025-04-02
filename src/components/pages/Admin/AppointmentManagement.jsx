@@ -495,7 +495,6 @@ const AppointmentManagement = () => {
                       <th className="px-6 py-3">Chuyên viên</th>
                       <th className="px-6 py-3">Trạng thái</th>
                       <th className="px-6 py-3">Thanh toán</th>
-                      <th className="px-6 py-3">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -533,31 +532,6 @@ const AppointmentManagement = () => {
                           <span className={`px-2 py-1 rounded-full text-xs ${getPaymentStatusColor(appointment.paymentStatus)}`}>
                             {appointment.paymentStatus || 'UNPAID'}
                           </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleStatusUpdate(appointment.id)}
-                              className="text-blue-400 hover:text-blue-300"
-                              title="Chỉnh sửa"
-                            >
-                              <FaEdit />
-                            </button>
-                            <button
-                              onClick={() => handleCancel(appointment.id)}
-                              className="text-yellow-400 hover:text-yellow-300"
-                              title="Hủy"
-                            >
-                              <FaTimes />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(appointment.id)}
-                              className="text-red-400 hover:text-red-300"
-                              title="Xóa"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
                         </td>
                       </tr>
                     ))}

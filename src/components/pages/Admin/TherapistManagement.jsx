@@ -49,6 +49,7 @@ const TherapistManagement = () => {
   const fetchTherapists = async () => {
     try {
       const response = await getAllTherapists();
+      console.log(response);
       if (response.result) {
         setTherapists(response.result);
       }

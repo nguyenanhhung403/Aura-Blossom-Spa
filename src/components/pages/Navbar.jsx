@@ -55,17 +55,17 @@ const Navbar = () => {
 
   // Kiểm tra xem người dùng có role STAFF hoặc ADMIN không
   const hasAdminAccess = () => {
-    if (!user || !user.role) return false;
-    return user.role.some(role => role.name === "ADMIN");
+    if (!user || !user.roles) return false;
+    return user.roles.some(role => role.name === "ADMIN");
   };
 
   const hasStaffAccess = () => {
-    if (!user || !user.role) return false;
-    return user.role.some(role => role.name === "STAFF");
+    if (!user || !user.roles) return false;
+    return user.roles.some(role => role.name === "STAFF");
   };
   const hasTherapistAccess = () => {
-    if (!user || !user.role) return false;
-    return user.role.some(role => role.name === "THERAPIST");
+    if (!user || !user.roles) return false;
+    return user.roles.some(role => role.name === "THERAPIST");
   };
   // Điều hướng đến trang quản lý phù hợp dựa vào role
   const navigateToManagement = () => {
@@ -93,6 +93,7 @@ const Navbar = () => {
   const scrollToBottom = () => {
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
   };
+  console.log( "user", user);
   return (
     <header className="fixed top-0 w-full z-50 bg-white shadow-md animate__animated animate__fadeInDown">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -118,7 +119,7 @@ const Navbar = () => {
                 className="text-xl font-bold text-[#2F4F4F] font-serif"
                 style={{ fontFamily: "Roboto, sans-serif" }}
               >
-                {user.displayName}
+                {user?.fullName || user?.displayName}
               </span>
               <button
                 onClick={toggleDropdown}

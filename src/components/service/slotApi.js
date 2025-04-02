@@ -44,7 +44,14 @@ export const getAvailableSlotsByTherapist = async (therapistId) => {
         handleError(error);
     }
 };
-
+export const getSlotsByTherapist = async (therapistId) => {
+    try {
+        const response = await api.get(`/api/slots/therapistBy/${therapistId}`);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
 export const generateSlotsForDay = async (slotRequest) => {
     try {
         const response = await api.post('/api/slots/generate/day', slotRequest);

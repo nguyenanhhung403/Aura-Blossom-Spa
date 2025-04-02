@@ -4,6 +4,7 @@ import Footer from "./Footer";
 import Navbar from "./Navbar";
 import HistoryBanner from "../images/HistoryImg/history-banner.jpg";
 import {
+  cancelAppointment,
   getAllAppointments,
   getMyHistoricalAppointments,
   getMyUpcomingAppointments,
@@ -71,11 +72,12 @@ const History = () => {
 
   const handleCancelAppointment = async (id) => {
     try {
-      await fetch(`API_URL_CANCEL/${id}`, { method: "DELETE" });
-      alert("Đã hủy lịch hẹn thành công!");
-      setUpcomingAppointments(
-        upcomingAppointments.filter((item) => item.id !== id)
-      );
+      const response = await cancelAppointment(id);
+      console.log(response);
+      if(response.status === 200){
+        alert("Đã hủy lịch hẹn thành công!");
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Lỗi khi hủy lịch hẹn:", error);
     }
@@ -83,7 +85,23 @@ const History = () => {
   };
 
   const handleUpdateClick = (item) => {
-    navigate("/booking", { state: { appointment: item } });
+    navigate("/booking", { 
+      state: { 
+        serviceId: item.service.id,
+        serviceName: item.service.name,
+        servicePrice: item.price,
+        price: item.price,
+        therapistId: item.therapist.id,
+        therapistName: item.therapist.fullname,
+        appointmentId: item.id,
+        date: item.date,
+        time: item.time,
+        note: item.note,
+        therapist: item.therapist,
+        service: item.service,
+        paymentStatus: item.paymentStatus,
+      } 
+    });
   };
 
   const handleReviewClick = () => {
@@ -156,14 +174,16 @@ const History = () => {
                             <>
                             <div style={{textAlign: "center"}}>Đã đặt lịch</div>
                           <button
-                            className="cancel-btn"
+                            className={`cancel-btn ${item.cancelAt !== undefined ? "disabled" : ""}`}
                             onClick={() => handleCancelAppointment(item.id)}
+                            disabled={item.cancelAt !== undefined}
                           >
-                            Hủy
+                            {item.cancelAt !== undefined ? "Đã hủy" : "Hủy"}
                           </button>
                           <button
-                            className="settime-btn"
-                            onClick={() => handleCancelAppointment(item.id)}
+                            className={`settime-btn ${item.cancelAt !== undefined ? "disabled" : ""}`}
+                            onClick={() => handleUpdateClick(item)}
+                            disabled={item.cancelAt !== undefined}
                           >
                             Dời lịch
                           </button>
@@ -172,6 +192,7 @@ const History = () => {
                       </td>
                       <td>{item.note || "-"}</td>
                     </tr>
+                    
                   ))}
               </tbody>
             </table>

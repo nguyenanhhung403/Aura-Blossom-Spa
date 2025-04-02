@@ -1125,7 +1125,14 @@ td {
   border-radius: 5px;
   cursor: pointer;
 }
-
+.cancel-btn.disabled, .settime-btn.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+.settime-btn:hover{
+  background-color: #007bff;
+}
 .cancel-btn {
   background-color: #ff4d4d;
   color: white;

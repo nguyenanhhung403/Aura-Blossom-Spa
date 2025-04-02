@@ -8,7 +8,7 @@ import ContactUs from "./ContactUs";
 import { getAllTherapists } from "../service/therapistsApi";
 import { getAllServices } from "../service/serviceApi";
 import { getAvailableSlotsByDate, getSlotsByDateAndTherapist } from "../service/slotApi";
-import { createAppointment } from "../service/appointmentApi";
+import { createAppointment, updateAppointmentTime } from "../service/appointmentApi";
 import { createVnPayPayment } from "../service/paymentApi";
 
 const BookingProcess = () => {
@@ -83,12 +83,18 @@ const BookingProcess = () => {
   // Xử lý khi có dữ liệu dịch vụ được truyền từ trang dịch vụ
   useEffect(() => {
     if (location.state && location.state.serviceId && services.length > 0) {
-      const { serviceId, serviceName, servicePrice } = location.state;
+      const { serviceId, serviceName, servicePrice, date, time, note, therapist, appointmentId, paymentStatus } = location.state;
       setBookingData(prev => ({
         ...prev,
         serviceId: serviceId.toString(),
         service: serviceName,
         price: servicePrice,
+        date: date,
+        time: time,
+        note: note,
+        therapist: therapist,
+        appointmentId: appointmentId,
+        paymentStatus: paymentStatus,
       }));
     }
   }, [location.state, services]);
@@ -259,16 +265,19 @@ const BookingProcess = () => {
   };
 
   // Bước 1: Khi người dùng nhấn "Tiếp tục"
-  const handleGoToPayment = () => {
+  const handleGoToPayment = async () => {
     const errors = validateForm();
     setFormErrors(errors);
-    
-    // Nếu có lỗi, hiển thị thông báo lỗi và tập trung vào trường lỗi đầu tiên
+    if(bookingData.paymentStatus === "PARTIALLY_PAID"){
+      const appointmentResponse = await updateAppointmentTime(bookingData.appointmentId, bookingData);
+      if(appointmentResponse.code === 1000){
+        alert("Cập nhật thông tin đặt lịch thành công");
+        navigate("/");
+      }
+    }
+    // Nếu có lỗi, hiển thị thông báo lỗi và không chuyển bước
     if (Object.keys(errors).length > 0) {
       setIsSubmitting(false);
-      focusFirstError(errors);
-      // Hiển thị thông báo lỗi
-      alert('Vui lòng điền đầy đủ thông tin trước khi tiếp tục');
       return;
     }
     
@@ -299,6 +308,26 @@ const BookingProcess = () => {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  };
+
+  const isTimeSlotPassed = (slotTime, selectedDate) => {
+    const today = new Date();
+    const selectedDateTime = new Date(selectedDate);
+    
+    if (selectedDateTime.getDate() !== today.getDate() ||
+        selectedDateTime.getMonth() !== today.getMonth() ||
+        selectedDateTime.getFullYear() !== today.getFullYear()) {
+      return false;
+    }
+
+    const [hours, minutes] = slotTime.split(':');
+    const slotDateTime = new Date();
+    slotDateTime.setHours(hours, minutes, 0, 0);
+
+    const currentTime = new Date();
+    currentTime.setMinutes(currentTime.getMinutes() + 30);
+
+    return slotDateTime <= currentTime;
   };
 
   return (
@@ -471,32 +500,40 @@ const BookingProcess = () => {
                   <label className="block font-medium">Giờ <span className="text-red-500">*</span></label>
                   <div className="flex flex-wrap gap-2">
                     {slots.length > 0 ? (
-                      slots.map((slot) => (
-                        <button
-                          key={slot.id}
-                          type="button"
-                          onClick={() => handleSelectSlot(slot.id)}
-                          disabled={slot.therapists[0].status === "UNAVAILABLE"}
-                          className={`
-                      px-4 py-3 border rounded transition-all duration-200
-                      ${
-                        slot.therapists[0].status === "AVAILABLE"
-                          ? "bg-white text-black hover:bg-gray-200 hover:shadow-md"
-                          : "bg-gray-300 text-gray-500 opacity-50 cursor-not-allowed"
-                      }
-                      ${
-                        bookingData.slotId === slot.id
-                          ? "bg-[#C8A27C] text-white border-2 border-[#A67B5B] shadow-lg"
-                          : "border-gray-300"
-                      }
-                    `}
-                        >
-                          {slot.time}
-                          {slot.therapists[0].status === "UNAVAILABLE" && (
-                            <span className="ml-2 text-red-500">Hết chỗ</span>
-                          )}
-                        </button>
-                      ))
+                      slots.map((slot) => {
+                        const isPassedTime = isTimeSlotPassed(slot.time, bookingData.date);
+                        
+                        if (isPassedTime) {
+                          return null;
+                        }
+
+                        return (
+                          <button
+                            key={slot.id}
+                            type="button"
+                            onClick={() => handleSelectSlot(slot.id)}
+                            disabled={slot.therapists[0].status === "UNAVAILABLE"}
+                            className={`
+                              px-4 py-3 border rounded transition-all duration-200
+                              ${
+                                slot.therapists[0].status === "AVAILABLE"
+                                  ? "bg-white text-black hover:bg-gray-200 hover:shadow-md"
+                                  : "bg-gray-300 text-gray-500 opacity-50 cursor-not-allowed"
+                              }
+                              ${
+                                bookingData.slotId === slot.id
+                                  ? "bg-[#C8A27C] text-white border-2 border-[#A67B5B] shadow-lg"
+                                  : "border-gray-300"
+                              }
+                            `}
+                          >
+                            {slot.time}
+                            {slot.therapists[0].status === "UNAVAILABLE" && (
+                              <span className="ml-2 text-red-500">Hết chỗ</span>
+                            )}
+                          </button>
+                        );
+                      })
                     ) : bookingData.date && bookingData.therapistId ? (
                       <p className="text-gray-500">
                         Hiện tại chưa có khung giờ phù hợp
@@ -544,7 +581,7 @@ const BookingProcess = () => {
                   transition-transform duration-300 hover:scale-105 hover:shadow-xl
                 "
               >
-                Tiếp tục
+                {bookingData.paymentStatus === "PARTIALLY_PAID" ? "Cập nhật" : "Tiếp tục"}
               </button>
             </div>
           )}
