@@ -68,8 +68,8 @@ const ProtectedAdminRoute = ({ children }) => {
   
   // Kiểm tra xem người dùng có role ADMIN không
   const hasAdminAccess = () => {
-    if (!user || !user.role) return false;
-    return user.role.some(role => role.name === "ADMIN");
+    if (!user || !user.roles) return false;
+    return user.roles.some(role => role.name === "ADMIN");
   };
 
   // Nếu không đăng nhập hoặc không có quyền admin, chuyển hướng về trang login
@@ -86,8 +86,8 @@ const ProtectedTherapistRoute = ({ children }) => {
   
   // Kiểm tra xem người dùng có role THERAPIST không
   const hasTherapistAccess = () => {
-    if (!user || !user.role) return false;
-    return user.role.some(role => role.name === "THERAPIST");
+    if (!user || !user.roles) return false;
+    return user.roles.some(role => role.name === "THERAPIST");
   };
 
   // Nếu không đăng nhập hoặc không có quyền therapist, chuyển hướng về trang login
