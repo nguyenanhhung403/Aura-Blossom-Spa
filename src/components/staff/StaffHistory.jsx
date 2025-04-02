@@ -13,20 +13,18 @@ import axios from "axios";
 const StaffHistory = () => {
   // Các trạng thái thanh toán có thể có
   const statusOptions = [
-    "Chờ thanh toán",
+    // "Chờ thanh toán",
     "Đã đặt cọc",
     "Đã thanh toán",
-    "Thanh toán thất bại",
+    // "Thanh toán thất bại",
     "Đã hủy thanh toán"
   ];
 
   // Map API status sang trạng thái hiển thị
   const mapApiStatus = (status) => {
     switch(status) {
-      case "PENDING": return "Chờ thanh toán";
       case "PARTIALLY_PAID": return "Đã đặt cọc";
       case "PAID": return "Đã thanh toán";
-      case "FAILED": return "Thanh toán thất bại";
       case "CANCELLED": return "Đã hủy thanh toán";
       default: return "Chờ thanh toán";
     }
@@ -35,10 +33,8 @@ const StaffHistory = () => {
   // Map trạng thái hiển thị sang API status
   const mapToApiStatus = (status) => {
     switch(status) {
-      case "Chờ thanh toán": return "PENDING";
       case "Đã đặt cọc": return "PARTIALLY_PAID";
       case "Đã thanh toán": return "PAID";
-      case "Thanh toán thất bại": return "FAILED";
       case "Đã hủy thanh toán": return "CANCELLED";
       default: return "PENDING";
     }

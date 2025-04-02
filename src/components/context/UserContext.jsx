@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
         try {
             const storedUser = JSON.parse(localStorage.getItem("user")) || {};
             return storedUser.username
-                ? { ...storedUser, displayName: storedUser.fullname }
+                ? { ...storedUser, displayName: storedUser.fullname, id: storedUser.id }
                 : null;
         } catch (error) {
             console.error("Error parsing user data:", error);
@@ -41,7 +41,8 @@ export const UserProvider = ({ children }) => {
             if (gotUser) {
                 const formattedUser = {
                     ...gotUser,
-                    displayName: gotUser?.fullname,
+                    id: gotUser?.id,
+                    displayName: gotUser?.fullName,
                 };
                 localStorage.setItem("user", JSON.stringify(formattedUser));
                 setUser(formattedUser);
@@ -60,19 +61,19 @@ export const UserProvider = ({ children }) => {
         }
     }, [isLoading, fetchFailed]);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-            if (firebaseUser) {
-                setUser(firebaseUser);
-                localStorage.setItem("user", JSON.stringify(firebaseUser));
-            } else {
-                setUser(null);
-                localStorage.removeItem("user");
-            }
-        });
+    // useEffect(() => {
+    //     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    //         if (firebaseUser) {
+    //             setUser(firebaseUser);
+    //             localStorage.setItem("user", JSON.stringify(firebaseUser));
+    //         } else {
+    //             setUser(null);
+    //             localStorage.removeItem("user");
+    //         }
+    //     });
 
-        return () => unsubscribe();
-    }, []);
+    //     return () => unsubscribe();
+    // }, []);
 
     useEffect(() => {
         const token = localStorage.getItem(ACCESS_TOKEN);

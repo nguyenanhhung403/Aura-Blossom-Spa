@@ -241,89 +241,63 @@ const AppointmentManagement = () => {
           </div>
         </div>
 
-        {/* Bảng danh sách đặt lịch */}
-        <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-gray-200">
-              <thead className="text-xs uppercase bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3">ID</th>
-                  <th className="px-6 py-3">Khách hàng</th>
-                  <th className="px-6 py-3">Liên hệ</th>
-                  <th className="px-6 py-3">Dịch vụ</th>
-                  <th className="px-6 py-3">Lịch hẹn</th>
-                  <th className="px-6 py-3">Chuyên viên</th>
-                  <th className="px-6 py-3">Trạng thái</th>
-                  <th className="px-6 py-3">Thanh toán</th>
-                  <th className="px-6 py-3">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItems.map((appointment) => (
-                  <tr key={appointment.id} className="border-b border-gray-700">
-                    <td className="px-6 py-4">#{appointment.id}</td>
-                    <td className="px-6 py-4">
-                      <div>{appointment.fullname}</div>
-                      <div className="text-sm text-gray-400">{appointment.note || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>{formatPrice(appointment.price)} VND</div>
-                      <div className="text-sm text-gray-400">
-                        Đặt cọc: {formatPrice(appointment.depositAmount)} VND
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>{appointment.service?.name || 'Chưa có dịch vụ'}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>{appointment.date || 'Chưa có ngày'}</div>
-                      <div className="text-sm text-gray-400">
-                        {appointment.startTime || '--:--'} - {appointment.endTime || '--:--'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>{appointment.therapist?.fullname || 'Chưa có chuyên viên'}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(appointment.status)}`}>
-                        {appointment.status || 'PENDING'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${getPaymentStatusColor(appointment.paymentStatus)}`}>
-                        {appointment.paymentStatus || 'UNPAID'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleStatusUpdate(appointment.id)}
-                          className="text-blue-400 hover:text-blue-300"
-                          title="Chỉnh sửa"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          onClick={() => handleCancel(appointment.id)}
-                          className="text-yellow-400 hover:text-yellow-300"
-                          title="Hủy"
-                        >
-                          <FaTimes />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(appointment.id)}
-                          className="text-red-400 hover:text-red-300"
-                          title="Xóa"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            {/* Bảng danh sách đặt lịch */}
+            <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left text-gray-200">
+                  <thead className="text-xs uppercase bg-gray-700">
+                    <tr>
+                      <th className="px-6 py-3">ID</th>
+                      <th className="px-6 py-3">Khách hàng</th>
+                      <th className="px-6 py-3">Dịch vụ</th>
+                      <th className="px-6 py-3">Giá</th>
+                      <th className="px-6 py-3">Lịch hẹn</th>
+                      <th className="px-6 py-3">Chuyên viên</th>
+                      <th className="px-6 py-3">Trạng thái</th>
+                      <th className="px-6 py-3">Thanh toán</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentItems.map((appointment) => (
+                      <tr key={appointment.id} className="border-b border-gray-700">
+                        <td className="px-6 py-4">#{appointment.id}</td>
+                        <td className="px-6 py-4">
+                          <div>{appointment.fullname}</div>
+                          <div className="text-sm text-gray-400">{appointment.note || '-'}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>{appointment.service?.name || 'Chưa có dịch vụ'}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>{formatPrice(appointment.price)}</div>
+                          <div className="text-sm text-gray-400">
+                            Đặt cọc: {formatPrice(appointment.depositAmount)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>{appointment.date || 'Chưa có ngày'}</div>
+                          <div className="text-sm text-gray-400">
+                            {appointment.startTime || '--:--'} - {appointment.endTime || '--:--'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>{appointment.therapist?.fullname || 'Chưa có chuyên viên'}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(appointment.status)}`}>
+                            {appointment.status || 'PENDING'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2 py-1 rounded-full text-xs ${getPaymentStatusColor(appointment.paymentStatus)}`}>
+                            {appointment.paymentStatus || 'UNPAID'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
           {/* Phân trang */}
           {totalPages > 1 && (

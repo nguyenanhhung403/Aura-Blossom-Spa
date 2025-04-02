@@ -24,12 +24,13 @@ const RateService = () => {
             try {
                 setLoading(true);
                 const response = await getMyHistoricalAppointments();
+                console.log(response);
                 if (response?.code === 1000) {
                     // Lọc các appointments đã hoàn thành và chưa được đánh giá
-                    const unratedAppointments = response.result.filter(app => 
-                        app.status === 'COMPLETED' && !app.isRated
-                    );
-                    setAppointments(unratedAppointments);
+                    // const unratedAppointments = response.result.filter(app => 
+                    //     app.status === 'COMPLETED' && !app.isRated
+                    // );
+                    setAppointments(response.result);
                 }
             } catch (error) {
                 console.error('Error fetching appointments:', error);

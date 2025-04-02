@@ -11,10 +11,10 @@ const Payment = () => {
             try {
                 // Lấy query params từ URL
                 const queryParams = new URLSearchParams(location.search);
-                
+                console.log(queryParams);
                 // Gọi API xử lý callback
                 const response = await handleVnPayCallback(Object.fromEntries(queryParams));
-                
+                console.log(response);
                 // Xử lý response và chuyển hướng
                 handlePaymentResponse(response, navigate);
             } catch (error) {

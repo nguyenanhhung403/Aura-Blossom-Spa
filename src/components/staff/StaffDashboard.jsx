@@ -236,11 +236,11 @@ const SpaDashboard = () => {
                 <div className="text-gray-400 text-sm mb-2">
                   {feedback.service || "Dịch vụ"}
                 </div>
-                <div className="text-gray-300 text-sm italic">
+                {/* <div className="text-gray-300 text-sm italic">
                   "{feedback.feedback.length > 100 
                     ? `${feedback.feedback.substring(0, 100)}...` 
                     : feedback.feedback}"
-                </div>
+                </div> */}
               </div>
             ))}
             {recentFeedbacks.length === 0 && (

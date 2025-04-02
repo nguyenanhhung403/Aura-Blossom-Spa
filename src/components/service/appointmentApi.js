@@ -54,11 +54,18 @@ export const updateAppointment = async (id, data) => {
         handleError(error);
     }
 };
-
+export const updateAppointmentTime = async (id, data) => {
+    try {
+        const response = await api.put(`/api/appointments/update/${id}`, data);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
 export const cancelAppointment = async (id) => {
     try {
         const response = await api.put(`/api/appointments/cancel/${id}`);
-        return response.data;
+        return response;
     } catch (error) {
         handleError(error);
     }

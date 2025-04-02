@@ -50,8 +50,8 @@ const ProtectedStaffRoute = ({ children }) => {
   
   // Kiểm tra xem người dùng có role STAFF không
   const hasStaffAccess = () => {
-    if (!user || !user.role) return false;
-    return user.role.some(role => role.name === "STAFF");
+    if (!user || !user.roles) return false;
+    return user.roles.some(role => role.name === "STAFF");
   };
 
   // Nếu không đăng nhập hoặc không có quyền staff, chuyển hướng về trang login

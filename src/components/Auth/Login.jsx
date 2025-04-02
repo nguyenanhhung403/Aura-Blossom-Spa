@@ -61,12 +61,14 @@ function Login() {
         localStorage.removeItem("rememberedUsername");
         localStorage.removeItem("rememberMe");
       }
-
+      console.log("loginResult",loginResult.result);
       // Cập nhật user context
       const userData = {
-        username: loginResult.result.username,
+        username: loginResult.result.fullName,
         roles: loginResult.result.roles || [],
-        token: accessToken
+        token: accessToken,
+        id: loginResult.result.id,
+        displayName: loginResult.result.fullName,
       };
       setUser(userData);
 
