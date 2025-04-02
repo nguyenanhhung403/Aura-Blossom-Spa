@@ -239,14 +239,36 @@ const BookingProcess = () => {
     return errors;
   };
 
+  // Kiểm tra và tập trung vào trường lỗi đầu tiên
+  const focusFirstError = (errors) => {
+    if (Object.keys(errors).length > 0) {
+      // Lấy tên trường lỗi đầu tiên
+      const firstErrorField = Object.keys(errors)[0];
+      
+      // Tìm phần tử DOM của trường lỗi đầu tiên
+      const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+      
+      // Nếu tìm thấy phần tử, cuộn đến và focus vào nó
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+          errorElement.focus();
+        }, 500);
+      }
+    }
+  };
+
   // Bước 1: Khi người dùng nhấn "Tiếp tục"
   const handleGoToPayment = () => {
     const errors = validateForm();
     setFormErrors(errors);
     
-    // Nếu có lỗi, hiển thị thông báo lỗi và không chuyển bước
+    // Nếu có lỗi, hiển thị thông báo lỗi và tập trung vào trường lỗi đầu tiên
     if (Object.keys(errors).length > 0) {
       setIsSubmitting(false);
+      focusFirstError(errors);
+      // Hiển thị thông báo lỗi
+      alert('Vui lòng điền đầy đủ thông tin trước khi tiếp tục');
       return;
     }
     
@@ -505,7 +527,7 @@ const BookingProcess = () => {
               </div>
               {/* Hiển thị thông báo lỗi nếu có */}
               {Object.keys(formErrors).length > 0 && (
-                <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded animate__animated animate__shakeX">
                   <p className="font-medium">Vui lòng kiểm tra lại thông tin:</p>
                   <ul className="list-disc list-inside">
                     {Object.values(formErrors).map((error, index) => (
