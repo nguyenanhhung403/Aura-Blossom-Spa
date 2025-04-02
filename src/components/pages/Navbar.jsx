@@ -73,6 +73,8 @@ const Navbar = () => {
       navigate("/admin");
     } else if (hasStaffAccess()) {
       navigate("/staff");
+    } else if (hasTherapistAccess()) {
+      navigate("/therapist2");
     }
     setIsDropdownOpen(false);
   };
@@ -154,7 +156,7 @@ const Navbar = () => {
                       <span>Lịch sử</span>
                     </Link>
                     
-                    {(hasStaffAccess() || hasAdminAccess()) && (
+                    {(hasStaffAccess() || hasAdminAccess() || hasTherapistAccess()) && (
                       <button
                         onClick={navigateToManagement}
                         className="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 flex items-center space-x-3"

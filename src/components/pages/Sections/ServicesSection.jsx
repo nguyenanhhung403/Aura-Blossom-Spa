@@ -17,6 +17,10 @@ const ServicesSection = () => {
     navigate("/services");
   };
 
+  const handleServiceDetailClick = (id) => {
+    navigate(`/service-detail/${id}`);
+  };
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -52,7 +56,8 @@ const ServicesSection = () => {
             services.slice(0, 4).map((service, index) => (
               <div
                 key={index}
-                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group"
+                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group cursor-pointer"
+                onClick={() => handleServiceDetailClick(service.id)}
               >
                 <div className="relative overflow-hidden h-56">
                   <img

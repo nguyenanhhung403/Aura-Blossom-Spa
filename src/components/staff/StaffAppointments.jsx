@@ -1,40 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { 
   FaSearch, 
-  FaEye, 
-  FaFilter, 
-  FaEdit, 
-  FaCheck, 
-  FaTimes 
+  FaFilter 
 } from "react-icons/fa";
 import { getAllAppointments } from "../service/appointmentApi";
-import axios from "axios";
 
 const StaffAppointments = () => {
   // Các trạng thái có thể có
   const statusOptions = [
-    "Đã duyệt",
-    "Chờ xác nhận",
-    "Đã từ chối",
+    "Đã xong dịch vụ",
+    "Đang thực hiện",
+    "Đã thực hiện",
   ];
 
   // Map API status sang trạng thái hiển thị
   const mapApiStatus = (status) => {
     switch(status) {
-      case "APPROVED": return "Đã duyệt";
-      case "PENDING": return "Chờ xác nhận";
-      case "REJECTED": return "Đã từ chối";
-      default: return "Chờ xác nhận";
-    }
-  };
-
-  // Map trạng thái hiển thị sang API status
-  const mapToApiStatus = (status) => {
-    switch(status) {
-      case "Đã duyệt": return "APPROVED";
-      case "Chờ xác nhận": return "PENDING";
-      case "Đã từ chối": return "REJECTED";
-      default: return "PENDING";
+      case "APPROVED": return "Đã xong dịch vụ";
+      case "PENDING": return "Đang thực hiện";
+      case "REJECTED": return "Đã thực hiện";
+      default: return "Đang thực hiện";
     }
   };
 
@@ -42,16 +27,6 @@ const StaffAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // Cập nhật trạng thái lịch hẹn
-  const updateAppointmentStatus = async (id, status) => {
-    try {
-      const response = await axios.put(`http://localhost:8080/api/appointments/update-status/${id}?aptStatus=${status}`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
 
   // Lấy danh sách đặt lịch từ API
   useEffect(() => {
@@ -61,7 +36,6 @@ const StaffAppointments = () => {
       try {
         const data = await getAllAppointments();
         if (data && data.result) {
-          // Chuyển đổi dữ liệu từ API sang định dạng phù hợp với component
           const formattedData = data.result.map(item => ({
             id: item.id,
             name: item.fullname || "Không có tên",
@@ -71,7 +45,6 @@ const StaffAppointments = () => {
             staffName: item.therapist?.fullname || "Không có tên",
             docNote: item.note || "",
             status: mapApiStatus(item.appointmentStatus),
-            originalStatus: item.appointmentStatus
           }));
           setAppointments(formattedData);
         } else {
@@ -112,59 +85,6 @@ const StaffAppointments = () => {
   );
   const totalPages = Math.ceil(filteredAppointments.length / recordsPerPage);
 
-  // Chỉnh sửa trạng thái
-  const [editingId, setEditingId] = useState(null);
-  const [editingStatus, setEditingStatus] = useState("");
-  const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
-
-  const startEditStatus = (appointment) => {
-    setEditingId(appointment.id);
-    setEditingStatus(appointment.status);
-  };
-
-  const saveEditStatus = async (id) => {
-    setStatusUpdateLoading(true);
-    try {
-      const appointment = appointments.find(a => a.id === id);
-      if (!appointment) throw new Error("Không tìm thấy lịch hẹn");
-      
-      const apiStatus = mapToApiStatus(editingStatus);
-      const updatedData = await updateAppointmentStatus(id, apiStatus);
-      
-      if (updatedData) {
-        setAppointments((prev) =>
-          prev.map((a) => (a.id === id ? { ...a, status: editingStatus, originalStatus: apiStatus } : a))
-        );
-      }
-    } catch (err) {
-      console.error("Error updating appointment status:", err);
-      alert("Không thể cập nhật trạng thái. Vui lòng thử lại.");
-    } finally {
-      setStatusUpdateLoading(false);
-      setEditingId(null);
-      setEditingStatus("");
-    }
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditingStatus("");
-  };
-
-  // Hàm trả về màu sắc dựa theo trạng thái
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Đã duyệt":
-        return "text-green-400 bg-green-900/30";
-      case "Chờ xác nhận":
-        return "text-yellow-400 bg-yellow-900/30";
-      case "Đã từ chối":
-        return "text-red-400 bg-red-900/30";
-      default:
-        return "text-gray-400 bg-gray-900/30";
-    }
-  };
-
   // Hiển thị loading
   if (loading && appointments.length === 0) {
     return (
@@ -188,26 +108,6 @@ const StaffAppointments = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-white">Quản lý lịch hẹn</h1>
-      </div>
-
-      {/* Thông tin tổng quan */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-gradient-to-r from-purple-800 to-indigo-800 p-4 rounded-lg shadow-lg">
-          <h3 className="text-gray-300 text-sm">Tổng lịch hẹn</h3>
-          <p className="text-white text-2xl font-bold">{appointments.length}</p>
-        </div>
-        <div className="bg-gradient-to-r from-green-800 to-emerald-800 p-4 rounded-lg shadow-lg">
-          <h3 className="text-gray-300 text-sm">Đã duyệt</h3>
-          <p className="text-white text-2xl font-bold">
-            {appointments.filter((a) => a.status === "Đã duyệt").length}
-          </p>
-        </div>
-        <div className="bg-gradient-to-r from-yellow-800 to-amber-800 p-4 rounded-lg shadow-lg">
-          <h3 className="text-gray-300 text-sm">Chờ xác nhận</h3>
-          <p className="text-white text-2xl font-bold">
-            {appointments.filter((a) => a.status === "Chờ xác nhận").length}
-          </p>
-        </div>
       </div>
 
       {/* Thanh công cụ tìm kiếm và lọc */}
@@ -259,8 +159,6 @@ const StaffAppointments = () => {
                 <th className="p-3 font-semibold">Dịch vụ</th>
                 <th className="p-3 font-semibold">Lịch hẹn</th>
                 <th className="p-3 font-semibold">Chuyên viên</th>
-                <th className="p-3 font-semibold">Trạng thái</th>
-                <th className="p-3 font-semibold text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody className="text-gray-200">
@@ -292,73 +190,12 @@ const StaffAppointments = () => {
                     )}
                   </td>
                   <td className="p-3">{appointment.staffName}</td>
-                  <td className="p-3">
-                    {editingId === appointment.id ? (
-                      <div className="flex items-center space-x-2">
-                        <select
-                          value={editingStatus}
-                          onChange={(e) => setEditingStatus(e.target.value)}
-                          className="bg-[#0f172a] border border-gray-600 rounded text-white py-1 px-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                          disabled={statusUpdateLoading}
-                        >
-                          {statusOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          onClick={() => saveEditStatus(appointment.id)}
-                          className="text-green-400 hover:text-green-300"
-                          title="Lưu"
-                          disabled={statusUpdateLoading}
-                        >
-                          <FaCheck />
-                        </button>
-                        <button
-                          onClick={cancelEdit}
-                          className="text-red-400 hover:text-red-300"
-                          title="Hủy"
-                          disabled={statusUpdateLoading}
-                        >
-                          <FaTimes />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            appointment.status
-                          )}`}
-                        >
-                          {appointment.status}
-                        </span>
-                        <button
-                          onClick={() => startEditStatus(appointment)}
-                          className="text-gray-400 hover:text-gray-300"
-                          title="Chỉnh sửa trạng thái"
-                        >
-                          <FaEdit size={14} />
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-3">
-                    <div className="flex justify-center space-x-2">
-                      <button
-                        className="text-blue-400 hover:text-blue-300 p-1"
-                        title="Xem chi tiết"
-                      >
-                        <FaEye />
-                      </button>
-                    </div>
-                  </td>
                 </tr>
               ))}
               {currentRecords.length === 0 && (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="5"
                     className="p-4 text-center text-red-400 font-semibold"
                   >
                     Không tìm thấy mục phù hợp!

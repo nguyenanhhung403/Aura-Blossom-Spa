@@ -164,12 +164,8 @@ const StaffHistory = () => {
         return "text-green-400 bg-green-900/30";
       case "Đã đặt cọc":
         return "text-blue-400 bg-blue-900/30";
-      case "Chờ thanh toán":
-        return "text-yellow-400 bg-yellow-900/30";
-      case "Thanh toán thất bại":
+      case "Hủy lịch hẹn":
         return "text-red-400 bg-red-900/30";
-      case "Đã hủy thanh toán":
-        return "text-gray-400 bg-gray-900/30";
       default:
         return "text-gray-400 bg-gray-900/30";
     }

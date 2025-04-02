@@ -43,7 +43,7 @@ import TherapistLayout from './components/pages/therapist2/therapistLayout';
 //import TherapistAppointments from './components/pages/therapist2/therapistAppoiment';
 import TherapistSettings from './components/pages/therapist2/therapistSetting';
 import TherapistSchedule from './components/pages/therapist2/therapistSchedule';
-
+import Reports from './components/pages/Admin/SpaDashboard';
 // Protected Route Component cho Staff
 const ProtectedStaffRoute = ({ children }) => {
   const { user } = useContext(UserContext);
@@ -56,6 +56,42 @@ const ProtectedStaffRoute = ({ children }) => {
 
   // Nếu không đăng nhập hoặc không có quyền staff, chuyển hướng về trang login
   if (!user || !hasStaffAccess()) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+// Protected Route Component cho Admin
+const ProtectedAdminRoute = ({ children }) => {
+  const { user } = useContext(UserContext);
+  
+  // Kiểm tra xem người dùng có role ADMIN không
+  const hasAdminAccess = () => {
+    if (!user || !user.role) return false;
+    return user.role.some(role => role.name === "ADMIN");
+  };
+
+  // Nếu không đăng nhập hoặc không có quyền admin, chuyển hướng về trang login
+  if (!user || !hasAdminAccess()) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+// Protected Route Component cho Therapist
+const ProtectedTherapistRoute = ({ children }) => {
+  const { user } = useContext(UserContext);
+  
+  // Kiểm tra xem người dùng có role THERAPIST không
+  const hasTherapistAccess = () => {
+    if (!user || !user.role) return false;
+    return user.role.some(role => role.name === "THERAPIST");
+  };
+
+  // Nếu không đăng nhập hoặc không có quyền therapist, chuyển hướng về trang login
+  if (!user || !hasTherapistAccess()) {
     return <Navigate to="/" replace />;
   }
 
@@ -84,18 +120,71 @@ function App() {
                     <Route path="/service-detail/:id" element={<ServiceDetail />} />
 
                     {/* Admin Routes */}
-                    <Route path="/admin/*" element={<AdminDashboard />} />
-                    <Route path="/admin/services" element={<ServiceManagement />} />
-                    <Route path="/admin/appointments" element={<AppointmentManagement />} />
-                    <Route path="/admin/therapists" element={<TherapistManagement />} />
-                    <Route path="/admin/customers" element={<CustomerList />} />
-                    <Route path="/admin/schedules" element={<Schedule />} />
-                    <Route path="/admin/blogs" element={<BlogList />} />
-                    <Route path="/admin/feedback" element={<FeedbackList />} />
-                    <Route path="/admin/dashboard" element={<SpaDashboard />} />
-                    <Route path="/admin/quizlist" element={<QuizList />} />
-                    <Route path="/admin/quizlist/:id" element={<QuizDetail />} />
-                    <Route path="/admin/recommend-service" element={<RecommendService />} />
+                    <Route path="/admin/*" element={
+                      <ProtectedAdminRoute>
+                        <AdminDashboard />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/services" element={
+                      <ProtectedAdminRoute>
+                        <ServiceManagement />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/appointments" element={
+                      <ProtectedAdminRoute>
+                        <AppointmentManagement />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/therapists" element={
+                      <ProtectedAdminRoute>
+                        <TherapistManagement />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/customers" element={
+                      <ProtectedAdminRoute>
+                        <CustomerList />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/schedules" element={
+                      <ProtectedAdminRoute>
+                        <Schedule />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/blogs" element={
+                      <ProtectedAdminRoute>
+                        <BlogList />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/feedback" element={
+                      <ProtectedAdminRoute>
+                        <FeedbackList />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/dashboard" element={
+                      <ProtectedAdminRoute>
+                        <SpaDashboard />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/quizlist" element={
+                      <ProtectedAdminRoute>
+                        <QuizList />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/quizlist/:id" element={
+                      <ProtectedAdminRoute>
+                        <QuizDetail />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/recommend-service" element={
+                      <ProtectedAdminRoute>
+                        <RecommendService />
+                      </ProtectedAdminRoute>
+                    } />
+                    <Route path="/admin/reports" element={
+                      <ProtectedAdminRoute>
+                        <Reports />
+                      </ProtectedAdminRoute>
+                    } />
                     
                     {/* Staff Routes - Được bảo vệ bởi ProtectedStaffRoute */}
                     <Route path="/staff" element={
@@ -110,8 +199,11 @@ function App() {
                         <Route path="settings" element={<StaffSettings />} />
                     </Route>
                     {/* therapist 2 routes */}
-                    <Route path="/therapist2" element={<TherapistLayout  />} >
-                    
+                    <Route path="/therapist2" element={
+                      <ProtectedTherapistRoute>
+                        <TherapistLayout />
+                      </ProtectedTherapistRoute>
+                    }>
                         <Route index element={<TherapistDashboard />} />
                         <Route path="schedule" element={<TherapistSchedule />} />
                         <Route path="settings" element={<TherapistSettings />} />

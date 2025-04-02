@@ -6,6 +6,7 @@ export const getAllTherapists = async () => {
         return response.data;
     } catch (error) {
         handleError(error);
+        throw error; // Ném lỗi để caller có thể xử lý
     }
 };
 
@@ -15,6 +16,7 @@ export const getTherapistById = async (id) => {
         return response.data;
     } catch (error) {
         handleError(error);
+        throw error;
     }
 };
 
@@ -22,49 +24,46 @@ export const createTherapist = async (therapistData, thumbnailFile) => {
     try {
         const formData = new FormData();
         
-        // Thêm dữ liệu therapist vào FormData
-        formData.append("therapist", new Blob([JSON.stringify(therapistData)], {
-            type: "application/json"
-        }));
+        // Thêm dữ liệu therapist vào FormData - không dùng Blob
+        formData.append("therapist", JSON.stringify(therapistData));
 
         // Thêm file hình ảnh nếu có
         if (thumbnailFile) {
             formData.append("thumbnail", thumbnailFile);
         }
 
-        const response = await api.post('/api/therapists/create', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+        const response = await api.post('/api/therapists/create', formData);
         
         return response.data;
     } catch (error) {
         handleError(error);
+        throw error;
     }
 };
 
 export const updateTherapist = async (id, therapistData, thumbnailFile) => {
     try {
+        console.log(`Updating therapist ${id} with data:`, therapistData);
+        
         const formData = new FormData();
         
-        formData.append("therapist", new Blob([JSON.stringify(therapistData)], {
-            type: "application/json"
-        }));
+        // Thêm dữ liệu therapist vào FormData - không dùng Blob để giống Postman
+        formData.append("therapist", JSON.stringify(therapistData));
 
         if (thumbnailFile) {
             formData.append("thumbnail", thumbnailFile);
+            console.log("Including thumbnail in update");
         }
 
-        const response = await api.put(`/api/therapists/update/${id}`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+        const response = await api.put(`/api/therapists/update/${id}`, formData);
+        console.log("Update therapist response:", response.data);
         
         return response.data;
     } catch (error) {
+        console.error("Error in updateTherapist:", error);
+        console.error("Response data:", error.response?.data);
         handleError(error);
+        throw error;
     }
 };
 
@@ -74,23 +73,25 @@ export const deleteTherapist = async (id) => {
         return response.data;
     } catch (error) {
         handleError(error);
+        throw error;
     }
 };
 
-const loadTherapists = async () => {
+// Hàm tiện ích để sử dụng trong component
+export const loadTherapistsList = async (setTherapists, setError) => {
     try {
         const response = await getAllTherapists();
-        if (response.code === 1000) {
-            setTherapists(response.result);
+        if (response && response.code === 1000) {
+            setTherapists(response.result || []);
+            return true;
+        } else {
+            throw new Error(response?.message || "Không thể tải danh sách chuyên viên");
         }
     } catch (error) {
-        // Nếu là lỗi không tìm thấy therapist
-        if (error.response?.data?.code === 1014) { // Giả sử 1014 là THERAPIST_NOT_FOUND
-            setTherapists([]); // Set empty array
-            // Có thể hiển thị thông báo "Chưa có chuyên viên nào"
-        } else {
-            // Xử lý các lỗi khác
-            console.error("Lỗi khi tải danh sách chuyên viên:", error);
+        console.error("Lỗi khi tải danh sách chuyên viên:", error);
+        if (setError) {
+            setError("Không thể tải danh sách chuyên viên. Vui lòng thử lại sau.");
         }
+        return false;
     }
 };
